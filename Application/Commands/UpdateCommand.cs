@@ -3,15 +3,9 @@ using TaskTracker.Domain;
 
 namespace TaskTracker.Application.Commands;
 
-public class UpdateCommand : ICommand
+ 
+public class UpdateCommand(ITaskRepository repository) : ICommand
 {
-    private readonly ITaskRepository _repository;
-
-    public UpdateCommand(ITaskRepository repository)
-    {
-        _repository = repository;
-    }
-
     public string Name => "update";
     public string Description => "Updates a task description. Usage: update <id> <new description>";
 
@@ -29,7 +23,7 @@ public class UpdateCommand : ICommand
             return;
         }
 
-        var task = _repository.GetById(id);
+        var task = repository.GetById(id);
         if (task == null)
         {
             Console.WriteLine($"Error: Task with ID {id} not found.");
@@ -38,7 +32,7 @@ public class UpdateCommand : ICommand
 
         string newDescription = args[1];
         var updatedTask = task.UpdateDescription(newDescription);
-        _repository.Update(updatedTask);
+        repository.Update(updatedTask);
         
         Console.WriteLine($"Task {id} updated successfully.");
     }

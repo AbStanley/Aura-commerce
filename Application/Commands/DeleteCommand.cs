@@ -3,15 +3,9 @@ using TaskTracker.Domain;
 
 namespace TaskTracker.Application.Commands;
 
-public class DeleteCommand : ICommand
+ 
+public class DeleteCommand(ITaskRepository repository) : ICommand
 {
-    private readonly ITaskRepository _repository;
-
-    public DeleteCommand(ITaskRepository repository)
-    {
-        _repository = repository;
-    }
-
     public string Name => "delete";
     public string Description => "Deletes a task. Usage: delete <id>";
 
@@ -29,7 +23,7 @@ public class DeleteCommand : ICommand
             return;
         }
 
-        if (_repository.Delete(id))
+        if (repository.Delete(id))
         {
             Console.WriteLine($"Task {id} deleted successfully.");
         }

@@ -5,5 +5,19 @@
     "Status": "in-progress",
     "CreatedAt": "2026-01-30T11:10:08.095691+01:00",
     "UpdatedAt": "2026-01-30T11:10:11.5404668+01:00"
+  },
+  {
+    "Id": 2,
+    "Description": "My New Task",
+    "Status": "todo",
+    "CreatedAt": "2026-01-30T11:14:57.043299+01:00",
+    "UpdatedAt": "2026-01-30T11:14:57.0433413+01:00"
+  },
+  {
+    "Id": 3,
+    "Description": "Start from REPL",
+    "Status": "todo",
+    "CreatedAt": "2026-01-30T11:16:53.6402445+01:00",
+    "UpdatedAt": "2026-01-30T11:16:53.6403162+01:00"
   }
 ]

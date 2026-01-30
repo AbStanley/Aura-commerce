@@ -5,15 +5,9 @@ using TaskTracker.Domain;
 
 namespace TaskTracker.Application.Commands;
 
-public class ListCommand : ICommand
+ 
+public class ListCommand(ITaskRepository repository) : ICommand
 {
-    private readonly ITaskRepository _repository;
-
-    public ListCommand(ITaskRepository repository)
-    {
-        _repository = repository;
-    }
-
     public string Name => "list";
     public string Description => "Lists tasks. Usage: list [status]";
 
@@ -29,11 +23,11 @@ public class ListCommand : ICommand
                 Console.WriteLine("Error: Invalid status. Use 'todo', 'in-progress', or 'done'.");
                 return;
             }
-            tasks = _repository.GetByStatus(status);
+            tasks = repository.GetByStatus(status);
         }
         else
         {
-            tasks = _repository.GetAll();
+            tasks = repository.GetAll();
         }
 
         var taskList = tasks.ToList();

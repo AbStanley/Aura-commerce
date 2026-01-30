@@ -1,68 +1,125 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using TaskTracker.Application.Commands;
 using TaskTracker.Domain;
 using TaskTracker.Infrastructure;
 
-namespace TaskTracker;
+// 1. Dependency Injection Composition Root
+ITaskRepository repository = new FileTaskRepository();
 
-class Program
+// 2. Command Registration
+// Using a dictionary for O(1) lookup - Strategy/Command Pattern
+Dictionary<string, ICommand> commands = new List<ICommand>
 {
-    static void Main(string[] args)
+    new AddCommand(repository),
+    new UpdateCommand(repository),
+    new DeleteCommand(repository),
+    new ChangeStatusCommand(repository, "mark-in-progress", "in-progress"),
+    new ChangeStatusCommand(repository, "mark-done", "done"),
+    new ListCommand(repository)
+}.ToDictionary(c => c.Name, StringComparer.OrdinalIgnoreCase);
+
+// 3. Argument Parsing & Execution
+if (args.Length > 0)
+{
+    HandleCommand(commands, args);
+}
+else
+{
+    RunInteractiveMode(commands);
+}
+
+static void RunInteractiveMode(Dictionary<string, ICommand> commands)
+{
+    Console.WriteLine("Task Tracker Interactive Mode");
+    Console.WriteLine("Type 'help' to see commands, or 'exit' to quit.");
+    Console.WriteLine("---------------------------------------------");
+
+    while (true)
     {
-        // 1. Dependency Injection Composition Root
-        ITaskRepository repository = new FileTaskRepository();
+        Console.Write("task-cli > ");
+        string? input = Console.ReadLine();
 
-        // 2. Command Registration
-        // Using a dictionary for O(1) lookup - Strategy/Command Pattern
-        var commands = new List<ICommand>
-        {
-            new AddCommand(repository),
-            new UpdateCommand(repository),
-            new DeleteCommand(repository),
-            new ChangeStatusCommand(repository, "mark-in-progress", "in-progress"),
-            new ChangeStatusCommand(repository, "mark-done", "done"),
-            new ListCommand(repository)
-        }.ToDictionary(c => c.Name, StringComparer.OrdinalIgnoreCase);
+        if (string.IsNullOrWhiteSpace(input)) continue;
 
-        // 3. Argument Parsing & Execution
-        if (args.Length == 0)
+        if (input.Trim().Equals("exit", StringComparison.OrdinalIgnoreCase) || 
+            input.Trim().Equals("quit", StringComparison.OrdinalIgnoreCase))
         {
-            ShowHelp(commands.Values);
-            return;
+            break;
         }
 
-        string commandName = args[0];
-        if (commands.TryGetValue(commandName, out var command))
+        var parsedArgs = ParseArguments(input);
+        HandleCommand(commands, parsedArgs);
+    }
+}
+
+static void HandleCommand(Dictionary<string, ICommand> commands, string[] args)
+{
+    if (args.Length == 0) return;
+
+    string commandName = args[0];
+    if (commands.TryGetValue(commandName, out var command))
+    {
+        string[] commandArgs = args.Length > 1 ? args[1..] : [];
+        try
         {
-            // Pass the rest of the arguments (skip the command name)
-            string[] commandArgs = args.Length > 1 ? args[1..] : Array.Empty<string>();
-            try
+            command.Execute(commandArgs);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"An unexpected error occurred: {ex.Message}");
+        }
+    }
+    else if (commandName.Equals("help", StringComparison.OrdinalIgnoreCase))
+    {
+        ShowHelp(commands.Values);
+    }
+    else
+    {
+        Console.WriteLine($"Unknown command: {commandName}");
+        Console.WriteLine("Type 'help' for a list of commands.");
+    }
+}
+
+static string[] ParseArguments(string commandLine)
+{
+    List<string> args = [];
+    StringBuilder currentArg = new();
+    bool inQuotes = false;
+
+    foreach (char c in commandLine)
+    {
+        if (c == '"')
+        {
+            inQuotes = !inQuotes;
+        }
+        else if (c == ' ' && !inQuotes)
+        {
+            if (currentArg.Length > 0)
             {
-                command.Execute(commandArgs);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"An unexpected error occurred: {ex.Message}");
+                args.Add(currentArg.ToString());
+                currentArg.Clear();
             }
         }
         else
         {
-            Console.WriteLine($"Unknown command: {commandName}");
-            ShowHelp(commands.Values);
+            currentArg.Append(c);
         }
     }
 
-    static void ShowHelp(IEnumerable<ICommand> commands)
+    if (currentArg.Length > 0) args.Add(currentArg.ToString());
+
+    return [.. args];
+}
+
+static void ShowHelp(IEnumerable<ICommand> commands)
+{
+    Console.WriteLine("\nAvailable Commands:");
+    foreach (var cmd in commands)
     {
-        Console.WriteLine("Task Tracker CLI");
-        Console.WriteLine("Usage: task-cli <command> [arguments]");
-        Console.WriteLine("\nAvailable Commands:");
-        
-        foreach (var cmd in commands)
-        {
-            Console.WriteLine($"  {cmd.Name.PadRight(20)} {cmd.Description}");
-        }
+        Console.WriteLine($"  {cmd.Name.PadRight(20)} {cmd.Description}");
     }
+    Console.WriteLine($"  {"exit/quit".PadRight(20)} Exits the interactive mode");
 }

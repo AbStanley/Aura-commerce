@@ -3,15 +3,9 @@ using TaskTracker.Domain;
 
 namespace TaskTracker.Application.Commands;
 
-public class AddCommand : ICommand
+ 
+public class AddCommand(ITaskRepository repository) : ICommand
 {
-    private readonly ITaskRepository _repository;
-
-    public AddCommand(ITaskRepository repository)
-    {
-        _repository = repository;
-    }
-
     public string Name => "add";
     public string Description => "Adds a new task. Usage: add <description>";
 
@@ -24,10 +18,10 @@ public class AddCommand : ICommand
         }
 
         string description = args[0];
-        int newId = _repository.GetNextId();
+        int newId = repository.GetNextId();
         var newTask = TaskItem.Create(newId, description);
         
-        _repository.Add(newTask);
+        repository.Add(newTask);
         Console.WriteLine($"Task added successfully (ID: {newId})");
     }
 }

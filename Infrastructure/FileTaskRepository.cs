@@ -7,35 +7,29 @@ using TaskTracker.Domain;
 
 namespace TaskTracker.Infrastructure;
 
-public class FileTaskRepository : ITaskRepository
+ 
+public class FileTaskRepository(string filePath = "tasks.json") : ITaskRepository
 {
-    private readonly string _filePath;
-    private readonly JsonSerializerOptions _jsonOptions;
-
-    public FileTaskRepository(string filePath = "tasks.json")
-    {
-        _filePath = filePath;
-        _jsonOptions = new JsonSerializerOptions { WriteIndented = true };
-    }
+    private readonly JsonSerializerOptions _jsonOptions = new() { WriteIndented = true };
 
     private List<TaskItem> LoadTasks()
     {
-        if (!File.Exists(_filePath)) return new List<TaskItem>();
+        if (!File.Exists(filePath)) return [];
         try
         {
-            string json = File.ReadAllText(_filePath);
-            return JsonSerializer.Deserialize<List<TaskItem>>(json) ?? new List<TaskItem>();
+            string json = File.ReadAllText(filePath);
+            return JsonSerializer.Deserialize<List<TaskItem>>(json) ?? [];
         }
         catch
         {
-            return new List<TaskItem>();
+            return [];
         }
     }
 
     private void SaveTasks(List<TaskItem> tasks)
     {
         string json = JsonSerializer.Serialize(tasks, _jsonOptions);
-        File.WriteAllText(_filePath, json);
+        File.WriteAllText(filePath, json);
     }
 
     public int Add(TaskItem task)
@@ -87,6 +81,6 @@ public class FileTaskRepository : ITaskRepository
     public int GetNextId()
     {
         var tasks = LoadTasks();
-        return tasks.Any() ? tasks.Max(t => t.Id) + 1 : 1;
+        return tasks.Count > 0 ? tasks.Max(t => t.Id) + 1 : 1;
     }
 }

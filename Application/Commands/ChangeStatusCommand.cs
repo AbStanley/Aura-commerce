@@ -3,21 +3,11 @@ using TaskTracker.Domain;
 
 namespace TaskTracker.Application.Commands;
 
-public class ChangeStatusCommand : ICommand
+ 
+public class ChangeStatusCommand(ITaskRepository repository, string commandName, string targetStatus) : ICommand
 {
-    private readonly ITaskRepository _repository;
-    private readonly string _targetStatus;
-    private readonly string _commandName;
-
-    public ChangeStatusCommand(ITaskRepository repository, string commandName, string targetStatus)
-    {
-        _repository = repository;
-        _commandName = commandName;
-        _targetStatus = targetStatus;
-    }
-
-    public string Name => _commandName;
-    public string Description => $"Marks a task as {_targetStatus}. Usage: {_commandName} <id>";
+    public string Name => commandName;
+    public string Description => $"Marks a task as {targetStatus}. Usage: {commandName} <id>";
 
     public void Execute(string[] args)
     {
@@ -33,16 +23,16 @@ public class ChangeStatusCommand : ICommand
             return;
         }
 
-        var task = _repository.GetById(id);
+        var task = repository.GetById(id);
         if (task == null)
         {
             Console.WriteLine($"Error: Task with ID {id} not found.");
             return;
         }
 
-        var updatedTask = task.UpdateStatus(_targetStatus);
-        _repository.Update(updatedTask);
+        var updatedTask = task.UpdateStatus(targetStatus);
+        repository.Update(updatedTask);
         
-        Console.WriteLine($"Task {id} marked as {_targetStatus}.");
+        Console.WriteLine($"Task {id} marked as {targetStatus}.");
     }
 }
