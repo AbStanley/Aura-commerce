@@ -1,0 +1,14 @@
+C:\Users\stanl\Documents\GitHub\coding-challenges\task-tracker\bin\Debug\net10.0\TaskTracker.exe
+C:\Users\stanl\Documents\GitHub\coding-challenges\task-tracker\bin\Debug\net10.0\TaskTracker.deps.json
+C:\Users\stanl\Documents\GitHub\coding-challenges\task-tracker\bin\Debug\net10.0\TaskTracker.runtimeconfig.json
+C:\Users\stanl\Documents\GitHub\coding-challenges\task-tracker\bin\Debug\net10.0\TaskTracker.dll
+C:\Users\stanl\Documents\GitHub\coding-challenges\task-tracker\bin\Debug\net10.0\TaskTracker.pdb
+C:\Users\stanl\Documents\GitHub\coding-challenges\task-tracker\obj\Debug\net10.0\TaskTracker.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\stanl\Documents\GitHub\coding-challenges\task-tracker\obj\Debug\net10.0\TaskTracker.AssemblyInfoInputs.cache
+C:\Users\stanl\Documents\GitHub\coding-challenges\task-tracker\obj\Debug\net10.0\TaskTracker.AssemblyInfo.cs
+C:\Users\stanl\Documents\GitHub\coding-challenges\task-tracker\obj\Debug\net10.0\TaskTracker.csproj.CoreCompileInputs.cache
+C:\Users\stanl\Documents\GitHub\coding-challenges\task-tracker\obj\Debug\net10.0\TaskTracker.dll
+C:\Users\stanl\Documents\GitHub\coding-challenges\task-tracker\obj\Debug\net10.0\refint\TaskTracker.dll
+C:\Users\stanl\Documents\GitHub\coding-challenges\task-tracker\obj\Debug\net10.0\TaskTracker.pdb
+C:\Users\stanl\Documents\GitHub\coding-challenges\task-tracker\obj\Debug\net10.0\TaskTracker.genruntimeconfig.cache
+C:\Users\stanl\Documents\GitHub\coding-challenges\task-tracker\obj\Debug\net10.0\ref\TaskTracker.dll
