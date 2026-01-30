@@ -85,7 +85,14 @@ alias task-cli="dotnet run --project /path/to/TaskTracker.csproj --"
 
 ## Project Structure
 
-- `Program.cs`: Entry point and CLI command handling.
-- `TaskItem.cs`: Model representing a task.
-- `TaskRepository.cs`: Handles data persistence to `tasks.json`.
-- `tasks.json`: Stores the tasks (created automatically).
+The project follows a **Clean Architecture** approach to ensure maintainability and adherence to SOLID principles:
+
+- **Domain/**: Contains the core business logic and entities.
+  - `TaskItem.cs`: Immutable record representing a task.
+  - `ITaskRepository.cs`: Abstract interface for data persistence.
+- **Infrastructure/**: Contains implementation details.
+  - `FileTaskRepository.cs`: Concrete implementation of the repository using JSON file storage.
+- **Application/Commands/**: Contains the Command Pattern implementations.
+  - `ICommand.cs`: Command interface.
+  - `AddCommand.cs`, `ListCommand.cs`, etc.: Specific command logic.
+- **Program.cs**: Entry point and Composition Root. Connects dependencies and routes commands.

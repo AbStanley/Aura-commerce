@@ -1,1 +1,9 @@
-[]
+[
+  {
+    "Id": 1,
+    "Description": "Refactored Task",
+    "Status": "in-progress",
+    "CreatedAt": "2026-01-30T11:10:08.095691+01:00",
+    "UpdatedAt": "2026-01-30T11:10:11.5404668+01:00"
+  }
+]

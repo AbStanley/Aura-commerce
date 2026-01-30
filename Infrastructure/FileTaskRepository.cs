@@ -1,0 +1,92 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text.Json;
+using TaskTracker.Domain;
+
+namespace TaskTracker.Infrastructure;
+
+public class FileTaskRepository : ITaskRepository
+{
+    private readonly string _filePath;
+    private readonly JsonSerializerOptions _jsonOptions;
+
+    public FileTaskRepository(string filePath = "tasks.json")
+    {
+        _filePath = filePath;
+        _jsonOptions = new JsonSerializerOptions { WriteIndented = true };
+    }
+
+    private List<TaskItem> LoadTasks()
+    {
+        if (!File.Exists(_filePath)) return new List<TaskItem>();
+        try
+        {
+            string json = File.ReadAllText(_filePath);
+            return JsonSerializer.Deserialize<List<TaskItem>>(json) ?? new List<TaskItem>();
+        }
+        catch
+        {
+            return new List<TaskItem>();
+        }
+    }
+
+    private void SaveTasks(List<TaskItem> tasks)
+    {
+        string json = JsonSerializer.Serialize(tasks, _jsonOptions);
+        File.WriteAllText(_filePath, json);
+    }
+
+    public int Add(TaskItem task)
+    {
+        var tasks = LoadTasks();
+        tasks.Add(task);
+        SaveTasks(tasks);
+        return task.Id;
+    }
+
+    public bool Update(TaskItem task)
+    {
+        var tasks = LoadTasks();
+        var index = tasks.FindIndex(t => t.Id == task.Id);
+        if (index == -1) return false;
+
+        tasks[index] = task;
+        SaveTasks(tasks);
+        return true;
+    }
+
+    public bool Delete(int id)
+    {
+        var tasks = LoadTasks();
+        var task = tasks.FirstOrDefault(t => t.Id == id);
+        if (task == null) return false;
+
+        tasks.Remove(task);
+        SaveTasks(tasks);
+        return true;
+    }
+
+    public TaskItem? GetById(int id)
+    {
+        return LoadTasks().FirstOrDefault(t => t.Id == id);
+    }
+
+    public IEnumerable<TaskItem> GetAll()
+    {
+        return LoadTasks();
+    }
+
+    public IEnumerable<TaskItem> GetByStatus(string status)
+    {
+        // Case-insensitive comparison
+        return LoadTasks().Where(t => t.Status.Equals(status, StringComparison.OrdinalIgnoreCase));
+    }
+
+    public int GetNextId()
+    {
+        var tasks = LoadTasks();
+        return tasks.Any() ? tasks.Max(t => t.Id) + 1 : 1;
+    }
+}
