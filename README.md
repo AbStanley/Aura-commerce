@@ -38,6 +38,16 @@ cd apps/task-cli
 dotnet run
 ```
 
+Option 3: **Run via Docker** 🐳
+You can run the application in a container without installing .NET locally.
+```bash
+# Run Interactive Mode
+docker compose run --rm task-cli
+
+# Run Single Command
+docker compose run --rm task-cli add "Task from Docker"
+```
+
 **Features:**
 - Add, List, Update, Delete tasks.
 - Interactive REPL mode.
