@@ -4,19 +4,16 @@ using PersonalBlog.Core.Interfaces;
 
 namespace PersonalBlog.Infrastructure.Repositories;
 
-public class JsonFileArticleRepository : IArticleRepository
+public class JsonFileArticleRepository(string contentRootPath) : IArticleRepository
 {
-    private readonly string _storagePath;
-    private readonly JsonSerializerOptions _jsonOptions;
+    private readonly string _storagePath = InitializePath(contentRootPath);
+    private readonly JsonSerializerOptions _jsonOptions = new() { WriteIndented = true };
 
-    public JsonFileArticleRepository(string contentRootPath)
+    private static string InitializePath(string rootPath)
     {
-        _storagePath = Path.Combine(contentRootPath, "data");
-        if (!Directory.Exists(_storagePath))
-        {
-            Directory.CreateDirectory(_storagePath);
-        }
-        _jsonOptions = new JsonSerializerOptions { WriteIndented = true };
+        var path = Path.Combine(rootPath, "data");
+        Directory.CreateDirectory(path); // Safe to call if exists
+        return path;
     }
 
     private string GetFilePath(Guid id) => Path.Combine(_storagePath, $"{id}.json");
@@ -24,22 +21,22 @@ public class JsonFileArticleRepository : IArticleRepository
     public async Task<IEnumerable<Article>> GetAllAsync()
     {
         var files = Directory.GetFiles(_storagePath, "*.json");
-        var articles = new List<Article>();
+        List<Article> articles = [];
 
         foreach (var file in files)
         {
             try 
             {
-                using var stream = File.OpenRead(file);
+                await using var stream = File.OpenRead(file);
                 var article = await JsonSerializer.DeserializeAsync<Article>(stream, _jsonOptions);
-                if (article != null)
+                if (article is not null)
                 {
                     articles.Add(article);
                 }
             }
-            catch (Exception)
+            catch
             {
-                // Ignore corrupted files for now, or log if we had a logger
+                // Ignore corrupted files
             }
         }
 
@@ -51,22 +48,18 @@ public class JsonFileArticleRepository : IArticleRepository
         var path = GetFilePath(id);
         if (!File.Exists(path)) return null;
 
-        using var stream = File.OpenRead(path);
+        await using var stream = File.OpenRead(path);
         return await JsonSerializer.DeserializeAsync<Article>(stream, _jsonOptions);
     }
 
     public async Task AddAsync(Article article)
     {
         var path = GetFilePath(article.Id);
-        using var stream = File.Create(path);
+        await using var stream = File.Create(path);
         await JsonSerializer.SerializeAsync(stream, article, _jsonOptions);
     }
 
-    public async Task UpdateAsync(Article article)
-    {
-       // Same as Add for file storage (overwrite)
-       await AddAsync(article);
-    }
+    public Task UpdateAsync(Article article) => AddAsync(article);
 
     public Task DeleteAsync(Guid id)
     {
