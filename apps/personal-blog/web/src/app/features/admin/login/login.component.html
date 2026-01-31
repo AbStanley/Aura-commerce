@@ -1,0 +1,21 @@
+<div class="container login-container">
+    <div class="card login-card">
+        <h2>Admin Login</h2>
+        <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+            <div>
+                <label for="username">Username</label>
+                <input id="username" type="text" formControlName="username" placeholder="Enter username (admin)">
+            </div>
+            <div>
+                <label for="password">Password</label>
+                <input id="password" type="password" formControlName="password" placeholder="Enter password (admin)">
+            </div>
+
+            <p *ngIf="error" class="error">{{ error }}</p>
+
+            <button type="submit" class="btn" [disabled]="loginForm.invalid || loading">
+                {{ loading ? 'Logging in...' : 'Login' }}
+            </button>
+        </form>
+    </div>
+</div>

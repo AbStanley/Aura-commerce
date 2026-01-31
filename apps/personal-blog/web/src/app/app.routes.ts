@@ -2,7 +2,7 @@ import { Routes, Router } from '@angular/router';
 import { HomeComponent } from './features/guest/home.component';
 import { ArticleDetailComponent } from './features/guest/article-detail.component';
 import { LoginComponent } from './features/admin/login.component';
-import { DashboardComponent } from './features/admin/dashboard.component';
+import { DashboardComponent } from './features/admin/dashboard/dashboard.component';
 import { EditorComponent } from './features/admin/editor.component';
 import { inject } from '@angular/core';
 import { AuthService } from './core/services/auth.service';
