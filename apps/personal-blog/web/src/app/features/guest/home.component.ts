@@ -5,10 +5,10 @@ import { ArticleService } from '../../core/services/article.service';
 import { toSignal } from '@angular/core/rxjs-interop';
 
 @Component({
-    selector: 'app-home',
-    standalone: true,
-    imports: [CommonModule, RouterLink],
-    template: `
+  selector: 'app-home',
+  standalone: true,
+  imports: [CommonModule, RouterLink],
+  template: `
     <div class="container">
       <header class="hero">
         <h1>Welcome to My Blog</h1>
@@ -29,7 +29,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
       </div>
     </div>
   `,
-    styles: [`
+  styles: [`
     .hero {
       text-align: center;
       padding: 4rem 0;
@@ -56,6 +56,6 @@ import { toSignal } from '@angular/core/rxjs-interop';
   `]
 })
 export class HomeComponent {
-    private articleService = inject(ArticleService);
-    articles = toSignal(this.articleService.getArticles(), { initialValue: [] });
+  private articleService = inject(ArticleService);
+  articles = toSignal(this.articleService.getArticles(), { initialValue: [] });
 }
