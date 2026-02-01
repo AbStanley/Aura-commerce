@@ -1,7 +1,9 @@
-import { Component, inject, input, effect, signal } from '@angular/core';
+import { Component, inject, input, effect, computed, Signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router, ActivatedRoute, ParamMap } from '@angular/router';
+import { Router } from '@angular/router';
+import { toSignal, toObservable } from '@angular/core/rxjs-interop';
+import { switchMap, of } from 'rxjs';
 import { ArticleService } from '../../../core/services/article.service';
 import { Article } from '../../../core/models/article.model';
 
@@ -16,7 +18,6 @@ export class EditorComponent {
     private fb = inject(FormBuilder);
     private articleService = inject(ArticleService);
     private router = inject(Router);
-    private route = inject(ActivatedRoute);
 
     articleForm = this.fb.group({
         title: ['', Validators.required],
@@ -24,27 +25,30 @@ export class EditorComponent {
     });
 
     loading = false;
-    isEditing = signal(false);
-    currentId: string | null = null;
+    id = input<string>();
+    isEditing = computed(() => !!this.id());
+
+    private id$ = toObservable(this.id);
+
+    article = toSignal(
+        this.id$.pipe(
+            switchMap(id => {
+                if (!id) return of(null);
+                return this.articleService.getArticle(id);
+            })
+        ),
+        { initialValue: null }
+    );
 
     constructor() {
-        // Check for ID param
-        this.route.paramMap.subscribe((params: ParamMap) => {
-            const id = params.get('id');
-            if (id) {
-                this.isEditing.set(true);
-                this.currentId = id;
-                this.loadArticle(id);
+        effect(() => {
+            const article = this.article();
+            if (article) {
+                this.articleForm.patchValue({
+                    title: article.title,
+                    content: article.content
+                });
             }
-        });
-    }
-
-    loadArticle(id: string) {
-        this.articleService.getArticle(id).subscribe((article: Article) => {
-            this.articleForm.patchValue({
-                title: article.title,
-                content: article.content
-            });
         });
     }
 
@@ -59,9 +63,9 @@ export class EditorComponent {
             content: formValue.content
         };
 
-        if (this.isEditing() && this.currentId) {
-            articleData.id = this.currentId;
-            this.articleService.updateArticle(this.currentId, articleData).subscribe({
+        if (this.isEditing() && this.id()) {
+            articleData.id = this.id();
+            this.articleService.updateArticle(this.id()!, articleData).subscribe({
                 next: () => this.router.navigate(['/admin']),
                 error: () => this.loading = false
             });

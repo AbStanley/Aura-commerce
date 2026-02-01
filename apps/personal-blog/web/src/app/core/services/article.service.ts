@@ -8,9 +8,6 @@ import { Article } from '../models/article.model';
 })
 export class ArticleService {
     private http = inject(HttpClient);
-    // Assuming proxy or direct call. We'll use absolute URL for now to be safe or relative if proxy.
-    // Using direct URL from defaults (usually 5000-5xxx).
-    // Let's assume we configure proxy later or use CORS.
     private apiUrl = 'http://localhost:5000/api/articles';
 
     constructor() { }
