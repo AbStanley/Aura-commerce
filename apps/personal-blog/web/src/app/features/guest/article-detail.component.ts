@@ -2,7 +2,7 @@ import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ArticleService } from '../../core/services/article.service';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink, ParamMap } from '@angular/router';
 import { map, switchMap, of } from 'rxjs';
 
 @Component({
@@ -52,8 +52,8 @@ export class ArticleDetailComponent {
 
   article = toSignal(
     this.route.paramMap.pipe(
-      map(params => params.get('id')),
-      switchMap(id => id ? this.articleService.getArticle(id) : of(null))
+      map((params: ParamMap) => params.get('id')),
+      switchMap((id: string | null) => id ? this.articleService.getArticle(id) : of(null))
     ),
     { initialValue: null }
   );
