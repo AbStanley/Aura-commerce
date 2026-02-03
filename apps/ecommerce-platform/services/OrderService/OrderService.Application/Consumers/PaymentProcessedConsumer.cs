@@ -16,6 +16,8 @@ public sealed class PaymentStatusConsumer(IOrderRepository orderRepository)
 
         if (order == null) return;
 
+        // Domain Rule: Pending -> Authorized -> Captured
+        order.MarkPaymentAuthorized(message.TransactionId);
         order.MarkPaymentCaptured();
         order.Confirm();
         
