@@ -1,0 +1,172 @@
+services:
+  # Infrastructure
+  postgres:
+    image: postgres:15-alpine
+    container_name: ecommerce-postgres
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: ecommerce_db
+    ports:
+      - "5432:5432"
+    networks:
+      - ecommerce-network
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:alpine
+    container_name: ecommerce-redis
+    ports:
+      - "6379:6379"
+    networks:
+      - ecommerce-network
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: ecommerce-rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - ecommerce-network
+
+  seq:
+    image: datalust/seq
+    container_name: ecommerce-seq
+    environment:
+      ACCEPT_EULA: "Y"
+    ports:
+      - "5341:5341"
+      - "8081:80"
+    networks:
+      - ecommerce-network
+
+  # Microservices
+  user-service:
+    build:
+      context: .
+      dockerfile: apps/ecommerce-platform/services/UserService/Dockerfile
+    container_name: user-service
+    environment:
+      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=ecommerce_users;Username=admin;Password=password;
+      - Seq__ServerUrl=http://seq:5341
+    depends_on:
+      - postgres
+      - seq
+    networks:
+      - ecommerce-network
+
+  product-service:
+    build:
+      context: .
+      dockerfile: apps/ecommerce-platform/services/ProductCatalogService/Dockerfile
+    container_name: product-service
+    environment:
+      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=ecommerce_products;Username=admin;Password=password;
+      - Seq__ServerUrl=http://seq:5341
+    depends_on:
+      - postgres
+      - seq
+    networks:
+      - ecommerce-network
+
+  cart-service:
+    build:
+      context: .
+      dockerfile: apps/ecommerce-platform/services/ShoppingCartService/Dockerfile
+    container_name: cart-service
+    environment:
+      - ConnectionStrings__Redis=redis:6379
+      - Seq__ServerUrl=http://seq:5341
+    depends_on:
+      - redis
+      - seq
+    networks:
+      - ecommerce-network
+
+  order-service:
+    build:
+      context: .
+      dockerfile: apps/ecommerce-platform/services/OrderService/Dockerfile
+    container_name: order-service
+    environment:
+      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=ecommerce_orders;Username=admin;Password=password;
+      - RabbitMQ__Host=rabbitmq
+      - Seq__ServerUrl=http://seq:5341
+    depends_on:
+      - postgres
+      - rabbitmq
+      - seq
+    networks:
+      - ecommerce-network
+
+  payment-service:
+    build:
+      context: .
+      dockerfile: apps/ecommerce-platform/services/PaymentService/Dockerfile
+    container_name: payment-service
+    environment:
+      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=ecommerce_payments;Username=admin;Password=password;
+      - RabbitMQ__Host=rabbitmq
+      - Seq__ServerUrl=http://seq:5341
+      - Stripe__SecretKey=sk_test_mock
+    depends_on:
+      - postgres
+      - rabbitmq
+      - seq
+    networks:
+      - ecommerce-network
+
+  notification-service:
+    build:
+      context: .
+      dockerfile: apps/ecommerce-platform/services/NotificationService/Dockerfile
+    container_name: notification-service
+    environment:
+      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=ecommerce_notifications;Username=admin;Password=password;
+      - RabbitMQ__Host=rabbitmq
+      - Seq__ServerUrl=http://seq:5341
+    depends_on:
+      - postgres
+      - rabbitmq
+      - seq
+    networks:
+      - ecommerce-network
+
+  gateway:
+    build:
+      context: .
+      dockerfile: apps/ecommerce-platform/gateway/ApiGateway/Dockerfile
+    container_name: api-gateway
+    ports:
+      - "5000:8080"
+    environment:
+      - Seq__ServerUrl=http://seq:5341
+      - Identity__Authority=http://user-service:8080
+      - ReverseProxy__Clusters__user-service__Destinations__destination1__Address=http://user-service:8080
+      - ReverseProxy__Clusters__product-service__Destinations__destination1__Address=http://product-service:8080
+      - ReverseProxy__Clusters__cart-service__Destinations__destination1__Address=http://cart-service:8080
+      - ReverseProxy__Clusters__order-service__Destinations__destination1__Address=http://order-service:8080
+      - ReverseProxy__Clusters__payment-service__Destinations__destination1__Address=http://payment-service:8080
+      - ReverseProxy__Clusters__notification-service__Destinations__destination1__Address=http://notification-service:8080
+    depends_on:
+      - user-service
+      - product-service
+      - cart-service
+      - order-service
+      - payment-service
+      - notification-service
+      - seq
+    networks:
+      - ecommerce-network
+
+networks:
+  ecommerce-network:
+    driver: bridge
+
+volumes:
+  postgres_data:

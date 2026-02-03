@@ -2,6 +2,8 @@ using Serilog;
 using ProductCatalogService.Application.Extensions;
 using ProductCatalogService.Infrastructure.Extensions;
 
+using Shared.Infrastructure.Logging;
+
 Log.Logger = new LoggerConfiguration()
     .WriteTo.Console()
     .CreateLogger();
@@ -11,7 +13,7 @@ try
     var builder = WebApplication.CreateBuilder(args);
 
     builder.Host.UseSerilog((context, configuration) =>
-        configuration.ReadFrom.Configuration(context.Configuration));
+        configuration.ConfigureSharedLogger(context.Configuration, "ProductCatalogService"));
 
     builder.Services.AddControllers();
     builder.Services.AddEndpointsApiExplorer();

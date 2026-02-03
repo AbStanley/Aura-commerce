@@ -3,6 +3,8 @@ using OrderService.Application.Extensions;
 using OrderService.Infrastructure.Extensions;
 using Shared.Infrastructure.Extensions;
 
+using Shared.Infrastructure.Logging;
+
 Log.Logger = new LoggerConfiguration()
     .WriteTo.Console()
     .CreateLogger();
@@ -12,7 +14,7 @@ try
     var builder = WebApplication.CreateBuilder(args);
 
     builder.Host.UseSerilog((context, configuration) =>
-        configuration.ReadFrom.Configuration(context.Configuration));
+        configuration.ConfigureSharedLogger(context.Configuration, "OrderService"));
 
     builder.Services.AddControllers();
     builder.Services.AddEndpointsApiExplorer();
