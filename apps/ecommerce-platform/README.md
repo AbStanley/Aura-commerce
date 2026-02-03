@@ -199,5 +199,29 @@ dotnet test apps/ecommerce-platform/ECommercePlatform.sln
 
 ---
 
+---
+
+## 🧪 Testing
+
+The solution includes comprehensive tools for testing the microservices.
+
+### 🤖 Automated E2E Testing
+A PowerShell script is provided to verify the entire flow (Register -> Login -> Category -> Product -> Cart -> Order -> Payment).
+```powershell
+./test-api.ps1
+```
+
+### 🛠️ Manual Testing (VS Code / Postman)
+Use `api-tests.http` with the **REST Client** extension in VS Code to run individual requests.
+Alternatively, import this file into Postman.
+
+### 🩺 Health Checks
+Check the status of all services:
+```bash
+curl http://localhost:5000/health
+```
+
+---
+
 ## 📜 License
 This project uses **MassTransit v8.3.6** (Apache 2.0) to remain fully open-source and free for production use.

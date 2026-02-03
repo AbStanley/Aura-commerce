@@ -1,5 +1,6 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using Shared.Common.Constants;
 using ProductCatalogService.Application.Features.Products;
 
@@ -10,6 +11,7 @@ public sealed class ProductsController(ISender sender) : ControllerBase
 {
     private readonly ISender _sender = sender;
 
+    [Authorize(Roles = "Admin")]
     [HttpPost(ApiRoutes.Products.Create)]
     public async Task<IActionResult> Create([FromBody] CreateProductCommand command)
     {
@@ -29,6 +31,7 @@ public sealed class ProductsController(ISender sender) : ControllerBase
             : NotFound(new { error = result.Error });
     }
 
+    [Authorize(Roles = "Admin")]
     [HttpPut(ApiRoutes.Products.Update)]
     public async Task<IActionResult> Update(Guid id, [FromBody] UpdateProductRequest request)
     {

@@ -1,5 +1,6 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using Shared.Common.Constants;
 using ProductCatalogService.Application.Features.Categories;
 
@@ -10,6 +11,7 @@ public sealed class CategoriesController(ISender sender) : ControllerBase
 {
     private readonly ISender _sender = sender;
 
+    [Authorize(Roles = "Admin")]
     [HttpPost(ApiRoutes.Categories.Create)]
     public async Task<IActionResult> Create([FromBody] CreateCategoryCommand command)
     {

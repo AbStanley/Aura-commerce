@@ -1,0 +1,100 @@
+@baseUrl = http://localhost:5000
+@email = {{train.response.body.email}}
+@password = TestPass123!
+@userId = {{login.response.body.userId}}
+@token = {{login.response.body.accessToken}}
+@productId = {{create_product.response.body.id}}
+
+### 1. Register User
+# @name train
+POST {{baseUrl}}/api/auth/register
+Content-Type: application/json
+
+{
+    "email": "user-{{$randomInt}}@example.com",
+    "password": "{{password}}",
+    "firstName": "Test",
+    "lastName": "User"
+}
+
+### 2. Login
+# @name login
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+    "email": "{{email}}",
+    "password": "{{password}}"
+}
+
+### 2.5 Create Category
+# @name create_category
+POST {{baseUrl}}/api/categories
+Content-Type: application/json
+
+{
+    "name": "Electronics",
+    "description": "General Electronics"
+}
+
+### 3. Create Product
+# @name create_product
+@categoryId = {{create_category.response.body.categoryId}}
+POST {{baseUrl}}/api/products
+Content-Type: application/json
+# Authorization: Bearer {{token}} (Currently public)
+
+{
+    "name": "Test Product {{$randomInt}}",
+    "description": "High quality testing widget",
+    "price": 99.99,
+    "sku": "SKU-{{$randomInt}}",
+    "stockQuantity": 100,
+    "categoryId": "{{categoryId}}"
+}
+
+### 4. Get Products
+GET {{baseUrl}}/api/products/search?q=test
+Content-Type: application/json
+
+### 5. Add to Cart
+@productId = {{create_product.response.body.productId}}
+POST {{baseUrl}}/api/cart/items
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+    "userId": "{{userId}}",
+    "productId": "{{productId}}",
+    "quantity": 1
+}
+
+### 6. Get Cart
+GET {{baseUrl}}/api/cart?userId={{userId}}
+Authorization: Bearer {{token}}
+
+### 7. Place Order
+# @name place_order
+POST {{baseUrl}}/api/orders
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+    "userId": "{{userId}}",
+    "shippingAddress": {
+        "street": "123 Tech Avenue",
+        "city": "Silicon Valley",
+        "state": "CA",
+        "zipCode": "94000",
+        "country": "USA"
+    }
+}
+
+### 8. Get Order Details
+@orderId = {{place_order.response.body.id}}
+GET {{baseUrl}}/api/orders/{{orderId}}
+Authorization: Bearer {{token}}
+
+### 9. Get Notification History (Simulated check)
+# Assuming an endpoint exists or checking logs manually
+# GET {{baseUrl}}/api/notifications...

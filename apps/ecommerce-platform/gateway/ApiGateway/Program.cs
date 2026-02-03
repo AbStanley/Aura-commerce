@@ -65,7 +65,7 @@ try
                     factory: _ => new FixedWindowRateLimiterOptions
                     {
                         Window = TimeSpan.FromMinutes(1),
-                        PermitLimit = 10,
+                        PermitLimit = 50,
                         QueueLimit = 0
                     });
             }

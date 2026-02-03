@@ -47,15 +47,21 @@ try
     builder.Services.AddAuthorization();
 
     builder.Services.AddCommonHealthChecks(builder.Configuration);
+    
+    // Register Data Seeder
+    builder.Services.AddScoped<UserService.API.Data.DataSeeder>();
 
     var app = builder.Build();
 
-    // Auto-create database schema (development only)
+    // Auto-create database schema and seed data
     if (app.Environment.IsDevelopment())
     {
         using var scope = app.Services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<UserService.Infrastructure.Persistence.UserDbContext>();
         db.Database.EnsureCreated();
+        
+        var seeder = scope.ServiceProvider.GetRequiredService<UserService.API.Data.DataSeeder>();
+        await seeder.SeedAsync();
         
         app.MapOpenApi();
         app.MapScalarApiReference();
