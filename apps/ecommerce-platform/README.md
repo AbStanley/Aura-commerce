@@ -205,11 +205,14 @@ dotnet test apps/ecommerce-platform/ECommercePlatform.sln
 
 The solution includes comprehensive tools for testing the microservices.
 
-### 🤖 Automated E2E Testing
-A PowerShell script is provided to verify the entire flow (Register -> Login -> Category -> Product -> Cart -> Order -> Payment).
+### 🤖 Automated E2E Testing (RBAC & Sagas)
+A robust PowerShell script is provided to verify the entire flow, handling Authentication, Rate Limiting, and Order Sagas.
 ```powershell
-./test-api.ps1
+./apps/ecommerce-platform/verify.ps1
 ```
+*   **Admin Context**: Creates Categories & Products.
+*   **User Context**: Registers, Shops, and Places Orders.
+*   **Security Check**: Verifies that users are forbidden from Admin actions.
 
 ### 🛠️ Manual Testing (VS Code / Postman)
 Use `api-tests.http` with the **REST Client** extension in VS Code to run individual requests.
