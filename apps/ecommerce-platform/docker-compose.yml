@@ -31,6 +31,11 @@ services:
     ports:
       - "5672:5672"
       - "15672:15672"
+    healthcheck:
+      test: [ "CMD", "rabbitmq-diagnostics", "-q", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     networks:
       - ecommerce-network
 
@@ -55,6 +60,9 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=ecommerce_users;Username=${POSTGRES_USER:-admin};Password=${POSTGRES_PASSWORD};
+      - Jwt__Secret=${JWT_SECRET}
+      - Jwt__Issuer=${JWT_ISSUER:-UserService}
+      - Jwt__Audience=${JWT_AUDIENCE:-ECommercePlatform}
       - Seq__ServerUrl=http://seq:5341
     ports:
       - "5001:8080"
@@ -89,6 +97,9 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ConnectionStrings__Redis=redis:6379
+      - Jwt__Secret=${JWT_SECRET}
+      - Jwt__Issuer=${JWT_ISSUER:-UserService}
+      - Jwt__Audience=${JWT_AUDIENCE:-ECommercePlatform}
       - Seq__ServerUrl=http://seq:5341
     ports:
       - "5003:8080"
@@ -107,13 +118,21 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=ecommerce_orders;Username=${POSTGRES_USER:-admin};Password=${POSTGRES_PASSWORD};
       - RabbitMQ__Host=rabbitmq
+      - RabbitMQ__UserName=${RABBITMQ_DEFAULT_USER:-guest}
+      - RabbitMQ__Password=${RABBITMQ_DEFAULT_PASS}
+      - Jwt__Secret=${JWT_SECRET}
+      - Jwt__Issuer=${JWT_ISSUER:-UserService}
+      - Jwt__Audience=${JWT_AUDIENCE:-ECommercePlatform}
       - Seq__ServerUrl=http://seq:5341
     ports:
       - "5004:8080"
     depends_on:
-      - postgres
-      - rabbitmq
-      - seq
+      postgres:
+        condition: service_started
+      rabbitmq:
+        condition: service_healthy
+      seq:
+        condition: service_started
     networks:
       - ecommerce-network
 
@@ -126,14 +145,22 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=ecommerce_payments;Username=${POSTGRES_USER:-admin};Password=${POSTGRES_PASSWORD};
       - RabbitMQ__Host=rabbitmq
+      - RabbitMQ__UserName=${RABBITMQ_DEFAULT_USER:-guest}
+      - RabbitMQ__Password=${RABBITMQ_DEFAULT_PASS}
+      - Jwt__Secret=${JWT_SECRET}
+      - Jwt__Issuer=${JWT_ISSUER:-UserService}
+      - Jwt__Audience=${JWT_AUDIENCE:-ECommercePlatform}
       - Seq__ServerUrl=http://seq:5341
       - Stripe__SecretKey=sk_test_mock
     ports:
       - "5005:8080"
     depends_on:
-      - postgres
-      - rabbitmq
-      - seq
+      postgres:
+        condition: service_started
+      rabbitmq:
+        condition: service_healthy
+      seq:
+        condition: service_started
     networks:
       - ecommerce-network
 
@@ -146,13 +173,21 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=ecommerce_notifications;Username=${POSTGRES_USER:-admin};Password=${POSTGRES_PASSWORD};
       - RabbitMQ__Host=rabbitmq
+      - RabbitMQ__UserName=${RABBITMQ_DEFAULT_USER:-guest}
+      - RabbitMQ__Password=${RABBITMQ_DEFAULT_PASS}
+      - Jwt__Secret=${JWT_SECRET}
+      - Jwt__Issuer=${JWT_ISSUER:-UserService}
+      - Jwt__Audience=${JWT_AUDIENCE:-ECommercePlatform}
       - Seq__ServerUrl=http://seq:5341
     ports:
       - "5006:8080"
     depends_on:
-      - postgres
-      - rabbitmq
-      - seq
+      postgres:
+        condition: service_started
+      rabbitmq:
+        condition: service_healthy
+      seq:
+        condition: service_started
     networks:
       - ecommerce-network
 
@@ -166,7 +201,9 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - Seq__ServerUrl=http://seq:5341
-      - Identity__Authority=http://user-service:8080
+      - Jwt__Secret=${JWT_SECRET}
+      - Jwt__Issuer=${JWT_ISSUER:-UserService}
+      - Jwt__Audience=${JWT_AUDIENCE:-ECommercePlatform}
       - ReverseProxy__Clusters__user-service__Destinations__destination1__Address=http://user-service:8080
       - ReverseProxy__Clusters__product-service__Destinations__destination1__Address=http://product-service:8080
       - ReverseProxy__Clusters__cart-service__Destinations__destination1__Address=http://cart-service:8080

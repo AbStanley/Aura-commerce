@@ -23,14 +23,16 @@ try
     builder.Services.AddAuthentication("Bearer")
         .AddJwtBearer("Bearer", options =>
         {
-            options.Authority = builder.Configuration["Identity:Authority"];
             options.RequireHttpsMetadata = !builder.Environment.IsDevelopment();
             options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
             {
                 ValidateAudience = true,
                 ValidAudience = builder.Configuration["Jwt:Audience"] ?? "ECommercePlatform",
                 ValidateIssuer = true,
-                ValidIssuer = builder.Configuration["Jwt:Issuer"] ?? "UserService"
+                ValidIssuer = builder.Configuration["Jwt:Issuer"] ?? "UserService",
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new Microsoft.IdentityModel.Tokens.SymmetricSecurityKey(
+                    System.Text.Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Secret"]!))
             };
         });
 
