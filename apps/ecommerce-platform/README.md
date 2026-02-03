@@ -110,6 +110,8 @@ docker-compose -f apps/ecommerce-platform/docker-compose.yml up -d --build
 | **Seq Logs** | [http://localhost:8091](http://localhost:8091) | [Dashboard](http://localhost:8091) | `admin` / `password` |
 | **RabbitMQ** | [http://localhost:15672](http://localhost:15672) | [Dashboard](http://localhost:15672) | `guest` / `guest` |
 
+> **📖 Aggregated API Documentation**: Access **all** microservice APIs from a single page at [**http://localhost:5000/api-docs**](http://localhost:5000/api-docs)
+
 ---
 
 ## 🔌 API Endpoints (Gateway)
