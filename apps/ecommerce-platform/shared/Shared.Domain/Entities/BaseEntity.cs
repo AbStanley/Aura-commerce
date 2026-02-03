@@ -1,4 +1,4 @@
-namespace Shared.Infrastructure.Entities;
+namespace Shared.Domain.Entities;
 
 /// <summary>
 /// Base entity with common audit fields

@@ -1,4 +1,4 @@
-using Shared.Infrastructure.Entities;
+using Shared.Domain.Entities;
 
 namespace UserService.Domain.Entities;
 

@@ -1,4 +1,4 @@
-namespace Shared.Infrastructure.Entities;
+namespace Shared.Domain.Entities;
 
 /// <summary>
 /// Base class for value objects with equality comparison

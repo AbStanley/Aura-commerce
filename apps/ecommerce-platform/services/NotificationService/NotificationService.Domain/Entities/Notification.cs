@@ -1,4 +1,4 @@
-using Shared.Infrastructure.Entities;
+using Shared.Domain.Entities;
 using NotificationService.Domain.Enums;
 
 namespace NotificationService.Domain.Entities;

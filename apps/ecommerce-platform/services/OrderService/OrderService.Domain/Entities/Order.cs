@@ -1,4 +1,4 @@
-using Shared.Infrastructure.Entities;
+using Shared.Domain.Entities;
 using OrderService.Domain.Enums;
 using OrderService.Domain.ValueObjects;
 

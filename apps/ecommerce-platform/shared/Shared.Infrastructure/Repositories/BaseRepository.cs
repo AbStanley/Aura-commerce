@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Shared.Common.Pagination;
-using Shared.Infrastructure.Entities;
+using Shared.Domain.Entities;
 
 namespace Shared.Infrastructure.Repositories;
 

@@ -1,4 +1,4 @@
-using Shared.Infrastructure.Entities;
+using Shared.Domain.Entities;
 using PaymentService.Domain.Enums;
 
 namespace PaymentService.Domain.Entities;
