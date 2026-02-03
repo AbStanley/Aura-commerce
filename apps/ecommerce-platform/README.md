@@ -98,12 +98,17 @@ docker-compose -f apps/ecommerce-platform/docker-compose.yml up -d --build
 
 ### 🔍 Access Points
 
-| Component | URL | Credentials (if applicable) |
-| :--- | :--- | :--- |
-| **API Gateway** | [http://localhost:5000](http://localhost:5000) | N/A |
-| **Health Check** | [http://localhost:5000/health](http://localhost:5000/health) | N/A |
-| **Seq Logs** | [http://localhost:8091](http://localhost:8091) | `admin` / `password` |
-| **RabbitMQ** | [http://localhost:15672](http://localhost:15672) | `guest` / `guest` |
+| Component | Base URL | Interactive Docs (Scalar) | Credentials |
+| :--- | :--- | :--- | :--- |
+| **API Gateway** | [http://localhost:5000](http://localhost:5000) | [Open Docs](http://localhost:5000/scalar/v1) | N/A |
+| **User Service** | [http://localhost:5001](http://localhost:5001) | [Open Docs](http://localhost:5001/scalar/v1) | N/A |
+| **Product Service** | [http://localhost:5002](http://localhost:5002) | [Open Docs](http://localhost:5002/scalar/v1) | N/A |
+| **Cart Service** | [http://localhost:5003](http://localhost:5003) | [Open Docs](http://localhost:5003/scalar/v1) | N/A |
+| **Order Service** | [http://localhost:5004](http://localhost:5004) | [Open Docs](http://localhost:5004/scalar/v1) | N/A |
+| **Payment Service** | [http://localhost:5005](http://localhost:5005) | [Open Docs](http://localhost:5005/scalar/v1) | N/A |
+| **Notify Service** | [http://localhost:5006](http://localhost:5006) | [Open Docs](http://localhost:5006/scalar/v1) | N/A |
+| **Seq Logs** | [http://localhost:8091](http://localhost:8091) | [Dashboard](http://localhost:8091) | `admin` / `password` |
+| **RabbitMQ** | [http://localhost:15672](http://localhost:15672) | [Dashboard](http://localhost:15672) | `guest` / `guest` |
 
 ---
 

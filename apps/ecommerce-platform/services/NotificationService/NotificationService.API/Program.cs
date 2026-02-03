@@ -5,6 +5,7 @@ using Shared.Infrastructure.Extensions;
 
 
 using Shared.Infrastructure.Logging;
+using Scalar.AspNetCore;
 
 Log.Logger = new LoggerConfiguration()
     .WriteTo.Console()
@@ -41,6 +42,7 @@ try
     if (app.Environment.IsDevelopment())
     {
         app.MapOpenApi();
+        app.MapScalarApiReference();
     }
 
     app.UseSerilogRequestLogging();

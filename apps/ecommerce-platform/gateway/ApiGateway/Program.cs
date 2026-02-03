@@ -2,6 +2,7 @@ using Shared.Infrastructure.Logging;
 using Shared.Infrastructure.Extensions;
 using Serilog;
 using Yarp.ReverseProxy.Transforms;
+using Scalar.AspNetCore;
 
 Log.Logger = new LoggerConfiguration()
     .WriteTo.Console()
@@ -28,6 +29,9 @@ try
             };
         });
 
+    builder.Services.AddEndpointsApiExplorer();
+    builder.Services.AddOpenApi();
+
     builder.Services.AddAuthorization(options =>
     {
         options.AddPolicy("Authenticated", policy => policy.RequireAuthenticatedUser());
@@ -41,6 +45,12 @@ try
     
     app.UseAuthentication();
     app.UseAuthorization();
+
+    if (app.Environment.IsDevelopment())
+    {
+        app.MapOpenApi();
+        app.MapScalarApiReference();
+    }
 
     app.MapHealthChecks("/health");
 
