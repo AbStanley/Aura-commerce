@@ -3,6 +3,7 @@ using Shared.Infrastructure.Extensions;
 using Serilog;
 using Yarp.ReverseProxy.Transforms;
 using Scalar.AspNetCore;
+using System.Threading.RateLimiting;
 
 Log.Logger = new LoggerConfiguration()
     .WriteTo.Console()
@@ -18,16 +19,52 @@ try
     builder.Services.AddReverseProxy()
         .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"));
 
+    // JWT Authentication with proper validation
     builder.Services.AddAuthentication("Bearer")
         .AddJwtBearer("Bearer", options =>
         {
-            options.Authority = builder.Configuration["Identity:Authority"]; // User Service URL
-            options.RequireHttpsMetadata = false; // Internal dev
+            options.Authority = builder.Configuration["Identity:Authority"];
+            options.RequireHttpsMetadata = !builder.Environment.IsDevelopment();
             options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
             {
-                ValidateAudience = false
+                ValidateAudience = true,
+                ValidAudience = builder.Configuration["Jwt:Audience"] ?? "ECommercePlatform",
+                ValidateIssuer = true,
+                ValidIssuer = builder.Configuration["Jwt:Issuer"] ?? "UserService"
             };
         });
+
+    // CORS Policy
+    builder.Services.AddCors(options =>
+    {
+        options.AddPolicy("AllowFrontend", policy =>
+        {
+            var origins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
+                ?? ["http://localhost:3000", "http://localhost:4200"];
+            policy.WithOrigins(origins)
+                  .AllowAnyHeader()
+                  .AllowAnyMethod()
+                  .AllowCredentials();
+        });
+    });
+
+    // Rate Limiting
+    builder.Services.AddRateLimiter(options =>
+    {
+        options.AddFixedWindowLimiter("auth", limiter =>
+        {
+            limiter.Window = TimeSpan.FromMinutes(1);
+            limiter.PermitLimit = 10;
+            limiter.QueueLimit = 0;
+        });
+        options.AddFixedWindowLimiter("api", limiter =>
+        {
+            limiter.Window = TimeSpan.FromMinutes(1);
+            limiter.PermitLimit = 100;
+            limiter.QueueLimit = 5;
+        });
+        options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+    });
 
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddOpenApi();
@@ -41,6 +78,22 @@ try
 
     var app = builder.Build();
 
+    // Security Headers Middleware
+    app.Use(async (context, next) =>
+    {
+        context.Response.Headers.Append("X-Content-Type-Options", "nosniff");
+        context.Response.Headers.Append("X-Frame-Options", "DENY");
+        context.Response.Headers.Append("X-XSS-Protection", "1; mode=block");
+        context.Response.Headers.Append("Referrer-Policy", "strict-origin-when-cross-origin");
+        if (!app.Environment.IsDevelopment())
+        {
+            context.Response.Headers.Append("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
+        }
+        await next();
+    });
+
+    app.UseCors("AllowFrontend");
+    app.UseRateLimiter();
     app.UseSerilogRequestLogging();
     
     app.UseAuthentication();
