@@ -1,0 +1,53 @@
+name: E-Commerce Platform CI
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - 'apps/ecommerce-platform/**'
+      - '.github/workflows/**'
+  pull_request:
+    branches: [ "main" ]
+    paths:
+      - 'apps/ecommerce-platform/**'
+      - '.github/workflows/**'
+  workflow_dispatch:
+
+jobs:
+  build-and-test:
+    name: 🧪 Build & Test (.NET)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./apps/ecommerce-platform
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '10.0.x'
+
+    - name: Restore dependencies
+      run: dotnet restore ECommercePlatform.sln
+
+    - name: Build
+      run: dotnet build ECommercePlatform.sln --no-restore --configuration Release
+
+    - name: Test
+      run: dotnet test ECommercePlatform.sln --no-build --verbosity normal
+
+  docker-validation:
+    name: 🐳 Verify Docker Builds
+    runs-on: ubuntu-latest
+    needs: build-and-test
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Validate Docker Compose Config
+      run: docker-compose -f apps/ecommerce-platform/docker-compose.yml config
+
+    - name: Build Docker Images
+      # Builds all services to ensure Dockerfiles are valid and contexts are correct
+      run: docker-compose -f apps/ecommerce-platform/docker-compose.yml build
