@@ -1,6 +1,7 @@
 using Serilog;
 using NotificationService.Application.Extensions;
 using NotificationService.Infrastructure.Extensions;
+using Shared.Infrastructure.Extensions;
 
 Log.Logger = new LoggerConfiguration()
     .WriteTo.Console()
@@ -24,6 +25,11 @@ try
         .AddJwtBearer();
 
     builder.Services.AddAuthorization();
+
+    // Register MassTransit with Consumers
+    builder.Services.AddEventBus(
+        builder.Configuration,
+        typeof(NotificationService.Application.Consumers.OrderEventsConsumer).Assembly);
 
     builder.Services.AddHealthChecks();
 

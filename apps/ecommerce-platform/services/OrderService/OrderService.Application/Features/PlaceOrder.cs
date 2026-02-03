@@ -1,6 +1,8 @@
 using FluentValidation;
 using MediatR;
 using Shared.Common.Results;
+using MassTransit;
+using Shared.Contracts.Events;
 using OrderService.Domain.Entities;
 using OrderService.Domain.Interfaces;
 using OrderService.Domain.ValueObjects;
@@ -59,7 +61,9 @@ public sealed class AddressRequestValidator : AbstractValidator<AddressRequest>
     }
 }
 
-public sealed class PlaceOrderHandler(IOrderRepository orderRepository)
+public sealed class PlaceOrderHandler(
+    IOrderRepository orderRepository,
+    IPublishEndpoint publishEndpoint)
     : IRequestHandler<PlaceOrderCommand, Result<Guid>>
 {
     public async Task<Result<Guid>> Handle(PlaceOrderCommand request, CancellationToken cancellationToken)
@@ -80,6 +84,23 @@ public sealed class PlaceOrderHandler(IOrderRepository orderRepository)
         var order = Order.Create(request.UserId, address, items);
 
         await orderRepository.AddAsync(order, cancellationToken);
+
+        var dtos = order.Items.Select(i => new OrderItemEventDto(
+            ProductId: i.ProductId,
+            ProductName: i.ProductName,
+            Quantity: i.Quantity,
+            UnitPrice: i.UnitPrice
+        )).ToList();
+
+        // Publish OrderPlacedEvent
+        await publishEndpoint.Publish(new OrderPlacedEvent
+        {
+            OrderId = order.Id,
+            UserId = order.UserId,
+            TotalAmount = order.TotalAmount,
+            Items = dtos,
+            PlacedAt = DateTime.UtcNow
+        }, cancellationToken);
 
         return Result<Guid>.Success(order.Id);
     }

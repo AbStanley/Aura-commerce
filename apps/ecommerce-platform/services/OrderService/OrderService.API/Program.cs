@@ -1,6 +1,7 @@
 using Serilog;
 using OrderService.Application.Extensions;
 using OrderService.Infrastructure.Extensions;
+using Shared.Infrastructure.Extensions;
 
 Log.Logger = new LoggerConfiguration()
     .WriteTo.Console()
@@ -24,6 +25,11 @@ try
         .AddJwtBearer();
 
     builder.Services.AddAuthorization();
+
+    // Register MassTransit with Consumers from Application assembly
+    builder.Services.AddEventBus(
+        builder.Configuration, 
+        typeof(OrderService.Application.Consumers.PaymentStatusConsumer).Assembly);
 
     builder.Services.AddHealthChecks();
 

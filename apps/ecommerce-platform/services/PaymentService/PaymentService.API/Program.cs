@@ -1,6 +1,7 @@
 using Serilog;
 using PaymentService.Application.Extensions;
 using PaymentService.Infrastructure.Extensions;
+using Shared.Infrastructure.Extensions;
 
 Log.Logger = new LoggerConfiguration()
     .WriteTo.Console()
@@ -24,6 +25,11 @@ try
         .AddJwtBearer();
 
     builder.Services.AddAuthorization();
+
+    // Register MassTransit with Consumers
+    builder.Services.AddEventBus(
+        builder.Configuration, 
+        typeof(PaymentService.Application.Consumers.OrderPlacedConsumer).Assembly);
 
     builder.Services.AddHealthChecks();
 

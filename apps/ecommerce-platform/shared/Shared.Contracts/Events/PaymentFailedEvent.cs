@@ -7,6 +7,7 @@ public sealed record PaymentFailedEvent
 {
     public required Guid PaymentId { get; init; }
     public required Guid OrderId { get; init; }
+    public required Guid UserId { get; init; }
     public required string Reason { get; init; }
     public required DateTime FailedAt { get; init; }
 }

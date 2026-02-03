@@ -3,6 +3,8 @@ using MediatR;
 using Shared.Common.Results;
 using PaymentService.Domain.Entities;
 using PaymentService.Domain.Interfaces;
+using MassTransit;
+using Shared.Contracts.Events;
 
 namespace PaymentService.Application.Features;
 
@@ -27,7 +29,8 @@ public sealed class ProcessPaymentValidator : AbstractValidator<ProcessPaymentCo
 
 public sealed class ProcessPaymentHandler(
     IPaymentRepository paymentRepository,
-    IPaymentGateway paymentGateway) : IRequestHandler<ProcessPaymentCommand, Result<Guid>>
+    IPaymentGateway paymentGateway,
+    IPublishEndpoint publishEndpoint) : IRequestHandler<ProcessPaymentCommand, Result<Guid>>
 {
     public async Task<Result<Guid>> Handle(ProcessPaymentCommand request, CancellationToken cancellationToken)
     {
@@ -44,14 +47,33 @@ public sealed class ProcessPaymentHandler(
         // 2. Call Gateway
         var gatewayResult = await paymentGateway.ProcessPaymentAsync(payment, cancellationToken);
 
-        // 3. Update Status
+        // 3. Update Status and Publish Event
         if (gatewayResult.IsSuccess)
         {
             payment.MarkCompleted(gatewayResult.TransactionId!);
+            
+            await publishEndpoint.Publish(new PaymentProcessedEvent
+            {
+                PaymentId = payment.Id,
+                OrderId = payment.OrderId,
+                UserId = payment.UserId,
+                Amount = payment.Amount,
+                TransactionId = gatewayResult.TransactionId!,
+                ProcessedAt = DateTime.UtcNow
+            }, cancellationToken);
         }
         else
         {
             payment.MarkFailed(gatewayResult.ErrorMessage ?? "Unknown gateway error");
+            
+            await publishEndpoint.Publish(new PaymentFailedEvent
+            {
+                PaymentId = payment.Id,
+                OrderId = payment.OrderId,
+                UserId = payment.UserId,
+                Reason = gatewayResult.ErrorMessage ?? "Unknown gateway error",
+                FailedAt = DateTime.UtcNow
+            }, cancellationToken);
         }
 
         await paymentRepository.UpdateAsync(payment, cancellationToken);

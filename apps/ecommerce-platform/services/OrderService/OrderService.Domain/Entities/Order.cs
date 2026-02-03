@@ -17,6 +17,7 @@ public sealed class Order : BaseEntity
     public OrderStatus Status { get; private set; } = OrderStatus.Pending;
     public PaymentStatus PaymentStatus { get; private set; } = PaymentStatus.Pending;
     public string? PaymentTransactionId { get; private set; }
+    public string? PaymentFailureReason { get; private set; }
     public DateTime? ShippedAt { get; private set; }
     public DateTime? DeliveredAt { get; private set; }
 
@@ -85,9 +86,10 @@ public sealed class Order : BaseEntity
         PaymentStatus = PaymentStatus.Captured;
     }
 
-    public void MarkPaymentFailed()
+    public void MarkPaymentFailed(string reason)
     {
         PaymentStatus = PaymentStatus.Failed;
+        PaymentFailureReason = reason;
         Status = OrderStatus.Failed;
     }
 
