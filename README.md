@@ -18,7 +18,11 @@ This is a Monorepo managed by a single solution file.
 
 ## 🚀 Applications
 
-### 1. Task Tracker CLI (`task-cli`)
+### 1. E-Commerce Microservices Platform (`ecommerce-platform`) 🏆
+**A premium, event-driven distributed system implementation.**
+[**Explore the Full Documentation & Architecture »**](apps/ecommerce-platform/README.md)
+
+### 2. Task Tracker CLI (`task-cli`)
 A simple command-line interface to track and manage tasks, demonstrating Clean Architecture and SOLID principles.
 
 **How to Run:**
