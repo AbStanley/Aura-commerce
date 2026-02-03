@@ -19,7 +19,9 @@ public static class ServiceCollectionExtensions
         IConfiguration configuration)
     {
         services.AddDbContext<UserDbContext>(options =>
-            options.UseNpgsql(configuration.GetConnectionString("UserDb")));
+            options.UseNpgsql(
+                configuration.GetConnectionString("DefaultConnection"), // Standardized connection string name
+                b => b.EnableRetryOnFailure()));
 
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();

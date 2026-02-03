@@ -1,6 +1,7 @@
 using Serilog;
 using ShoppingCartService.Application.Extensions;
 using ShoppingCartService.Infrastructure.Extensions;
+using Shared.Infrastructure.Extensions;
 
 using Shared.Infrastructure.Logging;
 
@@ -27,8 +28,7 @@ try
 
     builder.Services.AddAuthorization();
 
-    builder.Services.AddHealthChecks()
-        .AddRedis(builder.Configuration.GetConnectionString("Redis")!);
+    builder.Services.AddCommonHealthChecks(builder.Configuration);
 
     var app = builder.Build();
 

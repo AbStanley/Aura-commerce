@@ -1,6 +1,7 @@
 using Serilog;
 using ProductCatalogService.Application.Extensions;
 using ProductCatalogService.Infrastructure.Extensions;
+using Shared.Infrastructure.Extensions;
 
 using Shared.Infrastructure.Logging;
 
@@ -22,7 +23,7 @@ try
     builder.Services.AddApplicationLayer();
     builder.Services.AddInfrastructureLayer(builder.Configuration);
 
-    builder.Services.AddHealthChecks();
+    builder.Services.AddCommonHealthChecks(builder.Configuration);
 
     var app = builder.Build();
 

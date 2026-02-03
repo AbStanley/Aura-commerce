@@ -15,7 +15,9 @@ public static class ServiceCollectionExtensions
         IConfiguration configuration)
     {
         services.AddDbContext<NotificationDbContext>(options =>
-            options.UseNpgsql(configuration.GetConnectionString("NotificationDb")));
+            options.UseNpgsql(
+                configuration.GetConnectionString("DefaultConnection"),
+                b => b.EnableRetryOnFailure()));
 
         services.AddScoped<INotificationRepository, NotificationRepository>();
         

@@ -1,4 +1,5 @@
 using Shared.Infrastructure.Logging;
+using Shared.Infrastructure.Extensions;
 using Serilog;
 using Yarp.ReverseProxy.Transforms;
 
@@ -31,6 +32,8 @@ try
     {
         options.AddPolicy("Authenticated", policy => policy.RequireAuthenticatedUser());
     });
+
+    builder.Services.AddCommonHealthChecks(builder.Configuration);
 
     var app = builder.Build();
 

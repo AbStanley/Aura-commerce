@@ -17,7 +17,9 @@ public static class ServiceCollectionExtensions
         IConfiguration configuration)
     {
         services.AddDbContext<ProductCatalogDbContext>(options =>
-            options.UseNpgsql(configuration.GetConnectionString("ProductCatalogDb")));
+            options.UseNpgsql(
+                configuration.GetConnectionString("DefaultConnection"),
+                b => b.EnableRetryOnFailure()));
 
         services.AddScoped<IProductRepository, ProductRepository>();
         services.AddScoped<ICategoryRepository, CategoryRepository>();

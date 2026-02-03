@@ -33,7 +33,7 @@ try
         builder.Configuration, 
         typeof(OrderService.Application.Consumers.PaymentStatusConsumer).Assembly);
 
-    builder.Services.AddHealthChecks();
+    builder.Services.AddCommonHealthChecks(builder.Configuration);
 
     var app = builder.Build();
 

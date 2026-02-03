@@ -2,6 +2,7 @@ using Serilog;
 using NotificationService.Application.Extensions;
 using NotificationService.Infrastructure.Extensions;
 using Shared.Infrastructure.Extensions;
+using Shared.Infrastructure.Extensions;
 
 using Shared.Infrastructure.Logging;
 
@@ -33,7 +34,7 @@ try
         builder.Configuration,
         typeof(NotificationService.Application.Consumers.OrderEventsConsumer).Assembly);
 
-    builder.Services.AddHealthChecks();
+    builder.Services.AddCommonHealthChecks(builder.Configuration);
 
     var app = builder.Build();
 

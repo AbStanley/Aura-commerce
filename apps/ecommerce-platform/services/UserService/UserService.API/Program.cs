@@ -5,6 +5,7 @@ using Serilog;
 using UserService.API.Middleware;
 using UserService.Application.Extensions;
 using UserService.Infrastructure.Extensions;
+using Shared.Infrastructure.Extensions;
 
 using Shared.Infrastructure.Logging;
 
@@ -44,7 +45,7 @@ try
 
     builder.Services.AddAuthorization();
 
-    builder.Services.AddHealthChecks();
+    builder.Services.AddCommonHealthChecks(builder.Configuration);
 
     var app = builder.Build();
 

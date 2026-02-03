@@ -14,7 +14,9 @@ public static class ServiceCollectionExtensions
         IConfiguration configuration)
     {
         services.AddDbContext<OrderDbContext>(options =>
-            options.UseNpgsql(configuration.GetConnectionString("OrderDb")));
+            options.UseNpgsql(
+                configuration.GetConnectionString("DefaultConnection"),
+                b => b.EnableRetryOnFailure()));
 
         services.AddScoped<IOrderRepository, OrderRepository>();
 
