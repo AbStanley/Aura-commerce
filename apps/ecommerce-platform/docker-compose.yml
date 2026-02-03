@@ -39,6 +39,7 @@ services:
     container_name: ecommerce-seq
     environment:
       ACCEPT_EULA: "Y"
+      SEQ_FIRSTRUN_ADMINPASSWORD: "password"
     ports:
       - "5341:5341"
       - "8091:80"
