@@ -56,6 +56,8 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=ecommerce_users;Username=admin;Password=password;
       - Seq__ServerUrl=http://seq:5341
+    ports:
+      - "5001:8080"
     depends_on:
       - postgres
       - seq
@@ -71,6 +73,8 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=ecommerce_products;Username=admin;Password=password;
       - Seq__ServerUrl=http://seq:5341
+    ports:
+      - "5002:8080"
     depends_on:
       - postgres
       - seq
@@ -86,6 +90,8 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - ConnectionStrings__Redis=redis:6379
       - Seq__ServerUrl=http://seq:5341
+    ports:
+      - "5003:8080"
     depends_on:
       - redis
       - seq
@@ -102,6 +108,8 @@ services:
       - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=ecommerce_orders;Username=admin;Password=password;
       - RabbitMQ__Host=rabbitmq
       - Seq__ServerUrl=http://seq:5341
+    ports:
+      - "5004:8080"
     depends_on:
       - postgres
       - rabbitmq
@@ -120,6 +128,8 @@ services:
       - RabbitMQ__Host=rabbitmq
       - Seq__ServerUrl=http://seq:5341
       - Stripe__SecretKey=sk_test_mock
+    ports:
+      - "5005:8080"
     depends_on:
       - postgres
       - rabbitmq
@@ -137,6 +147,8 @@ services:
       - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=ecommerce_notifications;Username=admin;Password=password;
       - RabbitMQ__Host=rabbitmq
       - Seq__ServerUrl=http://seq:5341
+    ports:
+      - "5006:8080"
     depends_on:
       - postgres
       - rabbitmq
