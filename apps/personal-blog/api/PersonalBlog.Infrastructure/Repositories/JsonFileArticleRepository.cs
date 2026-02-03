@@ -12,7 +12,7 @@ public class JsonFileArticleRepository(string contentRootPath) : IArticleReposit
     private static string InitializePath(string rootPath)
     {
         var path = Path.Combine(rootPath, "data");
-        Directory.CreateDirectory(path); // Safe to call if exists
+        Directory.CreateDirectory(path);
         return path;
     }
 
@@ -25,7 +25,7 @@ public class JsonFileArticleRepository(string contentRootPath) : IArticleReposit
 
         foreach (var file in files)
         {
-            try 
+            try
             {
                 await using var stream = File.OpenRead(file);
                 var article = await JsonSerializer.DeserializeAsync<Article>(stream, _jsonOptions);

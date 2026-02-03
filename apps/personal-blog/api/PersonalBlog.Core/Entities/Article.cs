@@ -1,5 +1,3 @@
-using System;
-
 namespace PersonalBlog.Core.Entities;
 
 public class Article
