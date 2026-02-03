@@ -5,9 +5,9 @@ EXPOSE 8080
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 
-COPY ["apps/ecommerce-platform/", "."]
+COPY apps/ecommerce-platform/ apps/ecommerce-platform/
 
-WORKDIR "/src/services/PaymentService/PaymentService.API"
+WORKDIR /src/apps/ecommerce-platform/services/PaymentService/PaymentService.API
 RUN dotnet restore
 RUN dotnet build "PaymentService.API.csproj" -c Release -o /app/build
 

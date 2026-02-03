@@ -5,9 +5,9 @@ EXPOSE 8080
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 
-COPY ["apps/ecommerce-platform/", "."]
+COPY apps/ecommerce-platform/ apps/ecommerce-platform/
 
-WORKDIR "/src/services/NotificationService/NotificationService.API"
+WORKDIR /src/apps/ecommerce-platform/services/NotificationService/NotificationService.API
 RUN dotnet restore
 RUN dotnet build "NotificationService.API.csproj" -c Release -o /app/build
 

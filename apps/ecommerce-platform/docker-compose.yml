@@ -48,7 +48,7 @@ services:
   # Microservices
   user-service:
     build:
-      context: .
+      context: ../../
       dockerfile: apps/ecommerce-platform/services/UserService/Dockerfile
     container_name: user-service
     environment:
@@ -62,7 +62,7 @@ services:
 
   product-service:
     build:
-      context: .
+      context: ../../
       dockerfile: apps/ecommerce-platform/services/ProductCatalogService/Dockerfile
     container_name: product-service
     environment:
@@ -76,7 +76,7 @@ services:
 
   cart-service:
     build:
-      context: .
+      context: ../../
       dockerfile: apps/ecommerce-platform/services/ShoppingCartService/Dockerfile
     container_name: cart-service
     environment:
@@ -90,7 +90,7 @@ services:
 
   order-service:
     build:
-      context: .
+      context: ../../
       dockerfile: apps/ecommerce-platform/services/OrderService/Dockerfile
     container_name: order-service
     environment:
@@ -106,7 +106,7 @@ services:
 
   payment-service:
     build:
-      context: .
+      context: ../../
       dockerfile: apps/ecommerce-platform/services/PaymentService/Dockerfile
     container_name: payment-service
     environment:
@@ -123,7 +123,7 @@ services:
 
   notification-service:
     build:
-      context: .
+      context: ../../
       dockerfile: apps/ecommerce-platform/services/NotificationService/Dockerfile
     container_name: notification-service
     environment:
@@ -139,7 +139,7 @@ services:
 
   gateway:
     build:
-      context: .
+      context: ../../
       dockerfile: apps/ecommerce-platform/gateway/ApiGateway/Dockerfile
     container_name: api-gateway
     ports:
