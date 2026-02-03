@@ -4,9 +4,9 @@ services:
     image: postgres:15-alpine
     container_name: ecommerce-postgres
     environment:
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: ecommerce_db
+      POSTGRES_USER: ${POSTGRES_USER:-admin}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD required}
+      POSTGRES_DB: ${POSTGRES_DB:-ecommerce_db}
     ports:
       - "5432:5432"
     networks:
@@ -26,8 +26,8 @@ services:
     image: rabbitmq:3-management
     container_name: ecommerce-rabbitmq
     environment:
-      RABBITMQ_DEFAULT_USER: guest
-      RABBITMQ_DEFAULT_PASS: guest
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER:-guest}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS:?RABBITMQ_DEFAULT_PASS required}
     ports:
       - "5672:5672"
       - "15672:15672"
@@ -39,7 +39,7 @@ services:
     container_name: ecommerce-seq
     environment:
       ACCEPT_EULA: "Y"
-      SEQ_FIRSTRUN_ADMINPASSWORD: "password"
+      SEQ_FIRSTRUN_ADMINPASSWORD: ${SEQ_ADMIN_PASSWORD:?SEQ_ADMIN_PASSWORD required}
     ports:
       - "5341:5341"
       - "8091:80"
@@ -54,7 +54,7 @@ services:
     container_name: user-service
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=ecommerce_users;Username=admin;Password=password;
+      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=ecommerce_users;Username=${POSTGRES_USER:-admin};Password=${POSTGRES_PASSWORD};
       - Seq__ServerUrl=http://seq:5341
     ports:
       - "5001:8080"
@@ -71,7 +71,7 @@ services:
     container_name: product-service
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=ecommerce_products;Username=admin;Password=password;
+      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=ecommerce_products;Username=${POSTGRES_USER:-admin};Password=${POSTGRES_PASSWORD};
       - Seq__ServerUrl=http://seq:5341
     ports:
       - "5002:8080"
@@ -105,7 +105,7 @@ services:
     container_name: order-service
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=ecommerce_orders;Username=admin;Password=password;
+      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=ecommerce_orders;Username=${POSTGRES_USER:-admin};Password=${POSTGRES_PASSWORD};
       - RabbitMQ__Host=rabbitmq
       - Seq__ServerUrl=http://seq:5341
     ports:
@@ -124,7 +124,7 @@ services:
     container_name: payment-service
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=ecommerce_payments;Username=admin;Password=password;
+      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=ecommerce_payments;Username=${POSTGRES_USER:-admin};Password=${POSTGRES_PASSWORD};
       - RabbitMQ__Host=rabbitmq
       - Seq__ServerUrl=http://seq:5341
       - Stripe__SecretKey=sk_test_mock
@@ -144,7 +144,7 @@ services:
     container_name: notification-service
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=ecommerce_notifications;Username=admin;Password=password;
+      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=ecommerce_notifications;Username=${POSTGRES_USER:-admin};Password=${POSTGRES_PASSWORD};
       - RabbitMQ__Host=rabbitmq
       - Seq__ServerUrl=http://seq:5341
     ports:
