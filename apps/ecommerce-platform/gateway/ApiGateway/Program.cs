@@ -48,20 +48,35 @@ try
         });
     });
 
-    // Rate Limiting
+    // Rate Limiting (global limiter for all requests)
     builder.Services.AddRateLimiter(options =>
     {
-        options.AddFixedWindowLimiter("auth", limiter =>
+        options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(context =>
         {
-            limiter.Window = TimeSpan.FromMinutes(1);
-            limiter.PermitLimit = 10;
-            limiter.QueueLimit = 0;
-        });
-        options.AddFixedWindowLimiter("api", limiter =>
-        {
-            limiter.Window = TimeSpan.FromMinutes(1);
-            limiter.PermitLimit = 100;
-            limiter.QueueLimit = 5;
+            var path = context.Request.Path.ToString().ToLowerInvariant();
+            
+            // Stricter limit for auth endpoints
+            if (path.Contains("/api/auth"))
+            {
+                return RateLimitPartition.GetFixedWindowLimiter(
+                    partitionKey: context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+                    factory: _ => new FixedWindowRateLimiterOptions
+                    {
+                        Window = TimeSpan.FromMinutes(1),
+                        PermitLimit = 10,
+                        QueueLimit = 0
+                    });
+            }
+            
+            // Standard limit for other API calls
+            return RateLimitPartition.GetFixedWindowLimiter(
+                partitionKey: context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+                factory: _ => new FixedWindowRateLimiterOptions
+                {
+                    Window = TimeSpan.FromMinutes(1),
+                    PermitLimit = 100,
+                    QueueLimit = 5
+                });
         });
         options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
     });
