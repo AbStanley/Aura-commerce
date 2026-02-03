@@ -25,8 +25,17 @@ public static class ApiRoutes
     public static class Products
     {
         public const string Base = $"{BaseUrl}/products";
+        public const string Create = Base;
         public const string GetById = $"{Base}/{{id}}";
+        public const string Update = $"{Base}/{{id}}";
         public const string Search = $"{Base}/search";
+    }
+
+    public static class Categories
+    {
+        public const string Base = $"{BaseUrl}/categories";
+        public const string Create = Base;
+        public const string GetAll = Base;
     }
 
     public static class Cart
