@@ -114,13 +114,56 @@ docker-compose -f apps/ecommerce-platform/docker-compose.yml up -d --build
 
 ---
 
-## 🔌 API Endpoints (Gateway)
+## �️ Frontend Developer Guide
 
-All requests should be touted through the **Gateway (Port 5000)**.
+> **TL;DR**: Your `API_BASE_URL` is always `http://localhost:5000`. You never need to know the other ports exist.
+
+### How the Gateway Works
+
+```
+Your Frontend App (React/Angular/Vue)
+        │
+        ▼
+   localhost:5000  ← API Gateway (the only URL you need)
+        │
+        ├─── /api/auth/*        → User Service
+        ├─── /api/users/*       → User Service
+        ├─── /api/products/*    → Product Service
+        ├─── /api/cart/*        → Cart Service
+        ├─── /api/orders/*      → Order Service
+        ├─── /api/payments/*    → Payment Service
+        └─── /api/notifications/* → Notification Service
+```
+
+### Example Usage
+
+```javascript
+// ✅ CORRECT - All requests go through the Gateway
+const API_BASE = 'http://localhost:5000';
+
+await fetch(`${API_BASE}/api/auth/login`, { method: 'POST', body: credentials });
+await fetch(`${API_BASE}/api/products`);
+await fetch(`${API_BASE}/api/cart/${userId}/items`, { method: 'POST', body: item });
+```
+
+### Why Use the Gateway?
+
+| Benefit | Description |
+|---------|-------------|
+| **Single endpoint** | Only one URL to configure in your app |
+| **Authentication** | JWT validation happens at the Gateway |
+| **CORS** | Configured once at the Gateway |
+| **Production-ready** | In production, only the Gateway is exposed to the internet |
+
+> ⚠️ The individual service ports (5001-5006) are exposed in Docker for **debugging only**. Never use them in your frontend code.
+
+---
+
+## 🔌 API Endpoints
 
 ### **User Service**
-*   `POST /api/users/register` - Create a new account.
-*   `POST /api/users/login` - Get Access Token.
+*   `POST /api/auth/register` - Create a new account.
+*   `POST /api/auth/login` - Get Access Token.
 
 ### **Product Service**
 *   `GET /api/products` - List all products.
