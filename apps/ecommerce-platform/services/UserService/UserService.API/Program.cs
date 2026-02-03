@@ -50,8 +50,13 @@ try
 
     var app = builder.Build();
 
+    // Auto-create database schema (development only)
     if (app.Environment.IsDevelopment())
     {
+        using var scope = app.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<UserService.Infrastructure.Persistence.UserDbContext>();
+        db.Database.EnsureCreated();
+        
         app.MapOpenApi();
         app.MapScalarApiReference();
     }
