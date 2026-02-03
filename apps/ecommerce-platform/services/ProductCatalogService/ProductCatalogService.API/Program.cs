@@ -1,0 +1,47 @@
+using Serilog;
+using ProductCatalogService.Application.Extensions;
+using ProductCatalogService.Infrastructure.Extensions;
+
+Log.Logger = new LoggerConfiguration()
+    .WriteTo.Console()
+    .CreateLogger();
+
+try
+{
+    var builder = WebApplication.CreateBuilder(args);
+
+    builder.Host.UseSerilog((context, configuration) =>
+        configuration.ReadFrom.Configuration(context.Configuration));
+
+    builder.Services.AddControllers();
+    builder.Services.AddEndpointsApiExplorer();
+    builder.Services.AddOpenApi();
+
+    builder.Services.AddApplicationLayer();
+    builder.Services.AddInfrastructureLayer(builder.Configuration);
+
+    builder.Services.AddHealthChecks();
+
+    var app = builder.Build();
+
+    if (app.Environment.IsDevelopment())
+    {
+        app.MapOpenApi();
+    }
+
+    app.UseSerilogRequestLogging();
+
+    app.MapControllers();
+    app.MapHealthChecks("/health");
+
+    Log.Information("Starting Product Catalog Service");
+    app.Run();
+}
+catch (Exception ex)
+{
+    Log.Fatal(ex, "Product Catalog Service failed to start");
+}
+finally
+{
+    Log.CloseAndFlush();
+}
