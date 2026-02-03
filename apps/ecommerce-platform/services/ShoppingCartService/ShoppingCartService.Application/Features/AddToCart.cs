@@ -19,7 +19,7 @@ public sealed class AddToCartValidator : AbstractValidator<AddToCartCommand>
     {
         RuleFor(x => x.UserId).NotEmpty();
         RuleFor(x => x.ProductId).NotEmpty();
-        RuleFor(x => x.ProductName).NotEmpty().MaxLength(200);
+        RuleFor(x => x.ProductName).NotEmpty().MaximumLength(200);
         RuleFor(x => x.UnitPrice).GreaterThan(0);
         RuleFor(x => x.Quantity).GreaterThan(0).LessThanOrEqualTo(100);
     }
