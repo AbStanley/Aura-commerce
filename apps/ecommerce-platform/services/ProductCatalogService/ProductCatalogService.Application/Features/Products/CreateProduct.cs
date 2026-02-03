@@ -53,7 +53,7 @@ public sealed class CreateProductHandler(
 
         await productRepository.AddAsync(product, cancellationToken);
 
-        var inventory = Inventory.Create(product.Id, request.InitialStock);
+        var inventory = ProductCatalogService.Domain.Entities.Inventory.Create(product.Id, request.InitialStock);
         await inventoryRepository.AddAsync(inventory, cancellationToken);
 
         return Result<Guid>.Success(product.Id);
