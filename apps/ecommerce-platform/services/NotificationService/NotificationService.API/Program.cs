@@ -2,7 +2,7 @@ using Serilog;
 using NotificationService.Application.Extensions;
 using NotificationService.Infrastructure.Extensions;
 using Shared.Infrastructure.Extensions;
-using Shared.Infrastructure.Extensions;
+
 
 using Shared.Infrastructure.Logging;
 

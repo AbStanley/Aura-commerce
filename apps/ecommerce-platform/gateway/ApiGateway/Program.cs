@@ -42,6 +42,8 @@ try
     app.UseAuthentication();
     app.UseAuthorization();
 
+    app.MapHealthChecks("/health");
+
     app.MapReverseProxy();
 
     Log.Information("Starting API Gateway");
