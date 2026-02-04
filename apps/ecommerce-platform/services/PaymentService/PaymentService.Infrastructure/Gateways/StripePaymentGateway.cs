@@ -1,13 +1,22 @@
 using Microsoft.Extensions.Configuration;
 using PaymentService.Domain.Entities;
 using PaymentService.Domain.Interfaces;
+using Polly;
+using Polly.Registry;
 using Stripe;
 
 namespace PaymentService.Infrastructure.Gateways;
 
-public sealed class StripePaymentGateway(IConfiguration configuration) : IPaymentGateway
+public sealed class StripePaymentGateway : IPaymentGateway
 {
-    private readonly string _apiKey = configuration["Stripe:SecretKey"] ?? "sk_test_mock_key";
+    private readonly string _apiKey;
+    private readonly ResiliencePipeline _pipeline;
+
+    public StripePaymentGateway(IConfiguration configuration, ResiliencePipelineProvider<string> pipelineProvider)
+    {
+        _apiKey = configuration["Stripe:SecretKey"] ?? "sk_test_mock_key";
+        _pipeline = pipelineProvider.GetPipeline("Stripe");
+    }
 
     public async Task<PaymentResult> ProcessPaymentAsync(Domain.Entities.Payment payment, CancellationToken cancellationToken = default)
     {
@@ -39,7 +48,11 @@ public sealed class StripePaymentGateway(IConfiguration configuration) : IPaymen
             };
 
             var service = new PaymentIntentService();
-            var intent = await service.CreateAsync(options, cancellationToken: cancellationToken);
+            
+            // Execute with Resilience Pipeline (Circuit Breaker + Retry + Timeout)
+            var intent = await _pipeline.ExecuteAsync(
+                async token => await service.CreateAsync(options, cancellationToken: token),
+                cancellationToken);
 
             if (intent.Status == "succeeded")
             {
@@ -51,6 +64,10 @@ public sealed class StripePaymentGateway(IConfiguration configuration) : IPaymen
         catch (StripeException ex)
         {
             return new PaymentResult(false, null, ex.Message);
+        }
+        catch (Exception ex) // Catch Polly/Timeout exceptions
+        {
+            return new PaymentResult(false, null, $"Payment failed: {ex.Message}");
         }
     }
 }
