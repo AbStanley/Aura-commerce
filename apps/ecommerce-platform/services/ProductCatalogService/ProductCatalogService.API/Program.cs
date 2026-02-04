@@ -63,12 +63,14 @@ try
     }
 
     app.UseSerilogRequestLogging();
+    app.UsePrometheusMetrics();
     
     app.UseAuthentication();
     app.UseAuthorization();
 
     app.MapControllers();
     app.MapHealthChecks("/health");
+    app.MapPrometheusMetrics();
 
     Log.Information("Starting Product Catalog Service");
     app.Run();
