@@ -17,10 +17,10 @@ export type CartItem = {
 };
 
 export type Cart = {
-    id: string;
     userId: string;
     items: CartItem[];
-    totalPrice: number;
+    totalAmount: number;
+    totalItems: number;
 };
 
 type CartState = {
@@ -39,8 +39,8 @@ export const CartStore = signalStore(
     { providedIn: 'root' },
     withState(initialState),
     withComputed((store) => ({
-        itemCount: computed(() => store.cart()?.items.reduce((acc, item) => acc + item.quantity, 0) ?? 0),
-        totalPrice: computed(() => store.cart()?.totalPrice ?? 0)
+        itemCount: computed(() => store.cart()?.totalItems ?? 0),
+        totalPrice: computed(() => store.cart()?.totalAmount ?? 0)
     })),
     withMethods((store, http = inject(HttpClient), baseUrl = inject(API_BASE_URL), authStore = inject(AuthStore)) => ({
 
@@ -96,7 +96,6 @@ export const CartStore = signalStore(
 
             if (quantity <= 0) return this.removeItem(productId);
 
-            // FIX: Append productId to the URL for PUT request
             return http.put(`${baseUrl}/api/cart/items/${productId}`, { productId, quantity, userId }).pipe(
                 switchMap(() => this.loadCart()),
                 catchError(() => of(null))

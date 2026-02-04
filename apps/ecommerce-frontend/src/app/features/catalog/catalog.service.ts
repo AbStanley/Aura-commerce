@@ -35,16 +35,9 @@ export class CatalogService {
         toObservable(this.state.searchQuery)
     ]).pipe(
         switchMap(([category, search]) => {
-            // Fetch first page, default size 20. 
-            // Ideally we should support pagination in state, but for now fixed to page 1.
             const url = search
-                ? `${this.baseUrl}/api/products/search?q=${search}` // Search endpoint might need pagination too eventually
+                ? `${this.baseUrl}/api/products/search?q=${search}`
                 : `${this.baseUrl}/api/products?page=1&pageSize=20`;
-
-            // If it's search, it returns Product[] (based on previous code). 
-            // If it's GetAll, it returns PagedResult<Product>.
-            // We need to handle both or unify.
-            // The search endpoint returned List<ProductSearchDto> which is array.
 
             if (search) {
                 return this.http.get<Product[]>(url).pipe(startWith([]));

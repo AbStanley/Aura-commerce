@@ -126,7 +126,7 @@ export class CheckoutComponent {
             street: shipping.street!,
             city: shipping.city!,
             state: shipping.state!,
-            postalCode: shipping.zipCode!, // Map zipCode to postalCode
+            postalCode: shipping.zipCode!,
             country: shipping.country!
          }
       };
@@ -137,16 +137,17 @@ export class CheckoutComponent {
          switchMap(orderRes => {
             return this.orderService.processPayment({
                orderId: orderRes.orderId,
-               amount: cart.totalPrice,
-               currency: 'USD',          // <-- Added
-               paymentMethodId: 'pm_card_visa' // <-- Added
+               userId: userId,
+               amount: cart.totalAmount,
+               currency: 'USD',
+               paymentMethodId: 'pm_card_visa'
             });
          })
       ).subscribe({
          next: () => {
-            this.cartStore.clearCart().subscribe(); // Clear cart
+            this.cartStore.clearCart().subscribe();
             this.isProcessing.set(false);
-            this.router.navigate(['/profile']); // Go to history
+            this.router.navigate(['/profile']);
          },
          error: (err) => {
             console.error(err);

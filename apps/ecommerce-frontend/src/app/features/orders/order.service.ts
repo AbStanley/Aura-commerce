@@ -45,7 +45,7 @@ export class OrderService {
         return this.http.get<Order[]>(`${this.baseUrl}/api/orders/history?userId=${userId}`);
     }
 
-    processPayment(command: { orderId: string; amount: number; currency: string; paymentMethodId: string }): Observable<{ paymentId: string }> {
+    processPayment(command: { orderId: string; userId: string; amount: number; currency: string; paymentMethodId: string }): Observable<{ paymentId: string }> {
         return this.http.post<{ paymentId: string }>(`${this.baseUrl}/api/payments`, command);
     }
 }
