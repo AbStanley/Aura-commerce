@@ -7,6 +7,8 @@
 
 Welcome to the **E-Commerce Microservices Platform**, a state-of-the-art reference implementation built on **.NET 10**. This project demonstrates how to build a scalable, resilient, and enterprise-grade distributed system using modern best practices.
 
+> **🚀 [View Roadmap to Senior Engineering Standards](./TODO.md)**: Check out the plan to elevate this project from 7/10 to 10/10 (Testing, Resilience, CI/CD).
+
 ---
 
 ## 🏗️ High-Level Architecture
@@ -203,20 +205,40 @@ dotnet test apps/ecommerce-platform/ECommercePlatform.sln
 
 ## 🧪 Testing
 
-The solution includes comprehensive tools for testing the microservices.
+The solution includes a comprehensive "Test Pyramid" ensuring quality at all levels.
 
-### 🤖 Automated E2E Testing (RBAC & Sagas)
-A robust PowerShell script is provided to verify the entire flow, handling Authentication, Rate Limiting, and Order Sagas.
-```powershell
-./apps/ecommerce-platform/verify.ps1
+### 1. Unit Tests (Business Logic)
+Fast, isolated tests for Domain Entities and Application Handlers.
+```bash
+# Run all unit tests
+dotnet test apps/ecommerce-platform/services/OrderService/OrderService.UnitTests
+dotnet test apps/ecommerce-platform/services/ShoppingCartService/ShoppingCartService.UnitTests
 ```
-*   **Admin Context**: Creates Categories & Products.
-*   **User Context**: Registers, Shops, and Places Orders.
-*   **Security Check**: Verifies that users are forbidden from Admin actions.
 
-### 🛠️ Manual Testing (VS Code / Postman)
-Use `api-tests.http` with the **REST Client** extension in VS Code to run individual requests.
-Alternatively, import this file into Postman.
+### 2. Integration Tests (Component Wiring)
+Uses **Testcontainers** to spin up real PostgreSQL and RabbitMQ instances for testing API endpoints.
+*   **Requirements**: Docker Desktop must be running.
+*   **What it tests**: API Controllers -> Database/Broker interaction.
+```bash
+dotnet test apps/ecommerce-platform/tests/ECommerce.IntegrationTests
+```
+
+### 3. End-to-End (E2E) Tests (Full System Flow)
+The golden path verification. These tests automatically:
+1.  Spin up the **entire** microservices mesh (Gateway + 7 Services) using `docker compose`.
+2.  Wait for the system to be healthy.
+3.  Simulate a real user journey (Register -> Login -> Shop -> Checkout -> Order Confirmed).
+4.  Tear down the environment.
+
+```bash
+# Verify the entire platform (takes ~2-3 mins)
+dotnet test apps/ecommerce-platform/tests/ECommerce.E2E.Tests
+```
+
+> **Legacy/Manual Verification**: You can still use the PowerShell script for manual verification if preferred:
+> ```powershell
+> ./apps/ecommerce-platform/verify.ps1
+> ```
 
 ### 🩺 Health Checks
 Check the status of all services:
