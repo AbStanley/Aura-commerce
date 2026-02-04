@@ -28,15 +28,22 @@ import { ToastModule } from 'primeng/toast';
         <img [src]="thumbnail()" [alt]="product().name" class="w-full h-full object-cover" 
              (error)="onImageError($event)">
         
-        <!-- Stock Badge -->
-        @if (product().stockQuantity && product().stockQuantity < 10) {
+        <!-- Out of Stock Overlay -->
+        @if (product().stockQuantity === 0) {
+            <div class="absolute top-0 left-0 w-full h-full flex align-items-center justify-content-center bg-black-alpha-50 z-2">
+                <span class="bg-black-alpha-70 text-white px-3 py-1 border-round font-bold uppercase tracking-wider text-sm shadow-2">Out of Stock</span>
+            </div>
+        }
+
+        <!-- Stock Badge (Low Stock) -->
+        @if (product().stockQuantity > 0 && product().stockQuantity < 10) {
           <p-tag severity="warn" value="Low Stock" 
-                 styleClass="absolute shadow-2 text-xs" style="top: 12px; left: 12px;"></p-tag>
+                 styleClass="absolute shadow-2 text-xs z-3" style="top: 12px; left: 12px;"></p-tag>
         }
         
         <!-- Discount Badge -->
         @if (product().price > 50) {
-          <span class="absolute bg-green-500 text-white text-xs font-bold px-2 py-1 border-round shadow-2"
+          <span class="absolute bg-green-500 text-white text-xs font-bold px-2 py-1 border-round shadow-2 z-3"
                 style="top: 12px; right: 12px;">
             -20%
           </span>
@@ -44,7 +51,7 @@ import { ToastModule } from 'primeng/toast';
         
         <!-- Wishlist Button -->
         <button type="button" 
-                class="absolute p-button p-button-rounded p-button-sm wishlist-btn"
+                class="absolute p-button p-button-rounded p-button-sm wishlist-btn z-4"
                 [class.active]="isWishlisted()"
                 style="bottom: 12px; right: 12px; width: 36px; height: 36px;"
                 (click)="$event.stopPropagation(); toggleWishlist()"
@@ -54,7 +61,7 @@ import { ToastModule } from 'primeng/toast';
         
         <!-- Quick View Overlay -->
         <div class="quick-overlay absolute top-0 left-0 right-0 bottom-0 
-                    flex align-items-end justify-content-center pb-4">
+                    flex align-items-end justify-content-center pb-4 z-1">
           <p-button icon="pi pi-eye" label="View Details" 
                     [rounded]="true" size="small"
                     styleClass="shadow-4 font-bold"
@@ -140,7 +147,7 @@ export class ProductCardComponent {
   readonly isAdding = signal(false);
 
   thumbnail = computed(() => {
-    return this.adapter.getImages(this.product().id)[0].thumbnailImageSrc;
+    return this.adapter.getImages(this.product().id, this.product().name)[0].thumbnailImageSrc;
   });
 
   isWishlisted = computed(() => {

@@ -10,27 +10,28 @@ export type GalleryImage = {
 @Injectable({ providedIn: 'root' })
 export class GalleryAdapterService {
 
-    // Deterministically generate high-quality placeholder images based on product ID
-    getImages(productId: string): GalleryImage[] {
-        // Simple hash to toggle between different image sets
-        const hash = productId.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-        const setIndex = hash % 5;
+    // Deterministically generate high-quality placeholder images based on product ID and Name
+    getImages(productId: string, productName: string = 'product'): GalleryImage[] {
+        const keywords = productName.split(' ').slice(0, 2).join(',');
+        const encodedKeywords = encodeURIComponent(keywords);
 
-        // Using placeholder services that support specific keyword/ID for consistency
-        // Ideally these would be real product images from the backend
+        // Use a consistent service that supports keywords (LoremFlickr or similar)
+        // Adding random param to ensure different images for same keywords but consistent per page load if possible
+        // Note: For a real consistent experience without backend, we'd hash the ID to pick a static set.
+        // But for "related" images, keywords are key.
 
         const baseImages = [
-            `https://picsum.photos/seed/${productId}-1/800/600`,
-            `https://picsum.photos/seed/${productId}-2/800/600`,
-            `https://picsum.photos/seed/${productId}-3/800/600`,
-            `https://picsum.photos/seed/${productId}-4/800/600`
+            `https://loremflickr.com/800/600/${encodedKeywords}?lock=${productId.charCodeAt(0)}`,
+            `https://loremflickr.com/800/600/${encodedKeywords}?lock=${productId.charCodeAt(1)}`,
+            `https://loremflickr.com/800/600/${encodedKeywords}?lock=${productId.charCodeAt(2)}`,
+            `https://loremflickr.com/800/600/technology?lock=${productId.charCodeAt(3)}` // Fallback/Generic
         ];
 
         return baseImages.map((src, index) => ({
             itemImageSrc: src,
-            thumbnailImageSrc: src, // in real app, these would be smaller optimized versions
-            alt: `Product Image ${index + 1}`,
-            title: `View ${index + 1}`
+            thumbnailImageSrc: src,
+            alt: `${productName} Image ${index + 1}`,
+            title: `${productName} View ${index + 1}`
         }));
     }
 }

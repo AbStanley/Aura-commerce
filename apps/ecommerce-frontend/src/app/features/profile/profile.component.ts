@@ -15,6 +15,7 @@ import { SkeletonModule } from 'primeng/skeleton';
 import { DividerModule } from 'primeng/divider';
 import { MessageModule } from 'primeng/message';
 import { TableModule } from 'primeng/table';
+import { PanelModule } from 'primeng/panel';
 
 @Component({
   selector: 'app-profile',
@@ -30,7 +31,8 @@ import { TableModule } from 'primeng/table';
     SkeletonModule,
     DividerModule,
     MessageModule,
-    TableModule
+    TableModule,
+    PanelModule
   ],
   template: `
     <div class="grid">
@@ -84,7 +86,7 @@ import { TableModule } from 'primeng/table';
         </div>
       </div>
 
-      <!-- Order History -->
+    <!-- Order History -->
       <div class="col-12 lg:col-8">
         <div class="surface-card border-round-lg p-4 shadow-1">
           <h3 class="text-xl font-semibold text-900 m-0 mb-4">
@@ -112,15 +114,44 @@ import { TableModule } from 'primeng/table';
           } @else {
             <div class="flex flex-column gap-3">
               @for (order of orders(); track order.id) {
-                <div class="flex flex-column md:flex-row align-items-start md:align-items-center gap-3 p-3 surface-50 border-round-lg">
-                  <div class="flex-1">
-                    <span class="font-mono text-sm text-500">{{ order.id.slice(0, 8) }}...</span>
-                    <div class="text-900 font-medium mt-1">{{ order.orderDate | date:'mediumDate' }}</div>
-                  </div>
-                  <p-tag [value]="getStatusLabel(order.status)" 
-                         [severity]="getStatusSeverity(order.status)"></p-tag>
-                  <span class="font-bold text-primary text-lg">{{ order.totalAmount | currency }}</span>
-                </div>
+                <p-panel [toggleable]="true" [collapsed]="true" styleClass="surface-card">
+                   <ng-template pTemplate="header">
+                      <div class="flex align-items-center justify-content-between w-full pr-3">
+                          <div class="flex flex-column gap-1">
+                             <span class="font-bold text-900">#{{ order.id.slice(0, 8) }}</span>
+                             <span class="text-500 text-sm">{{ order.orderDate | date:'mediumDate' }}</span>
+                          </div>
+                      </div>
+                   </ng-template>
+                   <ng-template pTemplate="icons">
+                        <div class="flex align-items-center gap-3 mr-3">
+                             <p-tag [value]="getStatusLabel(order.status)" [severity]="getStatusSeverity(order.status)"></p-tag>
+                             <span class="font-bold text-primary text-xl">{{ order.totalAmount | currency }}</span>
+                        </div>
+                   </ng-template>
+                   
+                   <!-- Items Table -->
+                   <div class="pt-0">
+                      <p-table [value]="order.items" styleClass="p-datatable-sm" [tableStyle]="{'min-width': '20rem'}">
+                          <ng-template pTemplate="header">
+                              <tr>
+                                  <th>Product</th>
+                                  <th class="text-right">Price</th>
+                                  <th class="text-center">Qty</th>
+                                  <th class="text-right">Total</th>
+                              </tr>
+                          </ng-template>
+                          <ng-template pTemplate="body" let-item>
+                              <tr>
+                                  <td><span class="font-medium text-900">{{ item.productName }}</span></td>
+                                  <td class="text-right">{{ item.unitPrice | currency }}</td>
+                                  <td class="text-center">{{ item.quantity }}</td>
+                                  <td class="text-right font-bold">{{ item.unitPrice * item.quantity | currency }}</td>
+                              </tr>
+                          </ng-template>
+                      </p-table>
+                   </div>
+                </p-panel>
               }
             </div>
           }

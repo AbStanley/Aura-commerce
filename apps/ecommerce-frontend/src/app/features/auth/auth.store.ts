@@ -1,6 +1,7 @@
 import { inject, PLATFORM_ID, computed } from '@angular/core';
 import { patchState, signalStore, withMethods, withState, withHooks, withComputed } from '@ngrx/signals';
 import { rxResource } from '@angular/core/rxjs-interop';
+import { Router } from '@angular/router';
 import { API_BASE_URL } from '../../core/api/api.configuration';
 import { HttpClient } from '@angular/common/http';
 import { tap, catchError, of, firstValueFrom } from 'rxjs';
@@ -87,6 +88,7 @@ export const AuthStore = signalStore(
                 userId: null,
                 error: null
             });
+            inject(Router).navigate(['/login']);
         },
 
         // Helper to init from storage

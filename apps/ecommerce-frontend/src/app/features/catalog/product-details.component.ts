@@ -84,13 +84,17 @@ import { MessageService } from 'primeng/api';
         <!-- Product Gallery -->
         <div class="col-12 md:col-6 lg:col-6">
           <div class="card shadow-1 border-round-xl overflow-hidden surface-card">
-             <p-galleria [value]="images()" [numVisible]="4" [circular]="true" [showItemNavigators]="true" [showThumbnails]="true" [responsiveOptions]="responsiveOptions">
+             <p-galleria [value]="images()" [(activeIndex)]="activeIndex" [numVisible]="4" [circular]="true" 
+                        [showItemNavigators]="true" [showThumbnails]="true" [responsiveOptions]="responsiveOptions"
+                        [containerStyle]="{'max-width': '100%'}">
                 <ng-template pTemplate="item" let-item>
-                    <img [src]="item.itemImageSrc" [alt]="item.alt" style="width: 100%; display: block; height: 500px; object-fit: cover;" />
+                    <img [src]="item.itemImageSrc" [alt]="item.alt" style="width: 100%; display: block; height: 500px; object-fit: cover; border-radius: 12px;" />
                 </ng-template>
                 <ng-template pTemplate="thumbnail" let-item>
-                    <div class="grid grid-nogutter justify-content-center">
-                        <img [src]="item.thumbnailImageSrc" [alt]="item.alt" style="width: 100%; height: 80px; object-fit: cover; border-radius: 4px;" />
+                    <div class="grid grid-nogutter justify-content-center p-1">
+                        <img [src]="item.thumbnailImageSrc" [alt]="item.alt" 
+                             style="width: 100%; height: 80px; object-fit: cover; border-radius: 4px; cursor: pointer;" 
+                             class="hover:surface-300 transition-colors transition-duration-200" />
                     </div>
                 </ng-template>
             </p-galleria>
@@ -318,6 +322,7 @@ export class ProductDetailsComponent implements OnInit {
   quantity = 1;
 
   // Galleria Options
+  activeIndex = 0;
   responsiveOptions: any[] = [
     { breakpoint: '1024px', numVisible: 4 },
     { breakpoint: '768px', numVisible: 3 },
@@ -349,7 +354,7 @@ export class ProductDetailsComponent implements OnInit {
     this.catalog.getProduct(id).subscribe({
       next: (product) => {
         this.product.set(product);
-        this.images.set(this.galleryAdapter.getImages(product.id));
+        this.images.set(this.galleryAdapter.getImages(product.id, product.name));
         this.breadcrumbItems = [
           { label: 'Products', routerLink: '/' },
           { label: product.name }
