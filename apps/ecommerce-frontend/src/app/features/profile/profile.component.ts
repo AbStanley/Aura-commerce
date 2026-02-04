@@ -36,36 +36,38 @@ import { TableModule } from 'primeng/table';
     <div class="grid">
       <!-- Profile Card -->
       <div class="col-12 lg:col-4">
-        <p-card>
+        <div class="surface-card border-round-lg p-4 shadow-1">
           <div class="text-center mb-4">
             <p-avatar [label]="getInitials()" size="xlarge" shape="circle"
-                      styleClass="bg-primary text-white mb-3"></p-avatar>
-            <h2 class="text-xl font-semibold m-0">{{ userEmail() }}</h2>
-            <span class="text-500">Member since 2024</span>
+                      styleClass="mb-3" 
+                      [style]="{'background-color': 'var(--p-primary-color)', 'color': 'var(--p-primary-contrast-color)', 'font-size': '1.5rem'}">
+            </p-avatar>
+            <h2 class="text-xl font-semibold text-900 m-0 mb-1">{{ userEmail() }}</h2>
+            <span class="text-500 text-sm">Member since 2024</span>
           </div>
           
           <p-divider></p-divider>
           
           @if (isLoadingProfile()) {
             <div class="flex flex-column gap-3">
-              <p-skeleton height="2.5rem"></p-skeleton>
-              <p-skeleton height="2.5rem"></p-skeleton>
-              <p-skeleton height="2.5rem"></p-skeleton>
+              <p-skeleton height="2.5rem" styleClass="border-round"></p-skeleton>
+              <p-skeleton height="2.5rem" styleClass="border-round"></p-skeleton>
+              <p-skeleton height="2.5rem" styleClass="border-round"></p-skeleton>
             </div>
           } @else {
             <form [formGroup]="profileForm" (ngSubmit)="onUpdateProfile()" 
-                  class="flex flex-column gap-3">
+                  class="flex flex-column gap-4">
               <div class="flex flex-column gap-2">
-                <label class="font-medium">First Name</label>
+                <label class="font-medium text-900">First Name</label>
                 <input pInputText formControlName="firstName" class="w-full" />
               </div>
               <div class="flex flex-column gap-2">
-                <label class="font-medium">Last Name</label>
+                <label class="font-medium text-900">Last Name</label>
                 <input pInputText formControlName="lastName" class="w-full" />
               </div>
               <div class="flex flex-column gap-2">
-                <label class="font-medium">Email</label>
-                <input pInputText [value]="userEmail()" [disabled]="true" class="w-full" />
+                <label class="font-medium text-900">Email</label>
+                <input pInputText [value]="userEmail()" [disabled]="true" class="w-full surface-100" />
               </div>
 
               <p-button type="submit" label="Save Changes" icon="pi pi-check"
@@ -79,58 +81,50 @@ import { TableModule } from 'primeng/table';
               }
             </form>
           }
-        </p-card>
+        </div>
       </div>
 
       <!-- Order History -->
       <div class="col-12 lg:col-8">
-        <p-card header="Order History">
+        <div class="surface-card border-round-lg p-4 shadow-1">
+          <h3 class="text-xl font-semibold text-900 m-0 mb-4">
+            <i class="pi pi-list mr-2 text-primary"></i>
+            Order History
+          </h3>
+          
           @if (ordersLoading()) {
             <div class="flex flex-column gap-3">
               @for (i of [1, 2, 3]; track i) {
-                <div class="flex align-items-center gap-4 p-3 surface-50 border-round">
+                <div class="flex align-items-center gap-4 p-3 surface-50 border-round-lg">
                   <p-skeleton width="100px" height="1rem"></p-skeleton>
-                  <p-skeleton width="150px" height="1rem"></p-skeleton>
+                  <p-skeleton width="100px" height="1rem"></p-skeleton>
+                  <p-skeleton width="80px" height="1.5rem" styleClass="border-round-xl"></p-skeleton>
                   <p-skeleton width="80px" height="1.5rem"></p-skeleton>
-                  <p-skeleton width="100px" height="1.5rem"></p-skeleton>
                 </div>
               }
             </div>
           } @else if (orders().length === 0) {
             <div class="text-center py-6">
-              <i class="pi pi-inbox text-6xl text-300 mb-4"></i>
-              <h3 class="text-xl font-semibold mb-2">No orders yet</h3>
-              <p class="text-500">Start shopping to see your orders here!</p>
+              <i class="pi pi-inbox text-6xl text-300 mb-3 block"></i>
+              <h4 class="text-lg font-semibold text-900 mb-2">No orders yet</h4>
+              <p class="text-500 line-height-3">Start shopping to see your orders here!</p>
             </div>
           } @else {
-            <p-table [value]="orders()" [tableStyle]="{ 'min-width': '50rem' }"
-                     styleClass="p-datatable-sm">
-              <ng-template #header>
-                <tr>
-                  <th>Order ID</th>
-                  <th>Date</th>
-                  <th>Status</th>
-                  <th>Total</th>
-                </tr>
-              </ng-template>
-              <ng-template #body let-order>
-                <tr>
-                  <td>
-                    <span class="font-mono text-sm">{{ order.id.slice(0, 8) }}...</span>
-                  </td>
-                  <td>{{ order.orderDate | date:'mediumDate' }}</td>
-                  <td>
-                    <p-tag [value]="getStatusLabel(order.status)" 
-                           [severity]="getStatusSeverity(order.status)"></p-tag>
-                  </td>
-                  <td>
-                    <span class="font-bold text-primary">{{ order.totalAmount | currency }}</span>
-                  </td>
-                </tr>
-              </ng-template>
-            </p-table>
+            <div class="flex flex-column gap-3">
+              @for (order of orders(); track order.id) {
+                <div class="flex flex-column md:flex-row align-items-start md:align-items-center gap-3 p-3 surface-50 border-round-lg">
+                  <div class="flex-1">
+                    <span class="font-mono text-sm text-500">{{ order.id.slice(0, 8) }}...</span>
+                    <div class="text-900 font-medium mt-1">{{ order.orderDate | date:'mediumDate' }}</div>
+                  </div>
+                  <p-tag [value]="getStatusLabel(order.status)" 
+                         [severity]="getStatusSeverity(order.status)"></p-tag>
+                  <span class="font-bold text-primary text-lg">{{ order.totalAmount | currency }}</span>
+                </div>
+              }
+            </div>
           }
-        </p-card>
+        </div>
       </div>
     </div>
   `,

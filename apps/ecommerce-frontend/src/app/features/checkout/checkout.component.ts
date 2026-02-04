@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CartStore } from '../cart/cart.store';
 import { CheckoutService } from './checkout.service';
+import { FormsModule } from '@angular/forms';
 
 // PrimeNG Components
 import { CardModule } from 'primeng/card';
@@ -11,7 +12,6 @@ import { InputTextModule } from 'primeng/inputtext';
 import { DividerModule } from 'primeng/divider';
 import { MessageModule } from 'primeng/message';
 import { RadioButtonModule } from 'primeng/radiobutton';
-import { FormsModule } from '@angular/forms';
 import { StepsModule } from 'primeng/steps';
 import { MenuItem } from 'primeng/api';
 
@@ -34,140 +34,159 @@ import { MenuItem } from 'primeng/api';
     <div class="grid">
       <!-- Checkout Form -->
       <div class="col-12 lg:col-8">
-        <h1 class="text-2xl font-bold mb-4">Checkout</h1>
+        <h1 class="text-2xl font-bold text-900 mb-4">Checkout</h1>
         
         <!-- Steps Indicator -->
-        <p-steps [model]="steps" [activeIndex]="currentStep()" [readonly]="false"
-                 styleClass="mb-4"></p-steps>
+        <p-steps [model]="steps" [activeIndex]="currentStep()" [readonly]="true"
+                 styleClass="mb-5"></p-steps>
 
         <!-- Step 1: Shipping -->
         @if (currentStep() === 0) {
-          <p-card header="Shipping Address">
+          <div class="surface-card border-round-lg p-4 shadow-1">
+            <h3 class="text-lg font-semibold text-900 m-0 mb-4">
+              <i class="pi pi-map-marker mr-2 text-primary"></i>
+              Shipping Address
+            </h3>
+            
             <form [formGroup]="checkoutForm" class="flex flex-column gap-4">
               <div class="flex flex-column gap-2">
-                <label class="font-medium">Street Address</label>
+                <label class="font-medium text-900">Street Address</label>
                 <input pInputText formControlName="street" placeholder="123 Main St" class="w-full" />
               </div>
               
               <div class="grid">
-                <div class="col-6">
+                <div class="col-12 md:col-6">
                   <div class="flex flex-column gap-2">
-                    <label class="font-medium">City</label>
+                    <label class="font-medium text-900">City</label>
                     <input pInputText formControlName="city" placeholder="New York" class="w-full" />
                   </div>
                 </div>
-                <div class="col-6">
+                <div class="col-12 md:col-6">
                   <div class="flex flex-column gap-2">
-                    <label class="font-medium">State</label>
+                    <label class="font-medium text-900">State</label>
                     <input pInputText formControlName="state" placeholder="NY" class="w-full" />
                   </div>
                 </div>
               </div>
               
               <div class="grid">
-                <div class="col-6">
+                <div class="col-12 md:col-6">
                   <div class="flex flex-column gap-2">
-                    <label class="font-medium">ZIP Code</label>
+                    <label class="font-medium text-900">ZIP Code</label>
                     <input pInputText formControlName="zipCode" placeholder="10001" class="w-full" />
                   </div>
                 </div>
-                <div class="col-6">
+                <div class="col-12 md:col-6">
                   <div class="flex flex-column gap-2">
-                    <label class="font-medium">Country</label>
+                    <label class="font-medium text-900">Country</label>
                     <input pInputText formControlName="country" placeholder="USA" class="w-full" />
                   </div>
                 </div>
               </div>
               
-              <div class="flex justify-content-end">
+              <div class="flex justify-content-end pt-3">
                 <p-button label="Continue to Payment" icon="pi pi-arrow-right" iconPos="right"
                           (onClick)="currentStep.set(1)"
                           [disabled]="!isShippingValid()"></p-button>
               </div>
             </form>
-          </p-card>
+          </div>
         }
 
         <!-- Step 2: Payment -->
         @if (currentStep() === 1) {
-          <p-card header="Payment Method">
+          <div class="surface-card border-round-lg p-4 shadow-1">
+            <h3 class="text-lg font-semibold text-900 m-0 mb-4">
+              <i class="pi pi-credit-card mr-2 text-primary"></i>
+              Payment Method
+            </h3>
+            
             <div class="flex flex-column gap-3">
-              <div class="flex align-items-center gap-3 p-3 surface-50 border-round border-1 border-primary">
+              <div class="flex align-items-center gap-3 p-3 surface-50 border-round-lg border-1 border-primary cursor-pointer"
+                   (click)="paymentMethod = 'demo'">
                 <p-radioButton name="payment" value="demo" [(ngModel)]="paymentMethod"></p-radioButton>
-                <div>
-                  <div class="font-medium">Demo Payment</div>
+                <div class="flex-1">
+                  <div class="font-semibold text-900">Demo Payment</div>
                   <div class="text-500 text-sm">No actual payment required</div>
                 </div>
+                <i class="pi pi-check-circle text-primary text-xl" 
+                   [class.hidden]="paymentMethod !== 'demo'"></i>
               </div>
               
-              <div class="flex align-items-center gap-3 p-3 surface-100 border-round opacity-50">
+              <div class="flex align-items-center gap-3 p-3 surface-100 border-round-lg border-1 surface-border opacity-50">
                 <p-radioButton name="payment" value="card" [disabled]="true"></p-radioButton>
-                <div>
-                  <div class="font-medium">Credit Card</div>
-                  <div class="text-500 text-sm">Coming soon</div>
+                <div class="flex-1">
+                  <div class="font-medium text-500">Credit Card</div>
+                  <div class="text-400 text-sm">Coming soon</div>
                 </div>
               </div>
             </div>
 
             @if (checkoutService.error()) {
-              <p-message severity="error" [text]="checkoutService.error()!" styleClass="w-full mt-3"></p-message>
+              <p-message severity="error" [text]="checkoutService.error()!" styleClass="w-full mt-4"></p-message>
             }
 
-            <div class="flex justify-content-between mt-4">
-              <p-button label="Back" icon="pi pi-arrow-left" [outlined]="true"
+            <div class="flex justify-content-between pt-4 mt-3">
+              <p-button label="Back" icon="pi pi-arrow-left" [outlined]="true" severity="secondary"
                         (onClick)="currentStep.set(0)"></p-button>
               <p-button label="Place Order" icon="pi pi-check" 
                         [loading]="checkoutService.isProcessing()"
                         (onClick)="onSubmit()"
                         [disabled]="checkoutForm.invalid"></p-button>
             </div>
-          </p-card>
+          </div>
         }
       </div>
 
       <!-- Order Summary -->
       <div class="col-12 lg:col-4">
-        <p-card header="Order Summary">
-          <div class="flex flex-column gap-3 max-h-20rem overflow-y-auto">
+        <div class="surface-card border-round-lg p-4 shadow-2 sticky" style="top: 80px;">
+          <h3 class="text-lg font-semibold text-900 m-0 mb-4">Order Summary</h3>
+          
+          <div class="flex flex-column gap-3 mb-4" style="max-height: 250px; overflow-y: auto;">
             @for (item of cartStore.cart()?.items; track item.productId) {
-              <div class="flex gap-3">
-                <div class="surface-100 border-round flex align-items-center justify-content-center"
-                     style="width: 50px; height: 50px;">
-                  <i class="pi pi-box text-xl text-400"></i>
+              <div class="flex gap-3 align-items-center">
+                <div class="surface-100 border-round flex align-items-center justify-content-center flex-shrink-0"
+                     style="width: 48px; height: 48px;">
+                  <i class="pi pi-box text-lg text-400"></i>
                 </div>
-                <div class="flex-1">
-                  <div class="font-medium text-sm">{{ item.productName }}</div>
+                <div class="flex-1 min-w-0">
+                  <div class="font-medium text-900 text-sm white-space-nowrap overflow-hidden text-overflow-ellipsis">
+                    {{ item.productName }}
+                  </div>
                   <div class="text-500 text-xs">Qty: {{ item.quantity }}</div>
                 </div>
-                <div class="font-medium">{{ item.totalPrice | currency }}</div>
+                <span class="font-medium text-900">{{ item.totalPrice | currency }}</span>
               </div>
             }
           </div>
           
           <p-divider></p-divider>
           
-          <div class="flex flex-column gap-2">
+          <div class="flex flex-column gap-3">
             <div class="flex justify-content-between text-sm">
               <span class="text-500">Subtotal</span>
-              <span class="font-medium">{{ cartStore.totalPrice() | currency }}</span>
+              <span class="font-medium text-900">{{ cartStore.totalPrice() | currency }}</span>
             </div>
             <div class="flex justify-content-between text-sm">
               <span class="text-500">Shipping</span>
               <span class="font-medium text-green-500">Free</span>
             </div>
-            <p-divider></p-divider>
-            <div class="flex justify-content-between">
-              <span class="font-semibold">Total</span>
-              <span class="text-xl font-bold text-primary">{{ cartStore.totalPrice() | currency }}</span>
+            <p-divider styleClass="my-2"></p-divider>
+            <div class="flex justify-content-between align-items-center">
+              <span class="font-semibold text-900">Total</span>
+              <span class="text-2xl font-bold text-primary">{{ cartStore.totalPrice() | currency }}</span>
             </div>
           </div>
-        </p-card>
+        </div>
       </div>
     </div>
   `,
   styles: [`
     :host { display: block; }
-    .max-h-20rem { max-height: 20rem; }
+    .sticky { position: sticky; }
+    .hidden { display: none; }
+    .min-w-0 { min-width: 0; }
   `]
 })
 export class CheckoutComponent {

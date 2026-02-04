@@ -1,16 +1,15 @@
-import { Component, inject, signal, effect } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { RouterOutlet, RouterLink } from '@angular/router';
 import { CartStore } from '../features/cart/cart.store';
 import { AuthStore } from '../features/auth/auth.store';
 
 // PrimeNG Components
-import { MenubarModule } from 'primeng/menubar';
 import { ButtonModule } from 'primeng/button';
 import { BadgeModule } from 'primeng/badge';
 import { AvatarModule } from 'primeng/avatar';
 import { MenuModule } from 'primeng/menu';
-import { DividerModule } from 'primeng/divider';
 import { TooltipModule } from 'primeng/tooltip';
+import { RippleModule } from 'primeng/ripple';
 import { MenuItem } from 'primeng/api';
 
 @Component({
@@ -19,85 +18,90 @@ import { MenuItem } from 'primeng/api';
   imports: [
     RouterOutlet,
     RouterLink,
-    MenubarModule,
     ButtonModule,
     BadgeModule,
     AvatarModule,
     MenuModule,
-    DividerModule,
-    TooltipModule
+    TooltipModule,
+    RippleModule
   ],
   template: `
-    <div class="min-h-screen flex flex-col">
+    <div class="layout-wrapper">
       <!-- Header -->
-      <header class="surface-0 border-bottom-1 surface-border sticky top-0 z-5">
-        <div class="container flex align-items-center justify-content-between py-3">
-          <!-- Logo -->
-          <a routerLink="/" class="flex align-items-center gap-2 no-underline">
-            <span class="bg-primary border-round p-2">
-              <i class="pi pi-shopping-bag text-white text-xl"></i>
-            </span>
-            <span class="text-xl font-bold text-primary hidden md:inline">E-Commerce</span>
-          </a>
-
-          <!-- Navigation -->
-          <nav class="flex align-items-center gap-3">
-            <a routerLink="/products" pButton pRipple label="Products" 
-               class="p-button-text p-button-plain hidden-mobile"></a>
-            
-            <!-- Cart -->
-            <a routerLink="/cart" pButton pRipple 
-               class="p-button-text p-button-rounded p-button-plain"
-               pTooltip="Cart" tooltipPosition="bottom">
-              <i class="pi pi-shopping-cart text-xl"></i>
-              @if (cartStore.itemCount() > 0) {
-                <p-badge [value]="cartStore.itemCount().toString()" 
-                         severity="danger" 
-                         class="absolute" 
-                         style="top: -5px; right: -5px;"></p-badge>
-              }
+      <header class="layout-header surface-card shadow-1">
+        <div class="container">
+          <div class="flex align-items-center justify-content-between py-3">
+            <!-- Logo -->
+            <a routerLink="/" class="flex align-items-center gap-2 text-decoration-none">
+              <div class="flex align-items-center justify-content-center bg-primary border-round" 
+                   style="width: 40px; height: 40px;">
+                <i class="pi pi-shopping-bag text-white text-xl"></i>
+              </div>
+              <span class="text-xl font-bold text-primary hidden md:inline">E-Commerce</span>
             </a>
 
-            <!-- Dark Mode Toggle -->
-            <button pButton pRipple 
-                    class="p-button-text p-button-rounded p-button-plain"
-                    (click)="toggleTheme()"
-                    pTooltip="Toggle theme" tooltipPosition="bottom">
-              <i [class]="isDark() ? 'pi pi-sun' : 'pi pi-moon'" class="text-xl"></i>
-            </button>
+            <!-- Navigation -->
+            <nav class="flex align-items-center gap-2">
+              <a routerLink="/products" class="p-button p-button-text p-button-plain hidden md:flex">
+                <span class="p-button-label">Products</span>
+              </a>
+              
+              <!-- Cart -->
+              <a routerLink="/cart" class="p-button p-button-text p-button-rounded relative"
+                 pTooltip="Cart" tooltipPosition="bottom">
+                <i class="pi pi-shopping-cart text-xl"></i>
+                @if (cartStore.itemCount() > 0) {
+                  <span class="cart-badge">{{ cartStore.itemCount() }}</span>
+                }
+              </a>
 
-            <!-- User Menu -->
-            @if (authStore.isAuthenticated()) {
-              <p-avatar [label]="getInitial()" 
-                        shape="circle" 
-                        class="cursor-pointer"
-                        (click)="userMenu.toggle($event)"
-                        pTooltip="Account" tooltipPosition="bottom"></p-avatar>
-              <p-menu #userMenu [model]="userMenuItems" [popup]="true"></p-menu>
-            } @else {
-              <a routerLink="/login" pButton pRipple label="Sign In" 
-                 class="p-button-sm"></a>
-            }
-          </nav>
+              <!-- Dark Mode Toggle -->
+              <button type="button" class="p-button p-button-text p-button-rounded"
+                      (click)="toggleTheme()"
+                      pTooltip="Toggle theme" tooltipPosition="bottom">
+                <i [class]="isDark() ? 'pi pi-sun' : 'pi pi-moon'" class="text-xl"></i>
+              </button>
+
+              <!-- User Menu -->
+              @if (authStore.isAuthenticated()) {
+                <p-avatar [label]="getInitial()" 
+                          shape="circle" 
+                          styleClass="cursor-pointer bg-primary text-white"
+                          (click)="userMenu.toggle($event)"
+                          pTooltip="Account" tooltipPosition="bottom"></p-avatar>
+                <p-menu #userMenu [model]="userMenuItems" [popup]="true"></p-menu>
+              } @else {
+                <a routerLink="/login" class="p-button p-button-sm">
+                  <span class="p-button-label">Sign In</span>
+                </a>
+              }
+            </nav>
+          </div>
         </div>
       </header>
 
       <!-- Main Content -->
-      <main class="flex-1 py-5">
+      <main class="layout-main py-5">
         <div class="container">
           <router-outlet />
         </div>
       </main>
 
       <!-- Footer -->
-      <footer class="surface-100 border-top-1 surface-border py-4 mt-auto">
+      <footer class="layout-footer surface-100 border-top-1 surface-border py-4">
         <div class="container">
           <div class="flex flex-column md:flex-row align-items-center justify-content-between gap-3">
             <span class="text-500 text-sm">© 2025 E-Commerce. Built with Angular & PrimeNG.</span>
             <div class="flex gap-3">
-              <a href="#" class="text-500 hover:text-primary"><i class="pi pi-github text-xl"></i></a>
-              <a href="#" class="text-500 hover:text-primary"><i class="pi pi-twitter text-xl"></i></a>
-              <a href="#" class="text-500 hover:text-primary"><i class="pi pi-linkedin text-xl"></i></a>
+              <a href="#" class="text-500 hover:text-primary transition-colors transition-duration-200">
+                <i class="pi pi-github text-xl"></i>
+              </a>
+              <a href="#" class="text-500 hover:text-primary transition-colors transition-duration-200">
+                <i class="pi pi-twitter text-xl"></i>
+              </a>
+              <a href="#" class="text-500 hover:text-primary transition-colors transition-duration-200">
+                <i class="pi pi-linkedin text-xl"></i>
+              </a>
             </div>
           </div>
         </div>
@@ -105,12 +109,37 @@ import { MenuItem } from 'primeng/api';
     </div>
   `,
   styles: [`
-    :host { display: block; }
-    .min-h-screen { min-height: 100vh; }
-    .z-5 { z-index: 1000; }
-    .no-underline { text-decoration: none; }
-    .cursor-pointer { cursor: pointer; }
-    .hover\\:text-primary:hover { color: var(--p-primary-500); }
+    .layout-wrapper {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+    .layout-header {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+    .layout-main {
+      flex: 1;
+    }
+    .cart-badge {
+      position: absolute;
+      top: 0;
+      right: 0;
+      background: var(--p-red-500);
+      color: white;
+      font-size: 0.65rem;
+      font-weight: 600;
+      border-radius: 50%;
+      width: 18px;
+      height: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .text-decoration-none {
+      text-decoration: none;
+    }
   `]
 })
 export class MainLayoutComponent {
@@ -127,7 +156,6 @@ export class MainLayoutComponent {
   ];
 
   constructor() {
-    // Check system preference on init
     if (typeof window !== 'undefined') {
       const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
       const savedTheme = localStorage.getItem('theme');

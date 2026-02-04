@@ -11,8 +11,7 @@ import { PasswordModule } from 'primeng/password';
 import { ButtonModule } from 'primeng/button';
 import { DividerModule } from 'primeng/divider';
 import { MessageModule } from 'primeng/message';
-import { IconFieldModule } from 'primeng/iconfield';
-import { InputIconModule } from 'primeng/inputicon';
+import { FloatLabelModule } from 'primeng/floatlabel';
 
 @Component({
   selector: 'app-login',
@@ -27,34 +26,37 @@ import { InputIconModule } from 'primeng/inputicon';
     ButtonModule,
     DividerModule,
     MessageModule,
-    IconFieldModule,
-    InputIconModule
+    FloatLabelModule
   ],
   template: `
-    <div class="flex align-items-center justify-content-center min-h-30rem py-6">
-      <p-card class="w-full max-w-25rem animate-fade-in">
-        <ng-template pTemplate="header">
-          <div class="text-center p-4 pb-0">
-            <i class="pi pi-user text-4xl text-primary mb-3"></i>
-            <h2 class="text-2xl font-bold m-0">Welcome Back</h2>
-            <p class="text-500 mt-2 mb-0">Sign in to continue shopping</p>
+    <div class="flex align-items-center justify-content-center py-8">
+      <div class="surface-card border-round-xl shadow-4 p-5 w-full animate-fade-in" style="max-width: 400px;">
+        <!-- Header -->
+        <div class="text-center mb-5">
+          <div class="flex justify-content-center mb-3">
+            <div class="flex align-items-center justify-content-center bg-primary-100 border-round-xl" 
+                 style="width: 64px; height: 64px;">
+              <i class="pi pi-user text-primary text-4xl"></i>
+            </div>
           </div>
-        </ng-template>
+          <h2 class="text-2xl font-bold text-900 m-0 mb-2">Welcome Back</h2>
+          <p class="text-500 m-0">Sign in to continue shopping</p>
+        </div>
 
         <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="flex flex-column gap-4">
           <!-- Email -->
           <div class="flex flex-column gap-2">
-            <label for="email" class="font-medium">Email</label>
-            <p-iconfield>
-              <p-inputicon styleClass="pi pi-envelope"></p-inputicon>
+            <label for="email" class="font-medium text-900">Email</label>
+            <span class="p-input-icon-left w-full">
+              <i class="pi pi-envelope"></i>
               <input id="email" type="email" pInputText formControlName="email" 
                      placeholder="you@example.com" class="w-full" />
-            </p-iconfield>
+            </span>
           </div>
 
           <!-- Password -->
           <div class="flex flex-column gap-2">
-            <label for="password" class="font-medium">Password</label>
+            <label for="password" class="font-medium text-900">Password</label>
             <p-password id="password" formControlName="password" 
                         placeholder="Enter password"
                         [feedback]="false" 
@@ -70,12 +72,13 @@ import { InputIconModule } from 'primeng/inputicon';
 
           <!-- Submit -->
           <p-button type="submit" label="Sign In" 
+                    icon="pi pi-sign-in"
                     [loading]="isLoading()" 
                     [disabled]="loginForm.invalid || isLoading()"
                     styleClass="w-full"></p-button>
 
           <p-divider align="center">
-            <span class="text-500 text-sm">or continue with</span>
+            <span class="text-500 text-sm font-medium">or continue with</span>
           </p-divider>
 
           <!-- Social Login Placeholders -->
@@ -89,21 +92,18 @@ import { InputIconModule } from 'primeng/inputicon';
           </div>
         </form>
 
-        <ng-template pTemplate="footer">
-          <div class="text-center">
-            <span class="text-500">Don't have an account? </span>
-            <a routerLink="/register" class="text-primary font-medium no-underline hover:underline">
-              Sign up
-            </a>
-          </div>
-        </ng-template>
-      </p-card>
+        <!-- Footer -->
+        <div class="text-center mt-5">
+          <span class="text-500">Don't have an account? </span>
+          <a routerLink="/register" class="text-primary font-medium no-underline hover:underline">
+            Sign up
+          </a>
+        </div>
+      </div>
     </div>
   `,
   styles: [`
     :host { display: block; }
-    .min-h-30rem { min-height: 30rem; }
-    .max-w-25rem { max-width: 25rem; }
     .no-underline { text-decoration: none; }
     .hover\\:underline:hover { text-decoration: underline; }
   `]

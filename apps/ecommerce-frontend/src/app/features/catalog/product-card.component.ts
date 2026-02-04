@@ -1,4 +1,5 @@
 import { Component, input, signal, inject } from '@angular/core';
+import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { Product } from './catalog.service';
 import { CartStore } from '../cart/cart.store';
@@ -13,72 +14,80 @@ import { TagModule } from 'primeng/tag';
   standalone: true,
   imports: [CommonModule, CardModule, ButtonModule, TagModule],
   template: `
-    <p-card [style]="{ cursor: 'pointer' }" (click)="navigateToProduct()">
+    <div class="product-card surface-card border-round-lg overflow-hidden shadow-1 h-full 
+                transition-all transition-duration-200 hover:shadow-4 cursor-pointer"
+         (click)="navigateToProduct()">
       <!-- Image Section -->
-      <ng-template pTemplate="header">
-        <div class="relative overflow-hidden" style="height: 200px;">
-          <div class="w-full h-full flex align-items-center justify-content-center surface-100">
-            <i class="pi pi-box text-6xl text-300"></i>
-          </div>
-          
-          <!-- Stock Badge -->
-          @if (product().stockQuantity && product().stockQuantity < 10) {
-            <p-tag severity="warn" value="Low Stock" 
-                   class="absolute" style="top: 10px; left: 10px;"></p-tag>
-          }
-          
-          <!-- Quick View Overlay -->
-          <div class="quick-view-overlay absolute inset-0 flex align-items-center justify-content-center">
-            <p-button icon="pi pi-eye" label="Quick View" 
-                      [rounded]="true" size="small"
-                      (click)="$event.stopPropagation(); navigateToProduct()"></p-button>
-          </div>
+      <div class="product-image relative overflow-hidden" style="height: 200px;">
+        <div class="w-full h-full flex align-items-center justify-content-center surface-100">
+          <i class="pi pi-box text-6xl text-300"></i>
         </div>
-      </ng-template>
+        
+        <!-- Stock Badge -->
+        @if (product().stockQuantity && product().stockQuantity < 10) {
+          <p-tag severity="warn" value="Low Stock" 
+                 styleClass="absolute" style="top: 12px; left: 12px;"></p-tag>
+        }
+        
+        <!-- Quick View Overlay -->
+        <div class="quick-overlay absolute top-0 left-0 right-0 bottom-0 
+                    flex align-items-center justify-content-center">
+          <p-button icon="pi pi-eye" label="Quick View" 
+                    [rounded]="true" size="small"
+                    (click)="$event.stopPropagation(); navigateToProduct()"></p-button>
+        </div>
+      </div>
 
       <!-- Content -->
-      <div class="flex flex-column gap-2">
-        <span class="text-500 text-sm">{{ product().sku }}</span>
-        <h3 class="text-lg font-semibold m-0 line-clamp-1">{{ product().name }}</h3>
-        <p class="text-500 text-sm m-0 line-clamp-2">{{ product().description }}</p>
+      <div class="p-3">
+        <span class="text-500 text-sm block mb-1">{{ product().sku }}</span>
+        <h3 class="text-lg font-semibold m-0 mb-1 white-space-nowrap overflow-hidden text-overflow-ellipsis">
+          {{ product().name }}
+        </h3>
+        <p class="text-500 text-sm m-0 mb-3 line-height-3 overflow-hidden" style="max-height: 2.5rem;">
+          {{ product().description }}
+        </p>
         
-        <div class="flex align-items-center justify-content-between mt-2">
+        <div class="flex align-items-center justify-content-between">
           <span class="text-2xl font-bold text-primary">{{ product().price | currency }}</span>
           <p-button 
             icon="pi pi-shopping-cart" 
             [loading]="isAdding()"
             [disabled]="isAdding()"
-            (click)="$event.stopPropagation(); addToCart()"
+            (onClick)="$event.stopPropagation(); addToCart()"
             pTooltip="Add to cart"
             tooltipPosition="top"
             [rounded]="true"
-            [outlined]="true">
+            severity="secondary">
           </p-button>
         </div>
       </div>
-    </p-card>
+    </div>
   `,
   styles: [`
-    :host { display: block; }
-    .line-clamp-1 { display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
-    .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-    .quick-view-overlay {
+    .product-card {
+      display: flex;
+      flex-direction: column;
+    }
+    .quick-overlay {
       background: rgba(0, 0, 0, 0.5);
       opacity: 0;
       transition: opacity 0.2s ease;
     }
-    :host(:hover) .quick-view-overlay { opacity: 1; }
-    .inset-0 { top: 0; left: 0; right: 0; bottom: 0; }
+    .product-card:hover .quick-overlay {
+      opacity: 1;
+    }
   `]
 })
 export class ProductCardComponent {
   readonly product = input.required<Product>();
   private readonly cartStore = inject(CartStore);
+  private readonly router = inject(Router);
 
   readonly isAdding = signal(false);
 
   navigateToProduct() {
-    window.location.href = `/products/${this.product().id}`;
+    this.router.navigate(['/products', this.product().id]);
   }
 
   async addToCart() {
