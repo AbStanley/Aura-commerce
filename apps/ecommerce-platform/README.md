@@ -64,7 +64,8 @@ graph TD
 *   **Monorepo Strategy**: All services live in one repo for easier dependency management (`Shared` libraries) and unified CI/CD, while maintaining strict deployment isolation.
 *   **Clean Architecture**: Each service is divided into `Domain` (Core), `Application` (Use Cases), `Infrastructure` (Db/Bus), and `API` (Entry). This ensures technology independence for the core logic.
 *   **Resilience First**: Implemented **Polly** retries for Database and Message Bus failures. The system is designed to "self-heal" during transient outages.
-*   **Observability**: Centralized logging via **Seq** and **Serilog** ensures you can trace a request from Gateway -> Service -> Database -> Event Bus -> Consumer in one view.
+*   **Observability**: Integrated **OpenTelemetry** for distributed tracing. Every request across the 7-service mesh is traceable via **Jaeger**, complemented by structured logging with **Seq** and **Serilog**.
+*   **Kubernetes Ready**: Complete set of K8s manifests including Deployments, Services, ConfigMaps, and Ingress for production-grade orchestration.
 
 ---
 
@@ -109,6 +110,7 @@ docker-compose -f apps/ecommerce-platform/docker-compose.yml up -d --build
 | **Order Service** | [http://localhost:5004](http://localhost:5004) | [Open Docs](http://localhost:5004/scalar/v1) | N/A |
 | **Payment Service** | [http://localhost:5005](http://localhost:5005) | [Open Docs](http://localhost:5005/scalar/v1) | N/A |
 | **Notify Service** | [http://localhost:5006](http://localhost:5006) | [Open Docs](http://localhost:5006/scalar/v1) | N/A |
+| **Jaeger (Traces)** | [http://localhost:16686](http://localhost:16686) | [UI](http://localhost:16686) | N/A |
 | **Seq Logs** | [http://localhost:8091](http://localhost:8091) | [Dashboard](http://localhost:8091) | `admin` / `password` |
 | **RabbitMQ** | [http://localhost:15672](http://localhost:15672) | [Dashboard](http://localhost:15672) | `guest` / `guest` |
 
@@ -196,8 +198,31 @@ dotnet test apps/ecommerce-platform/ECommercePlatform.sln
 ```
 
 ### CI/CD
-*   Pipeline is defined in `.github/workflows/ci-cd.yml`.
-*   Automatically builds, tests, and validates Docker images on every push to `main`.
+*   Pipeline: defined in `.github/workflows/ci-cd.yml`.
+*   Features:
+    *   **Automated Testing**: Runs unit, integration, and E2E tests on every PR.
+    *   **Code Coverage**: Integrated **Coverlet** reports shared via PR comments.
+    *   **Docker Security**: Validates `docker-compose` and Dockerfiles.
+    *   **Container Registry**: Automatically pushes tagged images to **GitHub Container Registry (ghcr.io)** on push to `main`.
+
+---
+
+## ☸️ Kubernetes Deployment
+
+The project includes a full set of Kubernetes manifests for production-grade deployment found in the `k8s/` directory.
+
+### Quick Deploy (Base)
+1.  **Create Namespace**: `kubectl apply -f k8s/base/namespace.yaml`
+2.  **Apply Configs**: `kubectl apply -f k8s/base/configmap.yaml`
+3.  **Setup Secrets**: 
+    - Copy `k8s/base/secrets.yaml.template` to `k8s/base/secrets.yaml`.
+    - Fill in actual secrets.
+    - `kubectl apply -f k8s/base/secrets.yaml`
+4.  **Deploy Services**: `kubectl apply -f k8s/services/`
+5.  **Setup Ingress**: `kubectl apply -f k8s/ingress.yaml`
+
+> [!TIP]
+> Use a tool like **Helm** or **Kustomize** (available in the repo structure) for managing different environments (Dev/Staging/Prod).
 
 ---
 
@@ -211,9 +236,14 @@ The solution includes a comprehensive "Test Pyramid" ensuring quality at all lev
 Fast, isolated tests for Domain Entities and Application Handlers.
 ```bash
 # Run all unit tests
-dotnet test apps/ecommerce-platform/services/OrderService/OrderService.UnitTests
-dotnet test apps/ecommerce-platform/services/ShoppingCartService/ShoppingCartService.UnitTests
+dotnet test ECommercePlatform.sln --filter "FullyQualifiedName~UnitTests"
 ```
+
+**New Projects Added**: 
+- `PaymentService.UnitTests`
+- `ProductCatalogService.UnitTests`
+- `NotificationService.UnitTests`
+- `UserService.UnitTests`
 
 ### 2. Integration Tests (Component Wiring)
 Uses **Testcontainers** to spin up real PostgreSQL and RabbitMQ instances for testing API endpoints.
