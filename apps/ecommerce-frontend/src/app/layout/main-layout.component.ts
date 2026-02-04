@@ -2,6 +2,7 @@ import { Component, inject, signal } from '@angular/core';
 import { RouterOutlet, RouterLink } from '@angular/router';
 import { CartStore } from '../features/cart/cart.store';
 import { AuthStore } from '../features/auth/auth.store';
+import { WishlistStore } from '../features/catalog/wishlist.store';
 
 // PrimeNG Components
 import { ButtonModule } from 'primeng/button';
@@ -45,6 +46,15 @@ import { MenuItem } from 'primeng/api';
               <a routerLink="/products" class="p-button p-button-text p-button-plain hidden md:flex">
                 <span class="p-button-label">Products</span>
               </a>
+              
+              <!-- Wishlist (New) -->
+              <button type="button" class="p-button p-button-text p-button-rounded relative"
+                      pTooltip="Wishlist" tooltipPosition="bottom">
+                <i class="pi pi-heart text-xl"></i>
+                @if (wishlistStore.count() > 0) {
+                  <span class="cart-badge bg-primary">{{ wishlistStore.count() }}</span>
+                }
+              </button>
               
               <!-- Cart -->
               <a routerLink="/cart" class="p-button p-button-text p-button-rounded relative"
@@ -118,6 +128,8 @@ import { MenuItem } from 'primeng/api';
       position: sticky;
       top: 0;
       z-index: 1000;
+      backdrop-filter: blur(10px);
+      background-color: var(--p-surface-card-opacity, var(--p-surface-card));
     }
     .layout-main {
       flex: 1;
@@ -145,6 +157,7 @@ import { MenuItem } from 'primeng/api';
 export class MainLayoutComponent {
   readonly cartStore = inject(CartStore);
   readonly authStore = inject(AuthStore);
+  readonly wishlistStore = inject(WishlistStore);
 
   readonly isDark = signal(false);
 

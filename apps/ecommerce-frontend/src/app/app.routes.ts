@@ -15,6 +15,10 @@ export const routes: Routes = [
         loadComponent: () => import('./features/auth/register.component').then(m => m.RegisterComponent)
     },
     {
+        path: 'auth/callback',
+        loadComponent: () => import('./features/auth/auth-callback.component').then(m => m.AuthCallbackComponent)
+    },
+    {
         path: 'cart',
         canActivate: [authGuard],
         loadComponent: () => import('./features/cart/cart.component').then(m => m.CartComponent)

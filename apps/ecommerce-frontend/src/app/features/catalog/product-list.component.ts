@@ -10,6 +10,8 @@ import { InputTextModule } from 'primeng/inputtext';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { ButtonModule } from 'primeng/button';
+import { ToastModule } from 'primeng/toast';
+import { MessageService } from 'primeng/api';
 
 @Component({
   selector: 'app-product-list',
@@ -22,9 +24,12 @@ import { ButtonModule } from 'primeng/button';
     InputTextModule,
     IconFieldModule,
     InputIconModule,
-    ButtonModule
+    ButtonModule,
+    ToastModule
   ],
+  providers: [MessageService],
   template: `
+    <p-toast></p-toast>
     <!-- Hero Section -->
     <section class="text-center mb-6 pt-4 animate-fade-in">
       <h1 class="text-4xl md:text-5xl font-bold mb-3">
