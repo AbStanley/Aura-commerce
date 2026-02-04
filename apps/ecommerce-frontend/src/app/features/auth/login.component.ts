@@ -147,14 +147,12 @@ export class LoginComponent {
   }
 
   onGoogleLogin() {
-    // Mock Social Login: Redirect to callback with fake token
-    const mockToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJnb29nbGUtdXNlciIsImVtYWlsIjoiZGVtb0Bnb29nbGUuY29tIiwibmFtZSI6Ikdvb2dsZSBVc2VyIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c';
-    window.location.href = `/auth/callback?token=${mockToken}&provider=Google`;
+    // Redirect to backend OAuth endpoint which will handle the redirect to callback
+    window.location.href = 'http://localhost:5000/api/auth/google';
   }
 
   onGithubLogin() {
-    // Mock Social Login: Redirect to callback with fake token
-    const mockToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJnaXRodWItdXNlciIsImVtYWlsIjoiZGVtb0BnaXRodWIuY29tIiwibmFtZSI6IkdpdEh1YiBVc2VyIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c';
-    window.location.href = `/auth/callback?token=${mockToken}&provider=GitHub`;
+    // Redirect to backend OAuth endpoint which will handle the redirect to callback
+    window.location.href = 'http://localhost:5000/api/auth/github';
   }
 }

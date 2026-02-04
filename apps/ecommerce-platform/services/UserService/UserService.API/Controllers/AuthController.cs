@@ -46,4 +46,21 @@ public sealed class AuthController(ISender sender) : ControllerBase
         var result = await _sender.Send(command);
         return result.IsSuccess ? Ok() : BadRequest(new { error = result.Error });
     }
+
+    // Mock Social Login Endpoints (Simulating OIDC Redirects)
+    [HttpGet("google")]
+    public IActionResult KeyGoogleLogin()
+    {
+        //TODO: Implement actual Google OAuth 2.0 flow
+        const string mockToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJnb29nbGUtdXNlciIsImVtYWlsIjoiZGVtb0Bnb29nbGUuY29tIiwibmFtZSI6Ikdvb2dsZSBVc2VyIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c";
+        return Redirect($"http://localhost:4200/auth/callback?token={mockToken}&provider=Google");
+    }
+
+    [HttpGet("github")]
+    public IActionResult GithubLogin()
+    {
+        //TODO: Implement actual GitHub OAuth 2.0 flow
+        const string mockToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJnaXRodWItdXNlciIsImVtYWlsIjoiZGVtb0BnaXRodWIuY29tIiwibmFtZSI6IkdpdEh1YiBVc2VyIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c";
+        return Redirect($"http://localhost:4200/auth/callback?token={mockToken}&provider=GitHub");
+    }
 }

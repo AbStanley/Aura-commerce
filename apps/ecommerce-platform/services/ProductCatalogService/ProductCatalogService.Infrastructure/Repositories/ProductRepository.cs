@@ -30,9 +30,9 @@ public sealed class ProductRepository(ProductCatalogDbContext context) : IProduc
         CancellationToken cancellationToken = default)
         => await context.Products
             .Where(p => p.IsActive && (
-                p.Name.Contains(searchTerm) ||
-                p.Description.Contains(searchTerm) ||
-                p.Sku.Contains(searchTerm)))
+                p.Name.ToLower().Contains(searchTerm.ToLower()) ||
+                p.Description.ToLower().Contains(searchTerm.ToLower()) ||
+                p.Sku.ToLower().Contains(searchTerm.ToLower())))
             .ToListAsync(cancellationToken);
 
     public async Task AddAsync(Product product, CancellationToken cancellationToken = default)

@@ -59,6 +59,21 @@ public static class ProductDataSeeder
 
         context.Products.AddRange(products);
         await context.SaveChangesAsync();
+
+        // Seed Inventory
+        Log.Information("Seeding inventory...");
+        var inventories = products.Select(p => Inventory.Create(p.Id, new Random().Next(20, 100))).ToList();
+        
+        // Ensure specific items mentioned by user have plenty of stock
+        var airFryer = products.FirstOrDefault(p => p.Name.Contains("Air Fryer"));
+        if(airFryer != null)
+        {
+             var inv = inventories.First(i => i.ProductId == airFryer.Id);
+             inv.QuantityAvailable = 50; 
+        }
+
+        context.Inventories.AddRange(inventories);
+        await context.SaveChangesAsync();
         
         Log.Information("Data seeding completed.");
     }
