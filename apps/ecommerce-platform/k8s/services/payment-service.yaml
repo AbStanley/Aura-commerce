@@ -1,0 +1,74 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: payment-service
+  namespace: ecommerce
+  labels:
+    app: payment-service
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: payment-service
+  template:
+    metadata:
+      labels:
+        app: payment-service
+    spec:
+      containers:
+      - name: payment-service
+        image: ghcr.io/abstanley/ecommerce/payment-service:latest
+        ports:
+        - containerPort: 8080
+        envFrom:
+        - configMapRef:
+            name: ecommerce-config
+        - secretRef:
+            name: ecommerce-secrets
+        env:
+        - name: ConnectionStrings__DefaultConnection
+          value: "Host=postgres;Port=5432;Database=ecommerce_payments;Username=$(POSTGRES_USER);Password=$(POSTGRES_PASSWORD);"
+        - name: RabbitMQ__UserName
+          valueFrom:
+            secretKeyRef:
+              name: ecommerce-secrets
+              key: RABBITMQ_DEFAULT_USER
+        - name: RabbitMQ__Password
+          valueFrom:
+            secretKeyRef:
+              name: ecommerce-secrets
+              key: RABBITMQ_DEFAULT_PASS
+        - name: Stripe__SecretKey
+          value: "sk_test_mock"  # Replace with actual secret in production
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "500m"
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 15
+          periodSeconds: 5
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: payment-service
+  namespace: ecommerce
+spec:
+  selector:
+    app: payment-service
+  ports:
+  - port: 8080
+    targetPort: 8080
+  type: ClusterIP

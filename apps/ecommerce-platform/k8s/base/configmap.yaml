@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ecommerce-config
+  namespace: ecommerce
+data:
+  ASPNETCORE_ENVIRONMENT: "Production"
+  Jwt__Issuer: "UserService"
+  Jwt__Audience: "ECommercePlatform"
+  Seq__ServerUrl: "http://seq:5341"
+  OpenTelemetry__Endpoint: "http://jaeger:4317"
+  RabbitMQ__Host: "rabbitmq"

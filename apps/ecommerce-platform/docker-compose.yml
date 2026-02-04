@@ -51,6 +51,18 @@ services:
     networks:
       - ecommerce-network
 
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    container_name: ecommerce-jaeger
+    environment:
+      COLLECTOR_OTLP_ENABLED: "true"
+    ports:
+      - "16686:16686" # Jaeger UI
+      - "4317:4317" # OTLP gRPC
+      - "4318:4318" # OTLP HTTP
+    networks:
+      - ecommerce-network
+
   # Microservices
   user-service:
     build:
@@ -64,6 +76,7 @@ services:
       - Jwt__Issuer=${JWT_ISSUER:-UserService}
       - Jwt__Audience=${JWT_AUDIENCE:-ECommercePlatform}
       - Seq__ServerUrl=http://seq:5341
+      - OpenTelemetry__Endpoint=http://jaeger:4317
     ports:
       - "5001:8080"
     depends_on:
@@ -84,6 +97,7 @@ services:
       - Jwt__Issuer=${JWT_ISSUER:-UserService}
       - Jwt__Audience=${JWT_AUDIENCE:-ECommercePlatform}
       - Seq__ServerUrl=http://seq:5341
+      - OpenTelemetry__Endpoint=http://jaeger:4317
     ports:
       - "5002:8080"
     depends_on:
@@ -104,6 +118,7 @@ services:
       - Jwt__Issuer=${JWT_ISSUER:-UserService}
       - Jwt__Audience=${JWT_AUDIENCE:-ECommercePlatform}
       - Seq__ServerUrl=http://seq:5341
+      - OpenTelemetry__Endpoint=http://jaeger:4317
     ports:
       - "5003:8080"
     depends_on:
@@ -127,6 +142,7 @@ services:
       - Jwt__Issuer=${JWT_ISSUER:-UserService}
       - Jwt__Audience=${JWT_AUDIENCE:-ECommercePlatform}
       - Seq__ServerUrl=http://seq:5341
+      - OpenTelemetry__Endpoint=http://jaeger:4317
     ports:
       - "5004:8080"
     depends_on:
@@ -155,6 +171,7 @@ services:
       - Jwt__Audience=${JWT_AUDIENCE:-ECommercePlatform}
       - Seq__ServerUrl=http://seq:5341
       - Stripe__SecretKey=sk_test_mock
+      - OpenTelemetry__Endpoint=http://jaeger:4317
     ports:
       - "5005:8080"
     depends_on:
@@ -182,6 +199,7 @@ services:
       - Jwt__Issuer=${JWT_ISSUER:-UserService}
       - Jwt__Audience=${JWT_AUDIENCE:-ECommercePlatform}
       - Seq__ServerUrl=http://seq:5341
+      - OpenTelemetry__Endpoint=http://jaeger:4317
     ports:
       - "5006:8080"
     depends_on:
@@ -208,6 +226,7 @@ services:
       - Jwt__Issuer=${JWT_ISSUER:-UserService}
       - Jwt__Audience=${JWT_AUDIENCE:-ECommercePlatform}
       - ReverseProxy__Clusters__user-service__Destinations__destination1__Address=http://user-service:8080
+      - OpenTelemetry__Endpoint=http://jaeger:4317
       - ReverseProxy__Clusters__product-service__Destinations__destination1__Address=http://product-service:8080
       - ReverseProxy__Clusters__cart-service__Destinations__destination1__Address=http://cart-service:8080
       - ReverseProxy__Clusters__order-service__Destinations__destination1__Address=http://order-service:8080
