@@ -1,0 +1,197 @@
+/* 
+  Custom Design System Variables & Utilities
+  (Simulating Tailwind-like utility classes for a premium feel without external build steps)
+*/
+
+/* 
+  Since we are not using Tailwind CLI (user requirement: Angular CLI standard),
+  we will implement a subset of Tailwind-like utilities and variables manually
+  or assume a CDN link in index.html for rapid prototyping if allowed.
+  
+  For now, defining the CSS variables for the design system.
+*/
+
+:root {
+    --primary: 37 99 235;
+    /* Blue 600 */
+    --secondary: 79 70 229;
+    /* Indigo 600 */
+    --background: 249 250 251;
+    /* Gray 50 */
+    --text: 17 24 39;
+    /* Gray 900 */
+
+    --radius: 0.5rem;
+
+    /* View Transition Names */
+    --transition-product-image: product-image;
+}
+
+body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background-color: rgb(var(--background));
+    color: rgb(var(--text));
+}
+
+/* Utility classes (simulating Tailwind for the shell) */
+.min-h-screen {
+    min-height: 100vh;
+}
+
+.flex {
+    display: flex;
+}
+
+.flex-col {
+    flex-direction: column;
+}
+
+.bg-gray-50 {
+    background-color: #f9fafb;
+}
+
+.bg-white\/80 {
+    background-color: rgba(255, 255, 255, 0.8);
+}
+
+.backdrop-blur-md {
+    backdrop-filter: blur(12px);
+}
+
+.border-b {
+    border-bottom-width: 1px;
+}
+
+.border-gray-200 {
+    border-color: #e5e7eb;
+}
+
+.sticky {
+    position: sticky;
+}
+
+.top-0 {
+    top: 0;
+}
+
+.z-50 {
+    z-index: 50;
+}
+
+.container {
+    width: 100%;
+    max-width: 1280px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.mx-auto {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.px-4 {
+    padding-left: 1rem;
+    padding-right: 1rem;
+}
+
+.h-16 {
+    height: 4rem;
+}
+
+.py-8 {
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+}
+
+.py-12 {
+    padding-top: 3rem;
+    padding-bottom: 3rem;
+}
+
+.items-center {
+    align-items: center;
+}
+
+.justify-between {
+    justify-content: space-between;
+}
+
+.font-bold {
+    font-weight: 700;
+}
+
+.text-xl {
+    font-size: 1.25rem;
+    line-height: 1.75rem;
+}
+
+.text-sm {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+}
+
+.font-medium {
+    font-weight: 500;
+}
+
+.text-gray-600 {
+    color: #4b5563;
+}
+
+.text-gray-900 {
+    color: #111827;
+}
+
+.text-gray-400 {
+    color: #9ca3af;
+}
+
+.bg-gray-900 {
+    background-color: #111827;
+}
+
+.hover\:text-blue-600:hover {
+    color: #2563eb;
+}
+
+.bg-clip-text {
+    -webkit-background-clip: text;
+    background-clip: text;
+}
+
+.text-transparent {
+    color: transparent;
+}
+
+.bg-gradient-to-r {
+    background-image: linear-gradient(to right, #2563eb, #4f46e5);
+}
+
+.gap-4 {
+    gap: 1rem;
+}
+
+.gap-6 {
+    gap: 1.5rem;
+}
+
+.hidden {
+    display: none;
+}
+
+.md\:flex {
+    display: flex;
+}
+
+/* Simplification for desktop-first dev */
+
+@media (min-width: 768px) {
+    .hidden {
+        display: none;
+    }
+
+    .md\:flex {
+        display: flex;
+    }
+}

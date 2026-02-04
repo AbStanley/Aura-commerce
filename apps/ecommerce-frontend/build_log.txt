@@ -1,0 +1,44 @@
+[35mPrerendered 0 static routes.[39m
+Application bundle generation failed. [3.509 seconds] - 2026-02-04T15:57:49.588Z
+
+X [ERROR] TS2769: No overload matches this call.
+  Overload 1 of 2, '(opts: RxResourceOptions<unknown, unknown> & { defaultValue: unknown; }): ResourceRef<unknown>', gave the following error.
+    Object literal may only specify known properties, and 'request' does not exist in type 'RxResourceOptions<unknown, unknown> & { defaultValue: unknown; }'.
+  Overload 2 of 2, '(opts: RxResourceOptions<unknown, unknown>): ResourceRef<unknown>', gave the following error.
+    Object literal may only specify known properties, and 'request' does not exist in type 'RxResourceOptions<unknown, unknown>'. [plugin angular-compiler]
+
+    src/app/features/catalog/catalog.service.ts:24:8:
+      24 Γöé         request: () => ({
+         Γò╡         ~~~~~~~
+
+
+X [ERROR] TS7031: Binding element 'request' implicitly has an 'any' type. [plugin angular-compiler]
+
+    src/app/features/catalog/catalog.service.ts:28:19:
+      28 Γöé         loader: ({ request }) => {
+         Γò╡                    ~~~~~~~
+
+
+X [ERROR] TS2305: Module '"./catalog.store"' has no exported member 'Product'. [plugin angular-compiler]
+
+    src/app/features/catalog/product-card.component.ts:3:9:
+      3 Γöé import { Product } from './catalog.store';
+        Γò╡          ~~~~~~~
+
+
+X [ERROR] TS2488: Type '{}' must have a '[Symbol.iterator]()' method that returns an iterator. [plugin angular-compiler]
+
+    src/app/features/catalog/product-list.component.ts:36:27:
+      36 Γöé           @for (product of productsList; track product.id) {
+         Γò╡                            ~~~~~~~~~~~~
+
+
+X [ERROR] Could not resolve "src/styles.css"
+
+    angular:styles/global:styles:1:8:
+      1 Γöé @import 'src/styles.css';
+        Γò╡         ~~~~~~~~~~~~~~~~
+
+  You can mark the path "src/styles.css" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+
+
