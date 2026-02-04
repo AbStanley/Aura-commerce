@@ -36,7 +36,7 @@ export const AuthStore = signalStore(
     withState({ ...initialState, isLoading: false, error: null as string | null }),
     withComputed((store) => ({
     })),
-    withMethods((store, http = inject(HttpClient), baseUrl = inject(API_BASE_URL), platformId = inject(PLATFORM_ID)) => ({
+    withMethods((store, http = inject(HttpClient), baseUrl = inject(API_BASE_URL), platformId = inject(PLATFORM_ID), router = inject(Router)) => ({
 
         async login(email: string, password: string): Promise<boolean> {
             patchState(store, { isLoading: true, error: null });
@@ -88,7 +88,7 @@ export const AuthStore = signalStore(
                 userId: null,
                 error: null
             });
-            inject(Router).navigate(['/login']);
+            router.navigate(['/login']);
         },
 
         // Helper to init from storage

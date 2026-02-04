@@ -158,9 +158,9 @@ export class ProductCardComponent {
     this.router.navigate(['/products', this.product().id]);
   }
 
-  toggleWishlist() {
+  async toggleWishlist() {
     const p = this.product();
-    const added = this.wishlistStore.toggleItem({
+    const added = await this.wishlistStore.toggleItem({
       id: p.id,
       name: p.name,
       price: p.price,

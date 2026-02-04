@@ -48,13 +48,13 @@ import { MenuItem } from 'primeng/api';
               </a>
               
               <!-- Wishlist (New) -->
-              <button type="button" class="p-button p-button-text p-button-rounded relative overflow-visible"
+              <a routerLink="/wishlist" class="p-button p-button-text p-button-rounded relative overflow-visible text-color"
                       pTooltip="Wishlist" tooltipPosition="bottom">
                 <i class="pi pi-heart text-xl"></i>
                 @if (wishlistStore.count() > 0) {
                   <span class="cart-badge bg-primary">{{ wishlistStore.count() }}</span>
                 }
-              </button>
+              </a>
               
               <!-- Cart -->
               <a routerLink="/cart" class="p-button p-button-text p-button-rounded relative overflow-visible"

@@ -368,11 +368,11 @@ export class ProductDetailsComponent implements OnInit {
     });
   }
 
-  toggleWishlist() {
+  async toggleWishlist() {
     const p = this.product();
     if (!p) return;
 
-    const added = this.wishlistStore.toggleItem({
+    const added = await this.wishlistStore.toggleItem({
       id: p.id,
       name: p.name,
       price: p.price,

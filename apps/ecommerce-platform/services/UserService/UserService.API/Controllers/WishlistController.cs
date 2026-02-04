@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -14,7 +15,8 @@ public class WishlistController(UserDbContext context) : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetWishlist()
     {
-        var userId = Guid.Parse(User.FindFirst("sub")?.Value ?? string.Empty);
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+
         var items = await context.Wishlists
             .Where(w => w.UserId == userId)
             .Select(w => w.ProductId)
@@ -25,7 +27,7 @@ public class WishlistController(UserDbContext context) : ControllerBase
     [HttpPost("{productId}")]
     public async Task<IActionResult> AddToWishlist(Guid productId)
     {
-        var userId = Guid.Parse(User.FindFirst("sub")?.Value ?? string.Empty);
+        if (!TryGetUserId(out var userId)) return Unauthorized();
         
         if (await context.Wishlists.AnyAsync(w => w.UserId == userId && w.ProductId == productId))
             return Ok(); // Already exists
@@ -38,7 +40,8 @@ public class WishlistController(UserDbContext context) : ControllerBase
     [HttpDelete("{productId}")]
     public async Task<IActionResult> RemoveFromWishlist(Guid productId)
     {
-        var userId = Guid.Parse(User.FindFirst("sub")?.Value ?? string.Empty);
+        if (!TryGetUserId(out var userId)) return Unauthorized();
+
         var item = await context.Wishlists.FirstOrDefaultAsync(w => w.UserId == userId && w.ProductId == productId);
         
         if (item != null)
@@ -47,5 +50,14 @@ public class WishlistController(UserDbContext context) : ControllerBase
             await context.SaveChangesAsync();
         }
         return Ok();
+    }
+
+    private bool TryGetUserId(out Guid userId)
+    {
+        userId = Guid.Empty;
+        var sub = User.FindFirst("sub")?.Value 
+                  ?? User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        return Guid.TryParse(sub, out userId);
     }
 }
