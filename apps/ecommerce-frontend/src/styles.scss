@@ -27,12 +27,31 @@ body {
     font-family: var(--font-family);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    background: var(--p-surface-0);
+    background: var(--p-surface-ground);
     color: var(--p-text-color);
     min-height: 100vh;
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* Layout Utilities */
+/* Dark Mode - Force background colors */
+.dark body,
+html.dark body {
+    background: var(--p-surface-ground) !important;
+}
+
+.dark .surface-ground {
+    background: var(--p-surface-ground) !important;
+}
+
+.dark .surface-card {
+    background: var(--p-surface-card) !important;
+}
+
+.dark .surface-section {
+    background: var(--p-surface-section) !important;
+}
+
+/* Layout */
 .container {
     width: 100%;
     max-width: 1280px;
@@ -53,13 +72,40 @@ body {
     }
 }
 
+@keyframes slide-up {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.5;
+    }
+}
+
 .animate-fade-in {
     animation: fade-in 0.3s ease-out forwards;
 }
 
-/* Dark Mode */
-.dark {
-    color-scheme: dark;
+.animate-slide-up {
+    animation: slide-up 0.4s ease-out forwards;
+}
+
+.animate-pulse {
+    animation: pulse 2s infinite;
 }
 
 /* Link Styles */
@@ -70,18 +116,24 @@ a {
 
 /* Card Enhancements */
 .p-card {
-    border: 1px solid var(--p-surface-200);
-    border-radius: var(--p-border-radius);
+    border: 1px solid var(--p-surface-border);
+    border-radius: var(--p-content-border-radius);
     transition: box-shadow 0.2s ease, transform 0.15s ease;
+    background: var(--p-surface-card);
 }
 
 .p-card:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
 }
 
 /* Button Enhancements */
 .p-button {
     font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.p-button:not(:disabled):hover {
+    transform: translateY(-1px);
 }
 
 /* Input Enhancements */
@@ -97,25 +149,103 @@ a {
     width: 100%;
 }
 
-/* Badge Variants for Order Status */
-.badge-success {
-    background-color: var(--p-green-100) !important;
-    color: var(--p-green-700) !important;
+/* Search Input Special Styling */
+.search-input {
+    background: var(--p-surface-50);
+    border: 2px solid transparent;
+    transition: all 0.2s ease;
 }
 
-.badge-warning {
-    background-color: var(--p-yellow-100) !important;
-    color: var(--p-yellow-700) !important;
+.search-input:focus {
+    background: var(--p-surface-0);
+    border-color: var(--p-primary-color);
 }
 
-.badge-destructive {
-    background-color: var(--p-red-100) !important;
-    color: var(--p-red-700) !important;
+/* Product Card Hover Effects */
+.product-card {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.badge-secondary {
-    background-color: var(--p-surface-200) !important;
-    color: var(--p-surface-700) !important;
+.product-card:hover {
+    transform: translateY(-4px);
+}
+
+/* Wishlist Button */
+.wishlist-btn {
+    transition: all 0.2s ease;
+}
+
+.wishlist-btn:hover {
+    color: var(--p-red-500) !important;
+    transform: scale(1.1);
+}
+
+.wishlist-btn.active {
+    color: var(--p-red-500) !important;
+}
+
+/* Social Login Buttons */
+.social-btn {
+    transition: all 0.2s ease;
+}
+
+.social-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.social-btn.google:hover {
+    background: #fff !important;
+    border-color: #ea4335 !important;
+    color: #ea4335 !important;
+}
+
+.social-btn.github:hover {
+    background: #24292e !important;
+    color: #fff !important;
+}
+
+/* Steps Enhancement */
+.p-steps .p-steps-item.p-steps-current .p-steps-number {
+    background: var(--p-primary-color);
+    color: var(--p-primary-contrast-color);
+}
+
+/* Tag Enhancements */
+.p-tag {
+    font-weight: 600;
+    letter-spacing: 0.025em;
+}
+
+/* Skeleton Animation */
+.p-skeleton {
+    animation: pulse 1.5s infinite !important;
+}
+
+/* Image Gallery */
+.product-gallery-main {
+    border-radius: var(--p-content-border-radius);
+    overflow: hidden;
+}
+
+.product-thumbnails {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.product-thumbnail {
+    width: 64px;
+    height: 64px;
+    border-radius: var(--p-content-border-radius);
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: all 0.2s ease;
+}
+
+.product-thumbnail:hover,
+.product-thumbnail.active {
+    border-color: var(--p-primary-color);
 }
 
 /* Responsive Utilities */
@@ -131,17 +261,57 @@ a {
     }
 }
 
-/* Quick View Overlay for Product Cards */
-.quick-view-overlay {
-    background: rgba(0, 0, 0, 0.5);
+/* Quick View Overlay */
+.quick-overlay {
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.7), transparent);
     opacity: 0;
-    transition: opacity 0.2s ease;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
+    transition: opacity 0.3s ease;
 }
 
-.p-card:hover .quick-view-overlay {
+.product-card:hover .quick-overlay {
     opacity: 1;
+}
+
+/* Gradient Text */
+.gradient-text {
+    background: linear-gradient(135deg, var(--p-primary-color), var(--p-primary-400));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Glass Effect */
+.glass {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.dark .glass {
+    background: rgba(0, 0, 0, 0.2);
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--p-surface-100);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--p-surface-400);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--p-surface-500);
+}
+
+/* Focus Styles */
+*:focus-visible {
+    outline: 2px solid var(--p-primary-color);
+    outline-offset: 2px;
 }

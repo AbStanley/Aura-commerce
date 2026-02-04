@@ -11,7 +11,6 @@ import { PasswordModule } from 'primeng/password';
 import { ButtonModule } from 'primeng/button';
 import { DividerModule } from 'primeng/divider';
 import { MessageModule } from 'primeng/message';
-import { FloatLabelModule } from 'primeng/floatlabel';
 
 @Component({
   selector: 'app-login',
@@ -25,25 +24,44 @@ import { FloatLabelModule } from 'primeng/floatlabel';
     PasswordModule,
     ButtonModule,
     DividerModule,
-    MessageModule,
-    FloatLabelModule
+    MessageModule
   ],
   template: `
     <div class="flex align-items-center justify-content-center py-8">
-      <div class="surface-card border-round-xl shadow-4 p-5 w-full animate-fade-in" style="max-width: 400px;">
+      <div class="surface-card border-round-xl shadow-4 p-5 w-full animate-slide-up" style="max-width: 420px;">
         <!-- Header -->
         <div class="text-center mb-5">
           <div class="flex justify-content-center mb-3">
-            <div class="flex align-items-center justify-content-center bg-primary-100 border-round-xl" 
-                 style="width: 64px; height: 64px;">
-              <i class="pi pi-user text-primary text-4xl"></i>
+            <div class="flex align-items-center justify-content-center border-round-xl" 
+                 style="width: 64px; height: 64px; background: linear-gradient(135deg, var(--p-primary-color), var(--p-primary-400));">
+              <i class="pi pi-user text-white text-4xl"></i>
             </div>
           </div>
           <h2 class="text-2xl font-bold text-900 m-0 mb-2">Welcome Back</h2>
           <p class="text-500 m-0">Sign in to continue shopping</p>
         </div>
 
-        <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="flex flex-column gap-4">
+        <!-- Social Login Buttons -->
+        <div class="flex gap-2 mb-4">
+          <button type="button" 
+                  class="p-button p-button-outlined p-button-secondary flex-1 justify-content-center social-btn google"
+                  (click)="onGoogleLogin()">
+            <i class="pi pi-google mr-2"></i>
+            <span>Google</span>
+          </button>
+          <button type="button" 
+                  class="p-button p-button-outlined p-button-secondary flex-1 justify-content-center social-btn github"
+                  (click)="onGithubLogin()">
+            <i class="pi pi-github mr-2"></i>
+            <span>GitHub</span>
+          </button>
+        </div>
+
+        <p-divider align="center">
+          <span class="text-500 text-sm font-medium px-2">or continue with email</span>
+        </p-divider>
+
+        <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="flex flex-column gap-4 mt-4">
           <!-- Email -->
           <div class="flex flex-column gap-2">
             <label for="email" class="font-medium text-900">Email</label>
@@ -56,7 +74,10 @@ import { FloatLabelModule } from 'primeng/floatlabel';
 
           <!-- Password -->
           <div class="flex flex-column gap-2">
-            <label for="password" class="font-medium text-900">Password</label>
+            <div class="flex justify-content-between align-items-center">
+              <label for="password" class="font-medium text-900">Password</label>
+              <a href="#" class="text-primary text-sm no-underline hover:underline">Forgot password?</a>
+            </div>
             <p-password id="password" formControlName="password" 
                         placeholder="Enter password"
                         [feedback]="false" 
@@ -76,20 +97,6 @@ import { FloatLabelModule } from 'primeng/floatlabel';
                     [loading]="isLoading()" 
                     [disabled]="loginForm.invalid || isLoading()"
                     styleClass="w-full"></p-button>
-
-          <p-divider align="center">
-            <span class="text-500 text-sm font-medium">or continue with</span>
-          </p-divider>
-
-          <!-- Social Login Placeholders -->
-          <div class="flex gap-2">
-            <p-button icon="pi pi-google" severity="secondary" [outlined]="true" 
-                      styleClass="flex-1" [disabled]="true"></p-button>
-            <p-button icon="pi pi-github" severity="secondary" [outlined]="true" 
-                      styleClass="flex-1" [disabled]="true"></p-button>
-            <p-button icon="pi pi-apple" severity="secondary" [outlined]="true" 
-                      styleClass="flex-1" [disabled]="true"></p-button>
-          </div>
         </form>
 
         <!-- Footer -->
@@ -137,5 +144,15 @@ export class LoginComponent {
     }
 
     this.isLoading.set(false);
+  }
+
+  onGoogleLogin() {
+    // Redirect to backend OAuth endpoint
+    window.location.href = 'http://localhost:5000/api/auth/google';
+  }
+
+  onGithubLogin() {
+    // Redirect to backend OAuth endpoint
+    window.location.href = 'http://localhost:5000/api/auth/github';
   }
 }

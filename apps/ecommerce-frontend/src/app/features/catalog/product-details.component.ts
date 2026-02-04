@@ -13,6 +13,7 @@ import { SkeletonModule } from 'primeng/skeleton';
 import { DividerModule } from 'primeng/divider';
 import { ButtonModule } from 'primeng/button';
 import { MessageModule } from 'primeng/message';
+import { TooltipModule } from 'primeng/tooltip';
 import { MenuItem } from 'primeng/api';
 
 @Component({
@@ -28,7 +29,8 @@ import { MenuItem } from 'primeng/api';
     SkeletonModule,
     DividerModule,
     ButtonModule,
-    MessageModule
+    MessageModule,
+    TooltipModule
   ],
   template: `
     <!-- Breadcrumb -->
@@ -39,6 +41,11 @@ import { MenuItem } from 'primeng/api';
       <div class="grid">
         <div class="col-12 md:col-6">
           <p-skeleton width="100%" height="400px" styleClass="border-round-lg"></p-skeleton>
+          <div class="flex gap-2 mt-3">
+            @for (i of [1,2,3,4]; track i) {
+              <p-skeleton width="64px" height="64px" styleClass="border-round"></p-skeleton>
+            }
+          </div>
         </div>
         <div class="col-12 md:col-6">
           <p-skeleton width="30%" height="1rem" styleClass="mb-2"></p-skeleton>
@@ -53,20 +60,43 @@ import { MenuItem } from 'primeng/api';
         </div>
       </div>
     } @else if (product()) {
-      <div class="grid">
-        <!-- Product Image -->
+      <div class="grid animate-fade-in">
+        <!-- Product Images -->
         <div class="col-12 md:col-6 lg:col-5">
           <div class="surface-card border-round-xl p-4 shadow-1">
-            <div class="relative overflow-hidden border-round-lg" style="height: 400px;">
+            <!-- Main Image -->
+            <div class="relative overflow-hidden border-round-lg product-gallery-main" style="height: 400px;">
               <div class="w-full h-full flex align-items-center justify-content-center surface-100">
                 <i class="pi pi-box text-8xl text-300"></i>
               </div>
               
               <!-- Discount Badge -->
               @if (product()!.price > 50) {
-                <div class="absolute bg-red-500 text-white font-bold px-3 py-1 border-round-xl text-sm"
+                <div class="absolute bg-red-500 text-white font-bold px-3 py-1 border-round-xl text-sm shadow-2"
                      style="top: 16px; right: 16px;">
                   -20% OFF
+                </div>
+              }
+              
+              <!-- Wishlist Button -->
+              <button type="button" 
+                      class="absolute p-button p-button-rounded p-button-text wishlist-btn"
+                      [class.active]="isWishlisted()"
+                      style="top: 16px; left: 16px; background: rgba(255,255,255,0.9);"
+                      (click)="toggleWishlist()"
+                      pTooltip="Add to wishlist">
+                <i [class]="isWishlisted() ? 'pi pi-heart-fill' : 'pi pi-heart'" 
+                   class="text-xl"></i>
+              </button>
+            </div>
+            
+            <!-- Thumbnail Gallery -->
+            <div class="product-thumbnails mt-3">
+              @for (i of [1,2,3,4]; track i) {
+                <div class="product-thumbnail surface-100 flex align-items-center justify-content-center"
+                     [class.active]="selectedImage() === i"
+                     (click)="selectedImage.set(i)">
+                  <i class="pi pi-image text-400"></i>
                 </div>
               }
             </div>
@@ -77,10 +107,20 @@ import { MenuItem } from 'primeng/api';
         <div class="col-12 md:col-6 lg:col-7">
           <div class="pl-0 md:pl-4">
             <!-- SKU -->
-            <span class="text-500 text-sm">SKU: {{ product()!.sku }}</span>
+            <span class="text-500 text-sm font-mono">SKU: {{ product()!.sku }}</span>
             
             <!-- Title -->
             <h1 class="text-3xl font-bold text-900 m-0 mt-2 mb-3">{{ product()!.name }}</h1>
+            
+            <!-- Rating (Placeholder) -->
+            <div class="flex align-items-center gap-2 mb-4">
+              <div class="flex gap-1">
+                @for (star of [1,2,3,4,5]; track star) {
+                  <i class="pi" [class]="star <= 4 ? 'pi-star-fill text-yellow-500' : 'pi-star text-300'"></i>
+                }
+              </div>
+              <span class="text-500 text-sm">(128 reviews)</span>
+            </div>
             
             <!-- Stock Status -->
             <div class="flex align-items-center gap-2 mb-4">
@@ -103,13 +143,14 @@ import { MenuItem } from 'primeng/api';
               <span class="text-4xl font-bold text-primary">{{ product()!.price | currency }}</span>
               @if (product()!.price > 50) {
                 <span class="text-xl line-through text-400">{{ product()!.price * 1.25 | currency }}</span>
+                <p-tag value="Save 20%" severity="danger" styleClass="text-xs"></p-tag>
               }
             </div>
             
             <p-divider></p-divider>
             
-            <!-- Quantity & Add to Cart -->
-            <div class="flex align-items-center gap-3 mt-4 flex-wrap">
+            <!-- Quantity & Actions -->
+            <div class="flex align-items-end gap-3 mt-4 flex-wrap">
               <div class="flex flex-column gap-2">
                 <label class="text-500 text-sm font-medium">Quantity</label>
                 <p-inputNumber [(ngModel)]="quantity" 
@@ -127,8 +168,9 @@ import { MenuItem } from 'primeng/api';
                         [disabled]="product()!.stockQuantity === 0"
                         (onClick)="addToCart()"></p-button>
               
-              <p-button icon="pi pi-heart" severity="secondary" [outlined]="true" size="large"
-                        pTooltip="Add to wishlist"></p-button>
+              <p-button label="Buy Now" severity="secondary" size="large"
+                        [disabled]="product()!.stockQuantity === 0"
+                        (onClick)="buyNow()"></p-button>
             </div>
             
             @if (addedMessage()) {
@@ -136,7 +178,7 @@ import { MenuItem } from 'primeng/api';
             }
             
             <!-- Features -->
-            <div class="grid mt-5">
+            <div class="grid mt-5 surface-50 border-round-lg p-3">
               <div class="col-6">
                 <div class="flex align-items-center gap-2 text-600">
                   <i class="pi pi-truck text-primary text-xl"></i>
@@ -176,6 +218,7 @@ import { MenuItem } from 'primeng/api';
   `,
   styles: [`
     :host { display: block; }
+    .font-mono { font-family: ui-monospace, SFMono-Regular, monospace; }
   `]
 })
 export class ProductDetailsComponent implements OnInit {
@@ -188,11 +231,13 @@ export class ProductDetailsComponent implements OnInit {
   readonly isLoading = signal(true);
   readonly isAdding = signal(false);
   readonly addedMessage = signal<string | null>(null);
+  readonly isWishlisted = signal(false);
+  readonly selectedImage = signal(1);
 
   quantity = 1;
 
   readonly homeItem: MenuItem = { icon: 'pi pi-home', routerLink: '/' };
-  readonly breadcrumbItems: MenuItem[] = [
+  breadcrumbItems: MenuItem[] = [
     { label: 'Products', routerLink: '/' }
   ];
 
@@ -203,12 +248,15 @@ export class ProductDetailsComponent implements OnInit {
     }
   }
 
-  async loadProduct(id: string) {
+  loadProduct(id: string) {
     this.isLoading.set(true);
     this.catalog.getProduct(id).subscribe({
       next: (product) => {
         this.product.set(product);
-        this.breadcrumbItems.push({ label: product.name });
+        this.breadcrumbItems = [
+          { label: 'Products', routerLink: '/' },
+          { label: product.name }
+        ];
         this.isLoading.set(false);
       },
       error: () => {
@@ -216,6 +264,10 @@ export class ProductDetailsComponent implements OnInit {
         this.isLoading.set(false);
       }
     });
+  }
+
+  toggleWishlist() {
+    this.isWishlisted.update(v => !v);
   }
 
   async addToCart() {
@@ -227,5 +279,12 @@ export class ProductDetailsComponent implements OnInit {
 
     this.addedMessage.set(`Added ${this.quantity} item(s) to cart!`);
     setTimeout(() => this.addedMessage.set(null), 3000);
+  }
+
+  buyNow() {
+    if (!this.product()) return;
+    this.addToCart().then(() => {
+      this.router.navigate(['/checkout']);
+    });
   }
 }

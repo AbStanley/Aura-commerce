@@ -1,4 +1,4 @@
-import { signalStore, withMethods, withState } from '@ngrx/signals';
+import { signalStore, withMethods, withState, patchState } from '@ngrx/signals';
 
 type CatalogState = {
     selectedCategory: string | null;
@@ -15,10 +15,10 @@ export const CatalogStateStore = signalStore(
     withState(initialState),
     withMethods((store) => ({
         setCategory(categoryId: string | null) {
-            // In a real app we might patch state here
+            patchState(store, { selectedCategory: categoryId });
         },
         setSearch(query: string) {
-            // patchState(store, { searchQuery: query });
+            patchState(store, { searchQuery: query });
         }
     }))
 );
