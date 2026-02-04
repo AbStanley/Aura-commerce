@@ -1,4 +1,4 @@
-name: E-Commerce Platform CI
+name: E-Commerce Platform CI/CD
 
 on:
   push:
@@ -12,6 +12,10 @@ on:
       - 'apps/ecommerce-platform/**'
       - '.github/workflows/**'
   workflow_dispatch:
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_PREFIX: ${{ github.repository_owner }}/ecommerce
 
 jobs:
   build-and-test:
@@ -35,19 +39,68 @@ jobs:
     - name: Build
       run: dotnet build ECommercePlatform.sln --no-restore --configuration Release
 
-    - name: Test
-      run: dotnet test ECommercePlatform.sln --no-build --verbosity normal
+    - name: Test with coverage
+      run: |
+        dotnet test ECommercePlatform.sln \
+          --no-build \
+          --configuration Release \
+          --collect:"XPlat Code Coverage" \
+          --results-directory ./coverage \
+          --verbosity normal
 
-  docker-validation:
-    name: 🐳 Verify Docker Builds
+    - name: Generate coverage report
+      uses: danielpalme/ReportGenerator-GitHub-Action@5
+      with:
+        reports: './apps/ecommerce-platform/coverage/**/coverage.cobertura.xml'
+        targetdir: './apps/ecommerce-platform/coverage/report'
+        reporttypes: 'HtmlInline;MarkdownSummaryGithub;Cobertura'
+
+    - name: Upload coverage to artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: coverage-report
+        path: ./apps/ecommerce-platform/coverage/report
+
+    - name: Add coverage to PR
+      uses: marocchino/sticky-pull-request-comment@v2
+      if: github.event_name == 'pull_request'
+      with:
+        recreate: true
+        path: ./apps/ecommerce-platform/coverage/report/SummaryGithub.md
+
+  docker-build:
+    name: 🐳 Build Docker Images
     runs-on: ubuntu-latest
     needs: build-and-test
+    permissions:
+      contents: read
+      packages: write
+
     steps:
     - uses: actions/checkout@v4
 
     - name: Validate Docker Compose Config
-      run: docker-compose -f apps/ecommerce-platform/docker-compose.yml config
+      run: docker compose -f apps/ecommerce-platform/docker-compose.yml config
 
-    - name: Build Docker Images
-      # Builds all services to ensure Dockerfiles are valid and contexts are correct
-      run: docker-compose -f apps/ecommerce-platform/docker-compose.yml build
+    - name: Log in to Container Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Build and push images
+      run: |
+        # Build all images
+        docker compose -f apps/ecommerce-platform/docker-compose.yml build
+        
+        # Tag and push each service (only on main branch push)
+        if [ "${{ github.event_name }}" == "push" ] && [ "${{ github.ref }}" == "refs/heads/main" ]; then
+          SERVICES="user-service product-service cart-service order-service payment-service notification-service api-gateway"
+          for SERVICE in $SERVICES; do
+            docker tag ${SERVICE} ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/${SERVICE}:latest
+            docker tag ${SERVICE} ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/${SERVICE}:${{ github.sha }}
+            docker push ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/${SERVICE}:latest
+            docker push ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/${SERVICE}:${{ github.sha }}
+          done
+        fi
