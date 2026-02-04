@@ -236,7 +236,12 @@ export class ProfileComponent implements OnInit {
         });
         this.isLoadingProfile.set(false);
       },
-      error: () => this.isLoadingProfile.set(false)
+      error: (err) => {
+        this.isLoadingProfile.set(false);
+        if (err.status === 404) {
+          this.authStore.logout();
+        }
+      }
     });
 
     this.orderService.getHistory(userId).subscribe({

@@ -48,11 +48,6 @@ public sealed class AddToCartHandler(ICartRepository cartRepository, IHttpClient
         } 
         catch (Exception ex) 
         {
-            // Log warning but maybe allow if service is down? Or Fail safe?
-            // For this requirement: "MUST PREVENT", so we fail if we can't verify.
-            // But for dev stability (if product service isn't reachable locally vs docker), 
-            // we might get errors. 
-            // Since User runs docker compose, it should work.
         }
 
         var cart = await cartRepository.GetByUserIdAsync(request.UserId, cancellationToken)

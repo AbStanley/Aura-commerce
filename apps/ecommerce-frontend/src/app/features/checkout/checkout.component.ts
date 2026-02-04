@@ -114,7 +114,7 @@ import { MenuItem } from 'primeng/api';
               </div>
               
               <div class="flex align-items-center gap-3 p-3 surface-100 border-round-lg border-1 surface-border opacity-50">
-                <p-radioButton name="payment" value="card" [disabled]="true"></p-radioButton>
+                <p-radioButton name="payment" value="card" [(ngModel)]="paymentMethod" [disabled]="true"></p-radioButton>
                 <div class="flex-1">
                   <div class="font-medium text-500">Credit Card</div>
                   <div class="text-400 text-sm">Coming soon</div>

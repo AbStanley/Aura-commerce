@@ -22,8 +22,6 @@ export class WishlistStore {
     private readonly authStore = inject(AuthStore);
     private readonly platformId = inject(PLATFORM_ID);
 
-    // State - We primarily track IDs for quick toggle checks
-    // Detailed items are managed slightly differently or cached
     private readonly wishlistIdsSignal = signal<Set<string>>(new Set());
 
     // For the UI list (local cache of details adding/removing)
@@ -39,8 +37,6 @@ export class WishlistStore {
     // React to auth changes
     private init() {
         if (isPlatformBrowser(this.platformId)) {
-            // Effect-like check or manual call
-            // Simple version: Try load if token exists
             if (this.authStore.isAuthenticated()) {
                 this.loadFromBackend();
             }
@@ -57,8 +53,6 @@ export class WishlistStore {
         try {
             const ids = await firstValueFrom(this.http.get<string[]>(`${this.baseUrl}/api/wishlist`));
             this.wishlistIdsSignal.set(new Set(ids));
-            // Note: We don't necessarily have product details here unless we fetch them.
-            // For now, we rely on IDs for the badge.
         } catch (err) {
             console.error('Failed to load wishlist', err);
         }
@@ -66,10 +60,6 @@ export class WishlistStore {
 
     async toggleItem(product: { id: string; name: string; price: number; imageUrl?: string }) {
         if (!this.authStore.isAuthenticated()) {
-            // Fallback to local or prompt login? 
-            // For now, allow local only if not logged in (legacy) or strict backend?
-            // User requested "backend feature", implies auth.
-            // Let's just return false or error if not auth.
             return false;
         }
 
