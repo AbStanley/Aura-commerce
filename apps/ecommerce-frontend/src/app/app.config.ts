@@ -2,6 +2,9 @@ import { ApplicationConfig, provideBrowserGlobalErrorListeners, provideZonelessC
 import { provideRouter } from '@angular/router';
 import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
+import { provideAnimations } from '@angular/platform-browser/animations';
+import { providePrimeNG } from 'primeng/config';
+import Aura from '@primeuix/themes/aura';
 
 import { routes } from './app.routes';
 import { provideApiConfiguration } from './core/api/api.configuration';
@@ -11,9 +14,19 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
     provideZonelessChangeDetection(),
+    provideAnimations(),
     provideHttpClient(withFetch(), withInterceptors([authInterceptor])),
     provideApiConfiguration(),
     provideRouter(routes),
-    provideClientHydration(withEventReplay())
+    provideClientHydration(withEventReplay()),
+    providePrimeNG({
+      theme: {
+        preset: Aura,
+        options: {
+          darkModeSelector: '.dark'
+        }
+      },
+      ripple: true
+    })
   ]
 };

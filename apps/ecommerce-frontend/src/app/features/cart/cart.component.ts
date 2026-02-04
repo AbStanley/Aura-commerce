@@ -3,167 +3,144 @@ import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { CartStore } from './cart.store';
 
+// PrimeNG Components
+import { CardModule } from 'primeng/card';
+import { ButtonModule } from 'primeng/button';
+import { InputNumberModule } from 'primeng/inputnumber';
+import { DividerModule } from 'primeng/divider';
+import { SkeletonModule } from 'primeng/skeleton';
+import { FormsModule } from '@angular/forms';
+
 @Component({
   selector: 'app-cart',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [
+    CommonModule,
+    RouterLink,
+    FormsModule,
+    CardModule,
+    ButtonModule,
+    InputNumberModule,
+    DividerModule,
+    SkeletonModule
+  ],
   template: `
-    <div class="max-w-4xl mx-auto space-y-6">
-      <!-- Header -->
-      <div class="flex items-center justify-between">
-        <div>
-          <h1 class="text-2xl font-bold text-foreground">Shopping Cart</h1>
-          <p class="text-muted-foreground text-sm">
-            @if (store.itemCount() > 0) {
-              {{ store.itemCount() }} item{{ store.itemCount() > 1 ? 's' : '' }} in your cart
-            } @else {
-              Your cart is empty
-            }
-          </p>
-        </div>
-        @if (store.itemCount() > 0) {
-          <button 
-            (click)="clearCart()" 
-            class="btn btn-ghost btn-sm text-destructive hover:bg-destructive/10">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-            </svg>
-            Clear Cart
-          </button>
-        }
-      </div>
-
-      @if (store.isLoading()) {
-        <!-- Loading Skeleton -->
-        <div class="card">
-          @for (i of [1, 2, 3]; track i) {
-            <div class="p-6 flex items-center gap-6 border-b border-border last:border-0">
-              <div class="w-20 h-20 skeleton rounded-lg"></div>
-              <div class="flex-1 space-y-2">
-                <div class="h-5 skeleton rounded w-1/3"></div>
-                <div class="h-4 skeleton rounded w-1/4"></div>
-              </div>
-              <div class="h-10 skeleton rounded w-28"></div>
-              <div class="h-6 skeleton rounded w-20"></div>
-            </div>
+    <div class="grid">
+      <!-- Cart Items -->
+      <div class="col-12 lg:col-8">
+        <div class="flex align-items-center justify-content-between mb-4">
+          <h1 class="text-2xl font-bold m-0">Shopping Cart</h1>
+          @if (store.itemCount() > 0) {
+            <p-button label="Clear Cart" icon="pi pi-trash" 
+                      severity="danger" [text]="true" size="small"
+                      (click)="clearCart()"></p-button>
           }
         </div>
-      } @else if (store.cart() && store.itemCount() > 0) {
-        <div class="grid lg:grid-cols-3 gap-6">
-          <!-- Cart Items -->
-          <div class="lg:col-span-2 card divide-y divide-border">
-            @for (item of store.cart()?.items; track item.productId) {
-              <div class="p-6 flex items-center gap-4 group animate-fade-in">
+
+        @if (store.isLoading()) {
+          <!-- Loading Skeleton -->
+          @for (i of [1, 2, 3]; track i) {
+            <p-card styleClass="mb-3">
+              <div class="flex gap-4">
+                <p-skeleton width="80px" height="80px"></p-skeleton>
+                <div class="flex-1">
+                  <p-skeleton width="40%" height="1.5rem" styleClass="mb-2"></p-skeleton>
+                  <p-skeleton width="20%" height="1rem"></p-skeleton>
+                </div>
+                <p-skeleton width="100px" height="2.5rem"></p-skeleton>
+              </div>
+            </p-card>
+          }
+        } @else if (store.cart() && store.itemCount() > 0) {
+          @for (item of store.cart()?.items; track item.productId) {
+            <p-card styleClass="mb-3">
+              <div class="flex align-items-center gap-4">
                 <!-- Product Image -->
-                <div class="w-20 h-20 rounded-lg bg-muted flex items-center justify-center shrink-0">
-                  <span class="text-3xl">📦</span>
+                <div class="surface-100 border-round flex align-items-center justify-content-center"
+                     style="width: 80px; height: 80px;">
+                  <i class="pi pi-box text-3xl text-400"></i>
                 </div>
                 
                 <!-- Product Info -->
-                <div class="flex-1 min-w-0">
-                  <h3 class="font-semibold text-foreground truncate">{{ item.productName }}</h3>
-                  <p class="text-sm text-muted-foreground">
-                    Unit price: {{ item.unitPrice | currency }}
-                  </p>
+                <div class="flex-1">
+                  <h3 class="text-lg font-semibold m-0">{{ item.productName }}</h3>
+                  <span class="text-500">{{ item.unitPrice | currency }} each</span>
                 </div>
                 
                 <!-- Quantity Controls -->
-                <div class="flex items-center gap-2">
-                  <button 
-                    (click)="updateQuantity(item.productId, item.quantity - 1)"
-                    class="btn btn-outline btn-icon h-8 w-8"
-                    [disabled]="item.quantity <= 1">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/>
-                    </svg>
-                  </button>
-                  <span class="w-10 text-center font-medium">{{ item.quantity }}</span>
-                  <button 
-                    (click)="updateQuantity(item.productId, item.quantity + 1)"
-                    class="btn btn-outline btn-icon h-8 w-8">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                    </svg>
-                  </button>
-                </div>
+                <p-inputNumber [(ngModel)]="item.quantity" 
+                               [showButtons]="true" 
+                               buttonLayout="horizontal"
+                               [min]="1" [max]="99"
+                               (onInput)="updateQuantity(item.productId, $event.value ?? 1)"
+                               decrementButtonClass="p-button-outlined"
+                               incrementButtonClass="p-button-outlined"
+                               inputStyleClass="w-3rem text-center">
+                </p-inputNumber>
                 
                 <!-- Price & Remove -->
                 <div class="text-right">
-                  <p class="font-bold text-foreground">{{ item.totalPrice | currency }}</p>
-                  <button 
-                    (click)="removeItem(item.productId)" 
-                    class="text-sm text-destructive hover:underline opacity-0 group-hover:opacity-100 transition-opacity">
-                    Remove
-                  </button>
+                  <div class="text-xl font-bold text-primary">{{ item.totalPrice | currency }}</div>
+                  <p-button icon="pi pi-times" [rounded]="true" [text]="true" 
+                            severity="danger" size="small"
+                            (click)="removeItem(item.productId)"></p-button>
                 </div>
               </div>
-            }
-          </div>
-
-          <!-- Order Summary -->
-          <div class="lg:col-span-1">
-            <div class="card p-6 sticky top-24 space-y-4">
-              <h2 class="font-semibold text-foreground">Order Summary</h2>
-              
-              <div class="space-y-2 text-sm">
-                <div class="flex justify-between">
-                  <span class="text-muted-foreground">Subtotal</span>
-                  <span class="font-medium">{{ store.totalPrice() | currency }}</span>
-                </div>
-                <div class="flex justify-between">
-                  <span class="text-muted-foreground">Shipping</span>
-                  <span class="font-medium text-green-600">Free</span>
-                </div>
-                <div class="flex justify-between">
-                  <span class="text-muted-foreground">Tax</span>
-                  <span class="font-medium">Calculated at checkout</span>
-                </div>
-              </div>
-              
-              <div class="border-t border-border pt-4">
-                <div class="flex justify-between items-center">
-                  <span class="font-semibold text-foreground">Total</span>
-                  <span class="text-2xl font-bold text-primary">{{ store.totalPrice() | currency }}</span>
-                </div>
-              </div>
-              
-              <a routerLink="/checkout" 
-                 class="btn btn-primary btn-lg w-full">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                        d="M17 8l4 4m0 0l-4 4m4-4H3"/>
-                </svg>
-                Proceed to Checkout
-              </a>
-              
-              <a routerLink="/" 
-                 class="btn btn-ghost btn-md w-full text-muted-foreground">
-                Continue Shopping
-              </a>
+            </p-card>
+          }
+        } @else {
+          <!-- Empty State -->
+          <p-card>
+            <div class="text-center py-6">
+              <i class="pi pi-shopping-cart text-6xl text-300 mb-4"></i>
+              <h3 class="text-xl font-semibold mb-2">Your cart is empty</h3>
+              <p class="text-500 mb-4">Looks like you haven't added anything yet.</p>
+              <a routerLink="/" pButton label="Start Shopping" icon="pi pi-arrow-right"></a>
             </div>
-          </div>
-        </div>
-      } @else {
-        <!-- Empty State -->
-        <div class="card p-12 text-center">
-          <div class="w-16 h-16 rounded-full bg-muted flex items-center justify-center mx-auto mb-4">
-            <svg class="w-8 h-8 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                    d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
-            </svg>
-          </div>
-          <h3 class="text-lg font-semibold text-foreground mb-2">Your cart is empty</h3>
-          <p class="text-muted-foreground mb-6">
-            Looks like you haven't added anything to your cart yet.
-          </p>
-          <a routerLink="/" class="btn btn-primary btn-md">
-            Start Shopping
-          </a>
-        </div>
-      }
+          </p-card>
+        }
+      </div>
+
+      <!-- Order Summary -->
+      <div class="col-12 lg:col-4">
+        @if (store.itemCount() > 0) {
+          <p-card header="Order Summary">
+            <div class="flex flex-column gap-3">
+              <div class="flex justify-content-between">
+                <span class="text-500">Subtotal</span>
+                <span class="font-medium">{{ store.totalPrice() | currency }}</span>
+              </div>
+              <div class="flex justify-content-between">
+                <span class="text-500">Shipping</span>
+                <span class="font-medium text-green-500">Free</span>
+              </div>
+              <div class="flex justify-content-between">
+                <span class="text-500">Tax</span>
+                <span class="font-medium">Calculated at checkout</span>
+              </div>
+              
+              <p-divider></p-divider>
+              
+              <div class="flex justify-content-between">
+                <span class="text-lg font-semibold">Total</span>
+                <span class="text-2xl font-bold text-primary">{{ store.totalPrice() | currency }}</span>
+              </div>
+              
+              <a routerLink="/checkout" pButton label="Proceed to Checkout" 
+                 icon="pi pi-arrow-right" iconPos="right"
+                 styleClass="w-full mt-2"></a>
+              
+              <a routerLink="/" pButton label="Continue Shopping" 
+                 [outlined]="true" styleClass="w-full"></a>
+            </div>
+          </p-card>
+        }
+      </div>
     </div>
-  `
+  `,
+  styles: [`
+    :host { display: block; }
+  `]
 })
 export class CartComponent {
   readonly store = inject(CartStore);

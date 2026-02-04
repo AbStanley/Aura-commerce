@@ -4,284 +4,208 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CartStore } from '../cart/cart.store';
 import { CheckoutService } from './checkout.service';
 
+// PrimeNG Components
+import { CardModule } from 'primeng/card';
+import { ButtonModule } from 'primeng/button';
+import { InputTextModule } from 'primeng/inputtext';
+import { DividerModule } from 'primeng/divider';
+import { MessageModule } from 'primeng/message';
+import { RadioButtonModule } from 'primeng/radiobutton';
+import { FormsModule } from '@angular/forms';
+import { StepsModule } from 'primeng/steps';
+import { MenuItem } from 'primeng/api';
+
 @Component({
-   selector: 'app-checkout',
-   standalone: true,
-   imports: [CommonModule, ReactiveFormsModule],
-   template: `
-    <div class="max-w-5xl mx-auto space-y-8">
-      <!-- Header -->
-      <div class="text-center space-y-2">
-        <h1 class="text-3xl font-bold text-foreground">Checkout</h1>
-        <p class="text-muted-foreground">Complete your order</p>
-      </div>
+  selector: 'app-checkout',
+  standalone: true,
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    FormsModule,
+    CardModule,
+    ButtonModule,
+    InputTextModule,
+    DividerModule,
+    MessageModule,
+    RadioButtonModule,
+    StepsModule
+  ],
+  template: `
+    <div class="grid">
+      <!-- Checkout Form -->
+      <div class="col-12 lg:col-8">
+        <h1 class="text-2xl font-bold mb-4">Checkout</h1>
+        
+        <!-- Steps Indicator -->
+        <p-steps [model]="steps" [activeIndex]="currentStep()" [readonly]="false"
+                 styleClass="mb-4"></p-steps>
 
-      <!-- Progress Steps -->
-      <div class="flex justify-center">
-        <div class="flex items-center gap-4">
-          @for (step of steps; track step.id; let i = $index) {
-            <div class="flex items-center gap-2">
-              <div 
-                class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-colors"
-                [class]="currentStep() >= step.id 
-                  ? 'bg-primary text-primary-foreground' 
-                  : 'bg-muted text-muted-foreground'">
-                @if (currentStep() > step.id) {
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                  </svg>
-                } @else {
-                  {{ step.id }}
-                }
+        <!-- Step 1: Shipping -->
+        @if (currentStep() === 0) {
+          <p-card header="Shipping Address">
+            <form [formGroup]="checkoutForm" class="flex flex-column gap-4">
+              <div class="flex flex-column gap-2">
+                <label class="font-medium">Street Address</label>
+                <input pInputText formControlName="street" placeholder="123 Main St" class="w-full" />
               </div>
-              <span 
-                class="text-sm font-medium hidden sm:block"
-                [class]="currentStep() >= step.id ? 'text-foreground' : 'text-muted-foreground'">
-                {{ step.label }}
-              </span>
-            </div>
-            @if (i < steps.length - 1) {
-              <div 
-                class="w-12 h-0.5 transition-colors"
-                [class]="currentStep() > step.id ? 'bg-primary' : 'bg-muted'">
-              </div>
-            }
-          }
-        </div>
-      </div>
-
-      <div class="grid lg:grid-cols-3 gap-8">
-        <!-- Form Section -->
-        <div class="lg:col-span-2">
-          <div class="card p-6 animate-fade-in">
-            <form [formGroup]="checkoutForm" (ngSubmit)="onSubmit()" class="space-y-6">
               
-              <!-- Step 1: Shipping Information -->
-              @if (currentStep() === 1) {
-                <div class="space-y-4">
-                  <h2 class="text-lg font-semibold text-foreground flex items-center gap-2">
-                    <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                            d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
-                    </svg>
-                    Shipping Address
-                  </h2>
-                  
-                  <div class="space-y-2">
-                    <label class="text-sm font-medium text-foreground">Street Address</label>
-                    <input formControlName="street" type="text" class="input" placeholder="123 Main St">
-                  </div>
-                  
-                  <div class="grid grid-cols-2 gap-4">
-                    <div class="space-y-2">
-                      <label class="text-sm font-medium text-foreground">City</label>
-                      <input formControlName="city" type="text" class="input" placeholder="New York">
-                    </div>
-                    <div class="space-y-2">
-                      <label class="text-sm font-medium text-foreground">State</label>
-                      <input formControlName="state" type="text" class="input" placeholder="NY">
-                    </div>
-                  </div>
-                  
-                  <div class="grid grid-cols-2 gap-4">
-                    <div class="space-y-2">
-                      <label class="text-sm font-medium text-foreground">ZIP Code</label>
-                      <input formControlName="zipCode" type="text" class="input" placeholder="10001">
-                    </div>
-                    <div class="space-y-2">
-                      <label class="text-sm font-medium text-foreground">Country</label>
-                      <input formControlName="country" type="text" class="input" placeholder="USA">
-                    </div>
+              <div class="grid">
+                <div class="col-6">
+                  <div class="flex flex-column gap-2">
+                    <label class="font-medium">City</label>
+                    <input pInputText formControlName="city" placeholder="New York" class="w-full" />
                   </div>
                 </div>
-              }
-
-              <!-- Step 2: Payment (placeholder) -->
-              @if (currentStep() === 2) {
-                <div class="space-y-4">
-                  <h2 class="text-lg font-semibold text-foreground flex items-center gap-2">
-                    <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                            d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
-                    </svg>
-                    Payment Method
-                  </h2>
-                  
-                  <div class="p-4 rounded-lg border border-primary/20 bg-primary/5">
-                    <div class="flex items-center gap-3">
-                      <input type="radio" checked class="text-primary">
-                      <div>
-                        <p class="font-medium text-foreground">Demo Payment</p>
-                        <p class="text-sm text-muted-foreground">No actual payment required</p>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div class="p-4 rounded-lg border border-border bg-muted/50 opacity-50">
-                    <div class="flex items-center gap-3">
-                      <input type="radio" disabled>
-                      <div>
-                        <p class="font-medium text-foreground">Credit Card</p>
-                        <p class="text-sm text-muted-foreground">Coming soon</p>
-                      </div>
-                    </div>
+                <div class="col-6">
+                  <div class="flex flex-column gap-2">
+                    <label class="font-medium">State</label>
+                    <input pInputText formControlName="state" placeholder="NY" class="w-full" />
                   </div>
                 </div>
-              }
-
-              <!-- Error Message -->
-              @if (checkoutService.error()) {
-                <div class="flex items-center gap-2 p-3 rounded-lg bg-destructive/10 text-destructive text-sm">
-                  <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                          d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                  </svg>
-                  {{ checkoutService.error() }}
+              </div>
+              
+              <div class="grid">
+                <div class="col-6">
+                  <div class="flex flex-column gap-2">
+                    <label class="font-medium">ZIP Code</label>
+                    <input pInputText formControlName="zipCode" placeholder="10001" class="w-full" />
+                  </div>
                 </div>
-              }
-
-              <!-- Navigation Buttons -->
-              <div class="flex gap-3 pt-4 border-t border-border">
-                @if (currentStep() > 1) {
-                  <button 
-                    type="button" 
-                    (click)="prevStep()" 
-                    class="btn btn-outline btn-md">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-                    </svg>
-                    Back
-                  </button>
-                }
-                
-                @if (currentStep() < steps.length) {
-                  <button 
-                    type="button" 
-                    (click)="nextStep()" 
-                    [disabled]="!isCurrentStepValid()"
-                    class="btn btn-primary btn-md ml-auto">
-                    Continue
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                    </svg>
-                  </button>
-                } @else {
-                  <button 
-                    type="submit" 
-                    [disabled]="checkoutForm.invalid || checkoutService.isProcessing()"
-                    class="btn btn-primary btn-lg ml-auto">
-                    @if (checkoutService.isProcessing()) {
-                      <svg class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
-                        <path class="opacity-75" fill="currentColor" 
-                              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
-                      </svg>
-                      Processing...
-                    } @else {
-                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                              d="M5 13l4 4L19 7"/>
-                      </svg>
-                      Place Order
-                    }
-                  </button>
-                }
+                <div class="col-6">
+                  <div class="flex flex-column gap-2">
+                    <label class="font-medium">Country</label>
+                    <input pInputText formControlName="country" placeholder="USA" class="w-full" />
+                  </div>
+                </div>
+              </div>
+              
+              <div class="flex justify-content-end">
+                <p-button label="Continue to Payment" icon="pi pi-arrow-right" iconPos="right"
+                          (onClick)="currentStep.set(1)"
+                          [disabled]="!isShippingValid()"></p-button>
               </div>
             </form>
-          </div>
-        </div>
+          </p-card>
+        }
 
-        <!-- Order Summary -->
-        <div class="lg:col-span-1">
-          <div class="card p-6 space-y-4 sticky top-24">
-            <h2 class="font-semibold text-foreground">Order Summary</h2>
-            
-            <div class="space-y-3 max-h-64 overflow-y-auto">
-              @for (item of cartStore.cart()?.items; track item.productId) {
-                <div class="flex gap-3">
-                  <div class="w-12 h-12 rounded-lg bg-muted flex items-center justify-center shrink-0">
-                    <span class="text-xl">📦</span>
-                  </div>
-                  <div class="flex-1 min-w-0">
-                    <p class="text-sm font-medium text-foreground truncate">{{ item.productName }}</p>
-                    <p class="text-xs text-muted-foreground">Qty: {{ item.quantity }}</p>
-                  </div>
-                  <p class="text-sm font-medium text-foreground">{{ item.totalPrice | currency }}</p>
+        <!-- Step 2: Payment -->
+        @if (currentStep() === 1) {
+          <p-card header="Payment Method">
+            <div class="flex flex-column gap-3">
+              <div class="flex align-items-center gap-3 p-3 surface-50 border-round border-1 border-primary">
+                <p-radioButton name="payment" value="demo" [(ngModel)]="paymentMethod"></p-radioButton>
+                <div>
+                  <div class="font-medium">Demo Payment</div>
+                  <div class="text-500 text-sm">No actual payment required</div>
                 </div>
-              }
+              </div>
+              
+              <div class="flex align-items-center gap-3 p-3 surface-100 border-round opacity-50">
+                <p-radioButton name="payment" value="card" [disabled]="true"></p-radioButton>
+                <div>
+                  <div class="font-medium">Credit Card</div>
+                  <div class="text-500 text-sm">Coming soon</div>
+                </div>
+              </div>
             </div>
-            
-            <div class="border-t border-border pt-4 space-y-2">
-              <div class="flex justify-between text-sm">
-                <span class="text-muted-foreground">Subtotal</span>
-                <span class="font-medium">{{ cartStore.totalPrice() | currency }}</span>
+
+            @if (checkoutService.error()) {
+              <p-message severity="error" [text]="checkoutService.error()!" styleClass="w-full mt-3"></p-message>
+            }
+
+            <div class="flex justify-content-between mt-4">
+              <p-button label="Back" icon="pi pi-arrow-left" [outlined]="true"
+                        (onClick)="currentStep.set(0)"></p-button>
+              <p-button label="Place Order" icon="pi pi-check" 
+                        [loading]="checkoutService.isProcessing()"
+                        (onClick)="onSubmit()"
+                        [disabled]="checkoutForm.invalid"></p-button>
+            </div>
+          </p-card>
+        }
+      </div>
+
+      <!-- Order Summary -->
+      <div class="col-12 lg:col-4">
+        <p-card header="Order Summary">
+          <div class="flex flex-column gap-3 max-h-20rem overflow-y-auto">
+            @for (item of cartStore.cart()?.items; track item.productId) {
+              <div class="flex gap-3">
+                <div class="surface-100 border-round flex align-items-center justify-content-center"
+                     style="width: 50px; height: 50px;">
+                  <i class="pi pi-box text-xl text-400"></i>
+                </div>
+                <div class="flex-1">
+                  <div class="font-medium text-sm">{{ item.productName }}</div>
+                  <div class="text-500 text-xs">Qty: {{ item.quantity }}</div>
+                </div>
+                <div class="font-medium">{{ item.totalPrice | currency }}</div>
               </div>
-              <div class="flex justify-between text-sm">
-                <span class="text-muted-foreground">Shipping</span>
-                <span class="font-medium text-green-600">Free</span>
-              </div>
-              <div class="flex justify-between text-lg font-bold pt-2 border-t border-border">
-                <span>Total</span>
-                <span class="text-primary">{{ cartStore.totalPrice() | currency }}</span>
-              </div>
+            }
+          </div>
+          
+          <p-divider></p-divider>
+          
+          <div class="flex flex-column gap-2">
+            <div class="flex justify-content-between text-sm">
+              <span class="text-500">Subtotal</span>
+              <span class="font-medium">{{ cartStore.totalPrice() | currency }}</span>
+            </div>
+            <div class="flex justify-content-between text-sm">
+              <span class="text-500">Shipping</span>
+              <span class="font-medium text-green-500">Free</span>
+            </div>
+            <p-divider></p-divider>
+            <div class="flex justify-content-between">
+              <span class="font-semibold">Total</span>
+              <span class="text-xl font-bold text-primary">{{ cartStore.totalPrice() | currency }}</span>
             </div>
           </div>
-        </div>
+        </p-card>
       </div>
     </div>
-  `
+  `,
+  styles: [`
+    :host { display: block; }
+    .max-h-20rem { max-height: 20rem; }
+  `]
 })
 export class CheckoutComponent {
-   readonly cartStore = inject(CartStore);
-   readonly checkoutService = inject(CheckoutService);
-   private readonly fb = inject(FormBuilder);
+  readonly cartStore = inject(CartStore);
+  readonly checkoutService = inject(CheckoutService);
+  private readonly fb = inject(FormBuilder);
 
-   readonly currentStep = signal(1);
+  readonly currentStep = signal(0);
+  paymentMethod = 'demo';
 
-   readonly steps = [
-      { id: 1, label: 'Shipping' },
-      { id: 2, label: 'Payment' }
-   ];
+  readonly steps: MenuItem[] = [
+    { label: 'Shipping' },
+    { label: 'Payment' }
+  ];
 
-   readonly checkoutForm = this.fb.group({
-      street: ['123 Main St', Validators.required],
-      city: ['Tech City', Validators.required],
-      state: ['TC', Validators.required],
-      zipCode: ['10101', Validators.required],
-      country: ['DevLand', Validators.required]
-   });
+  readonly checkoutForm = this.fb.group({
+    street: ['123 Main St', Validators.required],
+    city: ['Tech City', Validators.required],
+    state: ['TC', Validators.required],
+    zipCode: ['10101', Validators.required],
+    country: ['DevLand', Validators.required]
+  });
 
-   nextStep() {
-      if (this.currentStep() < this.steps.length) {
-         this.currentStep.update(s => s + 1);
-      }
-   }
+  isShippingValid(): boolean {
+    const { street, city, state, zipCode, country } = this.checkoutForm.controls;
+    return street.valid && city.valid && state.valid && zipCode.valid && country.valid;
+  }
 
-   prevStep() {
-      if (this.currentStep() > 1) {
-         this.currentStep.update(s => s - 1);
-      }
-   }
+  onSubmit() {
+    if (this.checkoutForm.invalid) return;
 
-   isCurrentStepValid(): boolean {
-      if (this.currentStep() === 1) {
-         const { street, city, state, zipCode, country } = this.checkoutForm.controls;
-         return street.valid && city.valid && state.valid && zipCode.valid && country.valid;
-      }
-      return true;
-   }
-
-   onSubmit() {
-      if (this.checkoutForm.invalid) return;
-
-      const shipping = this.checkoutForm.getRawValue();
-      this.checkoutService.processCheckout({
-         street: shipping.street!,
-         city: shipping.city!,
-         state: shipping.state!,
-         postalCode: shipping.zipCode!,
-         country: shipping.country!
-      });
-   }
+    const shipping = this.checkoutForm.getRawValue();
+    this.checkoutService.processCheckout({
+      street: shipping.street!,
+      city: shipping.city!,
+      state: shipping.state!,
+      postalCode: shipping.zipCode!,
+      country: shipping.country!
+    });
+  }
 }
