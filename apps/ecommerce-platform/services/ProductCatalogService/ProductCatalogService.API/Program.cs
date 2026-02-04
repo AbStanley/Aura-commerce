@@ -23,6 +23,7 @@ try
 
     builder.Services.AddApplicationLayer();
     builder.Services.AddInfrastructureLayer(builder.Configuration);
+    builder.Services.AddOpenTelemetryTracing(builder.Configuration, "ProductCatalogService");
 
     // Authentication & Authorization
     builder.Services.AddAuthentication(options =>

@@ -19,6 +19,8 @@ try
     builder.Services.AddReverseProxy()
         .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"));
 
+    builder.Services.AddOpenTelemetryTracing(builder.Configuration, "ApiGateway");
+
     // JWT Authentication with proper validation
     builder.Services.AddAuthentication("Bearer")
         .AddJwtBearer("Bearer", options =>

@@ -26,6 +26,7 @@ try
 
     builder.Services.AddApplicationLayer();
     builder.Services.AddInfrastructureLayer(builder.Configuration);
+    builder.Services.AddOpenTelemetryTracing(builder.Configuration, "NotificationService");
 
     builder.Services.AddAuthentication("Bearer")
         .AddJwtBearer(options =>
