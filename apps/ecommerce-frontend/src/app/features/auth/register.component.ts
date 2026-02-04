@@ -5,10 +5,10 @@ import { AuthStore } from './auth.store';
 import { CommonModule } from '@angular/common';
 
 @Component({
-    selector: 'app-register',
-    standalone: true,
-    imports: [CommonModule, ReactiveFormsModule, RouterLink],
-    template: `
+  selector: 'app-register',
+  standalone: true,
+  imports: [CommonModule, ReactiveFormsModule, RouterLink],
+  template: `
     <div class="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div class="max-w-md w-full space-y-8 bg-white p-8 rounded-lg shadow-sm border border-gray-200">
         <div>
@@ -77,44 +77,42 @@ import { CommonModule } from '@angular/common';
   `
 })
 export class RegisterComponent {
-    readonly store = inject(AuthStore);
-    private readonly router = inject(Router);
-    private readonly fb = inject(FormBuilder);
+  readonly store = inject(AuthStore);
+  private readonly router = inject(Router);
+  private readonly fb = inject(FormBuilder);
 
-    readonly isLoading = signal(false);
-    readonly error = signal<string | null>(null);
+  readonly isLoading = signal(false);
+  readonly error = signal<string | null>(null);
 
-    readonly registerForm = this.fb.group({
-        firstName: ['', [Validators.required, Validators.maxLength(50)]],
-        lastName: ['', [Validators.required, Validators.maxLength(50)]],
-        email: ['', [Validators.required, Validators.email]],
-        password: ['', [Validators.required, Validators.minLength(8)]]
+  readonly registerForm = this.fb.group({
+    firstName: ['', [Validators.required, Validators.maxLength(50)]],
+    lastName: ['', [Validators.required, Validators.maxLength(50)]],
+    email: ['', [Validators.required, Validators.email]],
+    password: ['', [Validators.required, Validators.minLength(8)]]
+  });
+
+  async onSubmit() {
+    if (this.registerForm.invalid) return;
+
+    this.isLoading.set(true);
+    this.error.set(null);
+
+    const val = this.registerForm.getRawValue();
+
+    const success = await this.store.register({
+      email: val.email!,
+      password: val.password!,
+      firstName: val.firstName!,
+      lastName: val.lastName!
     });
 
-    onSubmit() {
-        if (this.registerForm.invalid) return;
-
-        this.isLoading.set(true);
-        this.error.set(null);
-
-        const val = this.registerForm.getRawValue();
-
-        this.store.register({
-            email: val.email!,
-            password: val.password!,
-            firstName: val.firstName!,
-            lastName: val.lastName!
-        }).subscribe({
-            next: () => {
-                this.isLoading.set(false);
-                // Navigate to login after successful registration
-                this.router.navigate(['/login']);
-            },
-            error: (err) => {
-                console.error('Registration failed', err);
-                this.isLoading.set(false);
-                this.error.set('Registration failed. Email might be in use.');
-            }
-        });
+    if (success) {
+      this.isLoading.set(false);
+      this.router.navigate(['/login']);
+    } else {
+      console.error('Registration failed');
+      this.isLoading.set(false);
+      this.error.set('Registration failed. Email might be in use.');
     }
+  }
 }

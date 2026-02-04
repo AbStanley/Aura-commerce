@@ -3,7 +3,7 @@ import { patchState, signalStore, withMethods, withState, withHooks, withCompute
 import { rxResource } from '@angular/core/rxjs-interop';
 import { API_BASE_URL } from '../../core/api/api.configuration';
 import { HttpClient } from '@angular/common/http';
-import { tap } from 'rxjs';
+import { tap, catchError, of, firstValueFrom } from 'rxjs';
 import { isPlatformBrowser } from '@angular/common';
 import { jwtDecode } from 'jwt-decode';
 
@@ -32,31 +32,48 @@ function decodeToken(token: string): { email?: string; sub?: string } | null {
 
 export const AuthStore = signalStore(
     { providedIn: 'root' },
-    withState(initialState),
+    withState({ ...initialState, isLoading: false, error: null as string | null }),
     withComputed((store) => ({
-        // Exposed computed values if needed specifically
     })),
     withMethods((store, http = inject(HttpClient), baseUrl = inject(API_BASE_URL), platformId = inject(PLATFORM_ID)) => ({
 
-        login(email: string, password: string) {
-            return http.post<{ accessToken: string }>(`${baseUrl}/api/auth/login`, { email, password }).pipe(
-                tap(response => {
-                    const decoded = decodeToken(response.accessToken);
-                    if (isPlatformBrowser(platformId)) {
-                        localStorage.setItem('access_token', response.accessToken);
-                    }
-                    patchState(store, {
-                        token: response.accessToken,
-                        isAuthenticated: true,
-                        userEmail: decoded?.email ?? email,
-                        userId: decoded?.sub ?? null
-                    });
-                })
-            );
+        async login(email: string, password: string): Promise<boolean> {
+            patchState(store, { isLoading: true, error: null });
+            try {
+                const response = await firstValueFrom(
+                    http.post<{ accessToken: string }>(`${baseUrl}/api/auth/login`, { email, password })
+                );
+
+                const decoded = decodeToken(response.accessToken);
+                if (isPlatformBrowser(platformId)) {
+                    localStorage.setItem('access_token', response.accessToken);
+                }
+                patchState(store, {
+                    token: response.accessToken,
+                    isAuthenticated: true,
+                    userEmail: decoded?.email ?? email,
+                    userId: decoded?.sub ?? null,
+                    isLoading: false
+                });
+                return true;
+            } catch (err) {
+                patchState(store, { isLoading: false, error: 'Invalid email or password' });
+                return false;
+            }
         },
 
-        register(payload: { email: string; password: string; firstName: string; lastName: string }) {
-            return http.post<{ userId: string }>(`${baseUrl}/api/auth/register`, payload);
+        async register(payload: { email: string; password: string; firstName: string; lastName: string }): Promise<boolean> {
+            patchState(store, { isLoading: true, error: null });
+            try {
+                await firstValueFrom(
+                    http.post<{ userId: string }>(`${baseUrl}/api/auth/register`, payload)
+                );
+                patchState(store, { isLoading: false });
+                return true;
+            } catch (err) {
+                patchState(store, { isLoading: false, error: 'Registration failed' });
+                return false;
+            }
         },
 
         logout() {
@@ -67,7 +84,8 @@ export const AuthStore = signalStore(
                 token: null,
                 isAuthenticated: false,
                 userEmail: null,
-                userId: null
+                userId: null,
+                error: null
             });
         },
 

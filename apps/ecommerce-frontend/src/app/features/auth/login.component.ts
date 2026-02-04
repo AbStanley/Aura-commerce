@@ -5,10 +5,10 @@ import { AuthStore } from './auth.store';
 import { CommonModule } from '@angular/common';
 
 @Component({
-    selector: 'app-login',
-    standalone: true,
-    imports: [CommonModule, ReactiveFormsModule, RouterLink],
-    template: `
+  selector: 'app-login',
+  standalone: true,
+  imports: [CommonModule, ReactiveFormsModule, RouterLink],
+  template: `
     <div class="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div class="max-w-md w-full space-y-8 bg-white p-8 rounded-lg shadow-sm border border-gray-200">
         <div>
@@ -83,36 +83,35 @@ import { CommonModule } from '@angular/common';
   `
 })
 export class LoginComponent {
-    readonly store = inject(AuthStore);
-    private readonly router = inject(Router);
-    private readonly fb = inject(FormBuilder);
+  readonly store = inject(AuthStore);
+  private readonly router = inject(Router);
+  private readonly fb = inject(FormBuilder);
 
-    readonly isLoading = signal(false);
-    readonly error = signal<string | null>(null);
+  readonly isLoading = signal(false);
+  readonly error = signal<string | null>(null);
 
-    readonly loginForm = this.fb.group({
-        email: ['', [Validators.required, Validators.email]],
-        password: ['', [Validators.required]]
-    });
+  readonly loginForm = this.fb.group({
+    email: ['', [Validators.required, Validators.email]],
+    password: ['', [Validators.required]]
+  });
 
-    onSubmit() {
-        if (this.loginForm.invalid) return;
+  async onSubmit() {
+    if (this.loginForm.invalid) return;
 
-        this.isLoading.set(true);
-        this.error.set(null);
+    this.isLoading.set(true);
+    this.error.set(null);
 
-        const { email, password } = this.loginForm.getRawValue();
+    const { email, password } = this.loginForm.getRawValue();
 
-        this.store.login(email!, password!).subscribe({
-            next: () => {
-                this.isLoading.set(false);
-                this.router.navigate(['/']);
-            },
-            error: (err) => {
-                console.error('Login failed', err);
-                this.isLoading.set(false);
-                this.error.set('Invalid email or password.');
-            }
-        });
+    const success = await this.store.login(email!, password!);
+
+    if (success) {
+      this.isLoading.set(false);
+      this.router.navigate(['/']);
+    } else {
+      console.error('Login failed');
+      this.isLoading.set(false);
+      this.error.set('Invalid email or password.');
     }
+  }
 }

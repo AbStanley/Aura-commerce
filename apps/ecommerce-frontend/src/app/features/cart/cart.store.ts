@@ -3,7 +3,7 @@ import { patchState, signalStore, withMethods, withState, withHooks, withCompute
 import { rxResource } from '@angular/core/rxjs-interop';
 import { API_BASE_URL } from '../../core/api/api.configuration';
 import { HttpClient } from '@angular/common/http';
-import { tap, switchMap, catchError, of, Observable } from 'rxjs';
+import { tap, switchMap, catchError, of, Observable, firstValueFrom } from 'rxjs';
 import { computed } from '@angular/core';
 import { AuthStore } from '../auth/auth.store';
 
@@ -44,73 +44,89 @@ export const CartStore = signalStore(
     })),
     withMethods((store, http = inject(HttpClient), baseUrl = inject(API_BASE_URL), authStore = inject(AuthStore)) => ({
 
-        loadCart(): Observable<Cart | null> {
+        async loadCart(): Promise<void> {
             const userId = authStore.userId();
             if (!userId) {
                 patchState(store, { cart: null });
-                return of(null);
+                return;
             }
 
             patchState(store, { isLoading: true });
-            return http.get<Cart>(`${baseUrl}/api/cart?userId=${userId}`).pipe(
-                tap({
-                    next: (cart) => patchState(store, { cart, isLoading: false, error: null }),
-                    error: (err) => patchState(store, { isLoading: false, error: 'Failed to load cart' })
-                }),
-                catchError(() => {
-                    patchState(store, { isLoading: false, error: 'Failed to load cart' });
-                    return of(null);
-                })
-            );
+            try {
+                const cart = await firstValueFrom(
+                    http.get<Cart>(`${baseUrl}/api/cart?userId=${userId}`)
+                );
+                patchState(store, { cart, isLoading: false, error: null });
+            } catch (error) {
+                patchState(store, { isLoading: false, error: 'Failed to load cart' });
+            }
         },
 
-        addItem(product: { id: string; name: string; price: number }, quantity: number = 1): Observable<Cart | null> {
+        async addItem(product: { id: string; name: string; price: number }, quantity: number = 1): Promise<void> {
             const userId = authStore.userId();
-            if (!userId) return of(null);
+            if (!userId) return;
 
-            return http.post(`${baseUrl}/api/cart/items`, {
-                productId: product.id,
-                productName: product.name,
-                unitPrice: product.price,
-                quantity,
-                userId
-            }).pipe(
-                switchMap(() => this.loadCart()),
-                catchError(() => of(null))
-            );
+            try {
+                await firstValueFrom(
+                    http.post(`${baseUrl}/api/cart/items`, {
+                        productId: product.id,
+                        productName: product.name,
+                        unitPrice: product.price,
+                        quantity,
+                        userId
+                    })
+                );
+                await this.loadCart();
+            } catch (error) {
+                // error handled
+            }
         },
 
-        removeItem(productId: string): Observable<Cart | null> {
+        async updateQuantity(productId: string, quantity: number): Promise<void> {
             const userId = authStore.userId();
-            if (!userId) return of(null);
+            if (!userId) return;
 
-            return http.delete(`${baseUrl}/api/cart/items/${productId}?userId=${userId}`).pipe(
-                switchMap(() => this.loadCart()),
-                catchError(() => of(null))
-            );
+            if (quantity <= 0) {
+                await this.removeItem(productId);
+                return;
+            }
+
+            try {
+                await firstValueFrom(
+                    http.put(`${baseUrl}/api/cart/items/${productId}`, { productId, quantity, userId })
+                );
+                await this.loadCart();
+            } catch (error) {
+                // error handled
+            }
         },
 
-        updateQuantity(productId: string, quantity: number): Observable<Cart | null> {
+        async removeItem(productId: string): Promise<void> {
             const userId = authStore.userId();
-            if (!userId) return of(null);
+            if (!userId) return;
 
-            if (quantity <= 0) return this.removeItem(productId);
-
-            return http.put(`${baseUrl}/api/cart/items/${productId}`, { productId, quantity, userId }).pipe(
-                switchMap(() => this.loadCart()),
-                catchError(() => of(null))
-            );
+            try {
+                await firstValueFrom(
+                    http.delete(`${baseUrl}/api/cart/items/${productId}?userId=${userId}`)
+                );
+                await this.loadCart();
+            } catch (error) {
+                // error handled
+            }
         },
 
-        clearCart(): Observable<Cart | null> {
+        async clearCart(): Promise<void> {
             const userId = authStore.userId();
-            if (!userId) return of(null);
+            if (!userId) return;
 
-            return http.delete(`${baseUrl}/api/cart?userId=${userId}`).pipe(
-                tap(() => patchState(store, { cart: null })),
-                switchMap(() => of(null)), // Return null as cart is cleared
-                catchError(() => of(null))
-            );
+            try {
+                await firstValueFrom(
+                    http.delete(`${baseUrl}/api/cart?userId=${userId}`)
+                );
+                patchState(store, { cart: null });
+            } catch (error) {
+                // error handled
+            }
         }
     })),
     withHooks({

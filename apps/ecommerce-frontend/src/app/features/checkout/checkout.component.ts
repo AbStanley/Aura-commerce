@@ -1,11 +1,8 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
 import { CartStore } from '../cart/cart.store';
-import { AuthStore } from '../auth/auth.store';
-import { OrderService, PlaceOrderCommand } from '../orders/order.service';
-import { switchMap } from 'rxjs';
+import { CheckoutService } from './checkout.service';
 
 @Component({
    selector: 'app-checkout',
@@ -47,16 +44,16 @@ import { switchMap } from 'rxjs';
 
           <button 
              type="submit" 
-             [disabled]="checkoutForm.invalid || isProcessing()"
+             [disabled]="checkoutForm.invalid || checkoutService.isProcessing()"
              class="w-full mt-6 bg-blue-600 text-white font-bold py-3 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:bg-gray-400 transition-colors">
-             @if (isProcessing()) {
+             @if (checkoutService.isProcessing()) {
                 Processing Order...
              } @else {
                 Place Order
              }
           </button>
-           @if (error()) {
-            <p class="text-red-600 text-sm mt-2">{{ error() }}</p>
+           @if (checkoutService.error()) {
+            <p class="text-red-600 text-sm mt-2">{{ checkoutService.error() }}</p>
            }
         </form>
       </div>
@@ -80,17 +77,12 @@ import { switchMap } from 'rxjs';
         </div>
       </div>
     </div>
-  `
+   `
 })
 export class CheckoutComponent {
    readonly cartStore = inject(CartStore);
-   readonly authStore = inject(AuthStore);
-   private readonly orderService = inject(OrderService);
-   private readonly router = inject(Router);
+   readonly checkoutService = inject(CheckoutService);
    private readonly fb = inject(FormBuilder);
-
-   readonly isProcessing = signal(false);
-   readonly error = signal<string | null>(null);
 
    readonly checkoutForm = this.fb.group({
       street: ['123 Main St', Validators.required],
@@ -103,57 +95,13 @@ export class CheckoutComponent {
    onSubmit() {
       if (this.checkoutForm.invalid) return;
 
-      const userId = this.authStore.userId();
-      const cart = this.cartStore.cart();
-
-      if (!userId || !cart) {
-         this.error.set('Cart is empty or user not logged in');
-         return;
-      }
-
-      this.isProcessing.set(true);
       const shipping = this.checkoutForm.getRawValue();
-
-      const command: PlaceOrderCommand = {
-         userId,
-         items: cart.items.map(i => ({
-            productId: i.productId,
-            quantity: i.quantity,
-            productName: i.productName || 'Unknown Product',
-            unitPrice: i.unitPrice || 0
-         })),
-         shippingAddress: {
-            street: shipping.street!,
-            city: shipping.city!,
-            state: shipping.state!,
-            postalCode: shipping.zipCode!,
-            country: shipping.country!
-         }
-      };
-
-      // 1. Place Order
-      this.orderService.placeOrder(command).pipe(
-         // 2. Process Payment (Mock)
-         switchMap(orderRes => {
-            return this.orderService.processPayment({
-               orderId: orderRes.orderId,
-               userId: userId,
-               amount: cart.totalAmount,
-               currency: 'USD',
-               paymentMethodId: 'pm_card_visa'
-            });
-         })
-      ).subscribe({
-         next: () => {
-            this.cartStore.clearCart().subscribe();
-            this.isProcessing.set(false);
-            this.router.navigate(['/profile']);
-         },
-         error: (err) => {
-            console.error(err);
-            this.isProcessing.set(false);
-            this.error.set('Failed to place order. Please try again.');
-         }
+      this.checkoutService.processCheckout({
+         street: shipping.street!,
+         city: shipping.city!,
+         state: shipping.state!,
+         postalCode: shipping.zipCode!,
+         country: shipping.country!
       });
    }
 }

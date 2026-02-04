@@ -102,13 +102,12 @@ export class ProductDetailsComponent implements OnInit {
         }
     }
 
-    addToCart() {
+    async addToCart() {
         const p = this.product();
         if (!p) return;
 
-        this.cartStore.addItem(p, this.quantity).subscribe(() => {
-            this.addedMessage.set(true);
-            setTimeout(() => this.addedMessage.set(false), 3000);
-        });
+        await this.cartStore.addItem(p, this.quantity);
+        this.addedMessage.set(true);
+        setTimeout(() => this.addedMessage.set(false), 3000);
     }
 }

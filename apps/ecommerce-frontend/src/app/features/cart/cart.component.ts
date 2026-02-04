@@ -4,10 +4,10 @@ import { RouterLink } from '@angular/router';
 import { CartStore } from './cart.store';
 
 @Component({
-    selector: 'app-cart',
-    standalone: true,
-    imports: [CommonModule, RouterLink],
-    template: `
+  selector: 'app-cart',
+  standalone: true,
+  imports: [CommonModule, RouterLink],
+  template: `
     <div class="bg-white rounded-lg shadow-sm border border-gray-200">
       <div class="px-6 py-4 border-b border-gray-200">
         <h2 class="text-xl font-bold text-gray-900">Shopping Cart</h2>
@@ -72,22 +72,21 @@ import { CartStore } from './cart.store';
   `
 })
 export class CartComponent {
-    readonly store = inject(CartStore);
+  readonly store = inject(CartStore);
 
-    constructor() {
-        // Ensure latest cart data is loaded
-        this.store.loadCart().subscribe();
-    }
+  constructor() {
+    this.store.loadCart();
+  }
 
-    updateQuantity(productId: string, quantity: number) {
-        this.store.updateQuantity(productId, quantity).subscribe();
-    }
+  updateQuantity(productId: string, quantity: number) {
+    this.store.updateQuantity(productId, quantity);
+  }
 
-    removeItem(productId: string) {
-        this.store.removeItem(productId).subscribe();
-    }
+  removeItem(productId: string) {
+    this.store.removeItem(productId);
+  }
 
-    clearCart() {
-        this.store.clearCart().subscribe();
-    }
+  clearCart() {
+    this.store.clearCart();
+  }
 }
