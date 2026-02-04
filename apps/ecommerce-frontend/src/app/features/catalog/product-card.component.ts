@@ -97,7 +97,7 @@ import { ToastModule } from 'primeng/toast';
           <p-button 
             icon="pi pi-shopping-cart" 
             [loading]="isAdding()"
-            [disabled]="isAdding() || product().stockQuantity === 0"
+            [disabled]="isAdding() || !product().stockQuantity || product().stockQuantity <= 0"
             (onClick)="$event.stopPropagation(); addToCart()"
             pTooltip="Add to cart"
             tooltipPosition="top"
@@ -176,6 +176,8 @@ export class ProductCardComponent {
   }
 
   async addToCart() {
+    if (!this.product().stockQuantity || this.product().stockQuantity <= 0) return;
+
     this.isAdding.set(true);
     await this.cartStore.addItem(this.product(), 1);
     this.isAdding.set(false);

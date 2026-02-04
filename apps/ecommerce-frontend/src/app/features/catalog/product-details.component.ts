@@ -177,12 +177,12 @@ import { MessageService } from 'primeng/api';
               
               <p-button label="Add to Cart" icon="pi pi-shopping-cart" size="large"
                         [loading]="isAdding()"
-                        [disabled]="product()!.stockQuantity === 0"
+                        [disabled]="!product() || !product()!.stockQuantity || product()!.stockQuantity <= 0"
                         styleClass="w-full sm:w-auto px-5"
                         (onClick)="addToCart()"></p-button>
               
               <p-button label="Buy Now" icon="pi pi-bolt" severity="secondary" size="large"
-                        [disabled]="product()!.stockQuantity === 0"
+                        [disabled]="!product() || !product()!.stockQuantity || product()!.stockQuantity <= 0"
                         styleClass="w-full sm:w-auto px-5"
                         (onClick)="buyNow()"></p-button>
             </div>
@@ -388,6 +388,7 @@ export class ProductDetailsComponent implements OnInit {
 
   async addToCart() {
     if (!this.product()) return;
+    if (!this.product()!.stockQuantity || this.product()!.stockQuantity <= 0) return;
 
     this.isAdding.set(true);
     await this.cartStore.addItem(this.product()!, this.quantity);
