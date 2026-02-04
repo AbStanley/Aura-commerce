@@ -7,7 +7,6 @@
 
 Welcome to the **E-Commerce Microservices Platform**, a state-of-the-art reference implementation built on **.NET 10**. This project demonstrates how to build a scalable, resilient, and enterprise-grade distributed system using modern best practices.
 
-> **🚀 [View Roadmap to Senior Engineering Standards](./TODO.md)**: Check out the plan to elevate this project from 7/10 to 10/10 (Testing, Resilience, CI/CD).
 
 ---
 
@@ -63,7 +62,8 @@ graph TD
 ### 🧠 The Thinking Process
 *   **Monorepo Strategy**: All services live in one repo for easier dependency management (`Shared` libraries) and unified CI/CD, while maintaining strict deployment isolation.
 *   **Clean Architecture**: Each service is divided into `Domain` (Core), `Application` (Use Cases), `Infrastructure` (Db/Bus), and `API` (Entry). This ensures technology independence for the core logic.
-*   **Resilience First**: Implemented **Polly** retries for Database and Message Bus failures. The system is designed to "self-heal" during transient outages.
+
+*   **Resilience**: **Polly** Circuit Breakers (External), **EF Core** connection retries (Database), and **MassTransit** exponential backoff (Broker) for robust self-healing.
 *   **Observability**: Integrated **OpenTelemetry** for distributed tracing. Every request across the 7-service mesh is traceable via **Jaeger**, complemented by structured logging with **Seq** and **Serilog**.
 *   **Kubernetes Ready**: Complete set of K8s manifests including Deployments, Services, ConfigMaps, and Ingress for production-grade orchestration.
 
@@ -79,7 +79,7 @@ graph TD
 | **Database** | **PostgreSQL & EF Core** | Relational data with Code-First migrations. |
 | **Caching** | **Redis** | High-speed shopping cart storage. |
 | **Messaging** | **MassTransit (RabbitMQ)** | Robust event bus for async workflows. |
-| **Auth** | **OpenIddict & JWT** | Secure OAuth2/OpenID Connect flow. |
+| **Auth** | **Custom JWT** | Secure implementation of Token-Based Auth. |
 | **Logging** | **Serilog & Seq** | Structured logging and centralization. |
 
 ---

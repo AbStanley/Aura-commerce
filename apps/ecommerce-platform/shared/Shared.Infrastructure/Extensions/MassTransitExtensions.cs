@@ -34,8 +34,8 @@ public static class MassTransitExtensions
                     h.Password(pass);
                 });
 
-                // Global Retry Policy: Retry 3 times with 500ms delay
-                cfg.UseMessageRetry(r => r.Interval(3, TimeSpan.FromMilliseconds(500)));
+                // Global Retry Policy: Exponential Backoff (5 retries)
+                cfg.UseMessageRetry(r => r.Exponential(5, TimeSpan.FromMilliseconds(200), TimeSpan.FromSeconds(30), TimeSpan.FromSeconds(2)));
 
                 // Configure endpoints for consumers
                 cfg.ConfigureEndpoints(context);
