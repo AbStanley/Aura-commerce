@@ -35,5 +35,9 @@ export class CatalogService {
         })
     );
 
+    getProduct(id: string) {
+        return this.http.get<Product>(`${this.baseUrl}/api/products/${id}`);
+    }
+
     readonly products = toSignal(this.request$, { initialValue: [] });
 }
