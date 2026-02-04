@@ -31,7 +31,6 @@ public sealed class AddToCartHandler(ICartRepository cartRepository, IHttpClient
 {
     public async Task<Result> Handle(AddToCartCommand request, CancellationToken cancellationToken)
     {
-        // 1. Verify Stock Logic (Service-to-Service communication)
         try 
         {
             var client = httpClientFactory.CreateClient();
@@ -41,13 +40,13 @@ public sealed class AddToCartHandler(ICartRepository cartRepository, IHttpClient
 
             if (response != null && response.StockQuantity < request.Quantity)
             {
-                // In a real app, use a specific ErrorCode
-                return Result.Failure(new Error("Inventory.OutOfStock", 
-                    $"Only {response.StockQuantity} items left in stock. You requested {request.Quantity}."));
+                return Result.Failure($"Inventory.OutOfStock: Only {response.StockQuantity} items left in stock. You requested {request.Quantity}.");
             }
         } 
         catch (Exception ex) 
         {
+            // Fail safe: If we cannot verify stock, do not proceed.
+            return Result.Failure($"Inventory.CheckFailed: Unable to verify stock availability: {ex.Message}");
         }
 
         var cart = await cartRepository.GetByUserIdAsync(request.UserId, cancellationToken)

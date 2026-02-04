@@ -18,7 +18,6 @@ import { DividerModule } from 'primeng/divider';
 import { ButtonModule } from 'primeng/button';
 import { MessageModule } from 'primeng/message';
 import { TooltipModule } from 'primeng/tooltip';
-import { GalleriaModule } from 'primeng/galleria';
 import { RatingModule } from 'primeng/rating';
 import { InputTextModule } from 'primeng/inputtext';
 import { MenuItem } from 'primeng/api';
@@ -40,7 +39,6 @@ import { MessageService } from 'primeng/api';
     ButtonModule,
     MessageModule,
     TooltipModule,
-    GalleriaModule,
     RatingModule,
     InputTextModule,
     ToastModule
@@ -84,20 +82,45 @@ import { MessageService } from 'primeng/api';
         <!-- Product Gallery -->
         <div class="col-12 md:col-6 lg:col-6">
           <div class="card shadow-1 border-round-xl overflow-hidden surface-card">
-             <p-galleria [value]="images()" [(activeIndex)]="activeIndex" [numVisible]="4" [circular]="true" 
-                        [showItemNavigators]="true" [showThumbnails]="true" [responsiveOptions]="responsiveOptions"
-                        [containerStyle]="{'max-width': '100%'}">
-                <ng-template pTemplate="item" let-item>
-                    <img [src]="item.itemImageSrc" [alt]="item.alt" style="width: 100%; display: block; height: 500px; object-fit: cover; border-radius: 12px;" />
-                </ng-template>
-                <ng-template pTemplate="thumbnail" let-item>
-                    <div class="grid grid-nogutter justify-content-center p-1">
-                        <img [src]="item.thumbnailImageSrc" [alt]="item.alt" 
-                             style="width: 100%; height: 80px; object-fit: cover; border-radius: 4px; cursor: pointer;" 
-                             class="hover:surface-300 transition-colors transition-duration-200" />
+          <div class="card shadow-1 border-round-xl overflow-hidden surface-card p-3">
+             <!-- Main Image -->
+             <div class="mb-3 relative w-full h-30rem border-round-xl overflow-hidden cursor-pointer" 
+                  style="background-color: #f8f9fa;">
+                 @if (images().length > 0) {
+                    <img [src]="images()[activeIndex].itemImageSrc" 
+                         [alt]="images()[activeIndex].alt"
+                         class="w-full h-full object-cover animate-fade-in"
+                         style="transition: transform 0.3s ease;" 
+                         (click)="showDialog = true"/>
+                    
+                    <!-- Navigation Arrows (Optional, for polish) -->
+                    <button pButton icon="pi pi-chevron-left" 
+                            class="p-button-rounded p-button-text p-button-secondary absolute left-0 top-50 -mt-3 ml-2 surface-0 shadow-2 opacity-70 hover:opacity-100"
+                            (click)="prevImage(); $event.stopPropagation()"
+                            [disabled]="activeIndex === 0"></button>
+                    <button pButton icon="pi pi-chevron-right" 
+                            class="p-button-rounded p-button-text p-button-secondary absolute right-0 top-50 -mt-3 mr-2 surface-0 shadow-2 opacity-70 hover:opacity-100"
+                            (click)="nextImage(); $event.stopPropagation()"
+                            [disabled]="activeIndex === images().length - 1"></button>
+                 }
+             </div>
+
+             <!-- Thumbnails -->
+             <div class="flex gap-2 overflow-x-auto pb-1" style="scroll-behavior: smooth;">
+                @for (item of images(); track item.itemImageSrc; let i = $index) {
+                    <div class="flex-shrink-0 cursor-pointer border-round-lg overflow-hidden transition-all transition-duration-200"
+                         style="width: 80px; height: 80px;"
+                         [style.box-shadow]="activeIndex === i ? '0 0 0 2px var(--primary-color)' : 'none'"
+                         [class.opacity-60]="activeIndex !== i"
+                         [class.opacity-100]="activeIndex === i"
+                         (click)="setIndex(i)">
+                        <img [src]="item.thumbnailImageSrc" 
+                             [alt]="item.alt" 
+                             class="w-full h-full object-cover" />
                     </div>
-                </ng-template>
-            </p-galleria>
+                }
+             </div>
+          </div>
           </div>
         </div>
 
@@ -298,6 +321,7 @@ import { MessageService } from 'primeng/api';
   `]
 })
 export class ProductDetailsComponent implements OnInit {
+
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly catalog = inject(CatalogService);
@@ -317,6 +341,7 @@ export class ProductDetailsComponent implements OnInit {
 
   // Review Form State
   showReviewForm = false;
+  showDialog = false;
   newReview = { rating: 5, comment: '' };
 
   quantity = 1;
@@ -355,6 +380,7 @@ export class ProductDetailsComponent implements OnInit {
       next: (product) => {
         this.product.set(product);
         this.images.set(this.galleryAdapter.getImages(product.id, product.name));
+        this.activeIndex = 0;
         this.breadcrumbItems = [
           { label: 'Products', routerLink: '/' },
           { label: product.name }
@@ -428,5 +454,26 @@ export class ProductDetailsComponent implements OnInit {
   scrollToReviews() {
     const el = document.getElementById('reviews-section');
     if (el) el.scrollIntoView({ behavior: 'smooth' });
+  }
+
+  // Gallery Navigation
+  setIndex(index: number) {
+    this.activeIndex = index;
+  }
+
+  prevImage() {
+    if (this.activeIndex > 0) {
+      this.activeIndex--;
+    }
+  }
+
+  nextImage() {
+    if (this.activeIndex < this.images().length - 1) {
+      this.activeIndex++;
+    }
+  }
+
+  isActive(item: GalleryImage): boolean {
+    return this.images()[this.activeIndex]?.itemImageSrc === item.itemImageSrc;
   }
 }

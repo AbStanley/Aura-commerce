@@ -63,6 +63,14 @@ public static class ProductDataSeeder
         // Seed Inventory
         Log.Information("Seeding inventory...");
         var inventories = products.Select(p => Inventory.Create(p.Id, new Random().Next(20, 100))).ToList();
+
+        // 1. Explicitly make one item Out of Stock for testing
+        var outOfStockItem = products.FirstOrDefault(p => p.Name.Contains("Mechanical Keyboard"));
+        if (outOfStockItem != null)
+        {
+            var inv = inventories.First(i => i.ProductId == outOfStockItem.Id);
+            inv.QuantityAvailable = 0; // Out of Stock
+        }
         
         // Ensure specific items mentioned by user have plenty of stock
         var airFryer = products.FirstOrDefault(p => p.Name.Contains("Air Fryer"));
