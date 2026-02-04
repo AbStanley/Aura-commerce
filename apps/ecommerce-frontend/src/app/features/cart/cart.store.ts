@@ -64,11 +64,17 @@ export const CartStore = signalStore(
             );
         },
 
-        addItem(productId: string, quantity: number = 1): Observable<Cart | null> {
+        addItem(product: { id: string; name: string; price: number }, quantity: number = 1): Observable<Cart | null> {
             const userId = authStore.userId();
             if (!userId) return of(null);
 
-            return http.post(`${baseUrl}/api/cart/items`, { productId, quantity, userId }).pipe(
+            return http.post(`${baseUrl}/api/cart/items`, {
+                productId: product.id,
+                productName: product.name,
+                unitPrice: product.price,
+                quantity,
+                userId
+            }).pipe(
                 switchMap(() => this.loadCart()),
                 catchError(() => of(null))
             );
@@ -90,7 +96,8 @@ export const CartStore = signalStore(
 
             if (quantity <= 0) return this.removeItem(productId);
 
-            return http.put(`${baseUrl}/api/cart/items`, { productId, quantity, userId }).pipe(
+            // FIX: Append productId to the URL for PUT request
+            return http.put(`${baseUrl}/api/cart/items/${productId}`, { productId, quantity, userId }).pipe(
                 switchMap(() => this.loadCart()),
                 catchError(() => of(null))
             );

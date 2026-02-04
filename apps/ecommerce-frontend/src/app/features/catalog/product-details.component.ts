@@ -106,7 +106,7 @@ export class ProductDetailsComponent implements OnInit {
         const p = this.product();
         if (!p) return;
 
-        this.cartStore.addItem(p.id, this.quantity).subscribe(() => {
+        this.cartStore.addItem(p, this.quantity).subscribe(() => {
             this.addedMessage.set(true);
             setTimeout(() => this.addedMessage.set(false), 3000);
         });

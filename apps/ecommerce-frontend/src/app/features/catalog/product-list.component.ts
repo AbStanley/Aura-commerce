@@ -37,8 +37,8 @@ export class ProductListComponent {
 
   readonly products = this.catalogService.products;
 
-  onAddToCart(product: { id: string }) {
-    this.cartStore.addItem(product.id, 1).subscribe({
+  onAddToCart(product: { id: string; name: string; price: number }) {
+    this.cartStore.addItem(product, 1).subscribe({
       next: () => console.log('Added to cart'),
       error: (err: any) => console.error('Failed to add to cart', err)
     });

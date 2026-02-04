@@ -4,14 +4,14 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { CartStore } from '../cart/cart.store';
 import { AuthStore } from '../auth/auth.store';
-import { OrderService } from '../orders/order.service';
+import { OrderService, PlaceOrderCommand } from '../orders/order.service';
 import { switchMap } from 'rxjs';
 
 @Component({
-    selector: 'app-checkout',
-    standalone: true,
-    imports: [CommonModule, ReactiveFormsModule],
-    template: `
+   selector: 'app-checkout',
+   standalone: true,
+   imports: [CommonModule, ReactiveFormsModule],
+   template: `
     <div class="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
       <!-- Shipping Form -->
       <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
@@ -83,68 +83,76 @@ import { switchMap } from 'rxjs';
   `
 })
 export class CheckoutComponent {
-    readonly cartStore = inject(CartStore);
-    readonly authStore = inject(AuthStore);
-    private readonly orderService = inject(OrderService);
-    private readonly router = inject(Router);
-    private readonly fb = inject(FormBuilder);
+   readonly cartStore = inject(CartStore);
+   readonly authStore = inject(AuthStore);
+   private readonly orderService = inject(OrderService);
+   private readonly router = inject(Router);
+   private readonly fb = inject(FormBuilder);
 
-    readonly isProcessing = signal(false);
-    readonly error = signal<string | null>(null);
+   readonly isProcessing = signal(false);
+   readonly error = signal<string | null>(null);
 
-    readonly checkoutForm = this.fb.group({
-        street: ['123 Main St', Validators.required],
-        city: ['Tech City', Validators.required],
-        state: ['TC', Validators.required],
-        zipCode: ['10101', Validators.required],
-        country: ['DevLand', Validators.required]
-    });
+   readonly checkoutForm = this.fb.group({
+      street: ['123 Main St', Validators.required],
+      city: ['Tech City', Validators.required],
+      state: ['TC', Validators.required],
+      zipCode: ['10101', Validators.required],
+      country: ['DevLand', Validators.required]
+   });
 
-    onSubmit() {
-        if (this.checkoutForm.invalid) return;
+   onSubmit() {
+      if (this.checkoutForm.invalid) return;
 
-        const userId = this.authStore.userId();
-        const cart = this.cartStore.cart();
+      const userId = this.authStore.userId();
+      const cart = this.cartStore.cart();
 
-        if (!userId || !cart) {
-            this.error.set('Cart is empty or user not logged in');
-            return;
-        }
+      if (!userId || !cart) {
+         this.error.set('Cart is empty or user not logged in');
+         return;
+      }
 
-        this.isProcessing.set(true);
-        const shipping = this.checkoutForm.getRawValue();
+      this.isProcessing.set(true);
+      const shipping = this.checkoutForm.getRawValue();
 
-        // 1. Place Order
-        this.orderService.placeOrder({
-            userId,
-            items: cart.items.map(i => ({ productId: i.productId, quantity: i.quantity })),
-            shippingAddress: {
-                street: shipping.street!,
-                city: shipping.city!,
-                state: shipping.state!,
-                zipCode: shipping.zipCode!,
-                country: shipping.country!
-            }
-        }).pipe(
-            // 2. Process Payment (Mock)
-            switchMap(orderRes => {
-                return this.orderService.processPayment({
-                    orderId: orderRes.orderId,
-                    amount: cart.totalPrice,
-                    paymentMethod: 'CreditCard'
-                });
-            })
-        ).subscribe({
-            next: () => {
-                this.cartStore.clearCart().subscribe(); // Clear cart
-                this.isProcessing.set(false);
-                this.router.navigate(['/profile']); // Go to history
-            },
-            error: (err) => {
-                console.error(err);
-                this.isProcessing.set(false);
-                this.error.set('Failed to place order. Please try again.');
-            }
-        });
-    }
+      const command: PlaceOrderCommand = {
+         userId,
+         items: cart.items.map(i => ({
+            productId: i.productId,
+            quantity: i.quantity,
+            productName: i.productName || 'Unknown Product',
+            unitPrice: i.unitPrice || 0
+         })),
+         shippingAddress: {
+            street: shipping.street!,
+            city: shipping.city!,
+            state: shipping.state!,
+            postalCode: shipping.zipCode!, // Map zipCode to postalCode
+            country: shipping.country!
+         }
+      };
+
+      // 1. Place Order
+      this.orderService.placeOrder(command).pipe(
+         // 2. Process Payment (Mock)
+         switchMap(orderRes => {
+            return this.orderService.processPayment({
+               orderId: orderRes.orderId,
+               amount: cart.totalPrice,
+               currency: 'USD',          // <-- Added
+               paymentMethodId: 'pm_card_visa' // <-- Added
+            });
+         })
+      ).subscribe({
+         next: () => {
+            this.cartStore.clearCart().subscribe(); // Clear cart
+            this.isProcessing.set(false);
+            this.router.navigate(['/profile']); // Go to history
+         },
+         error: (err) => {
+            console.error(err);
+            this.isProcessing.set(false);
+            this.error.set('Failed to place order. Please try again.');
+         }
+      });
+   }
 }

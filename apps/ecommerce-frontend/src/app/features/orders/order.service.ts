@@ -5,12 +5,17 @@ import { Observable } from 'rxjs';
 
 export type PlaceOrderCommand = {
     userId: string;
-    items: { productId: string; quantity: number }[];
+    items: {
+        productId: string;
+        quantity: number;
+        productName?: string;
+        unitPrice?: number;
+    }[];
     shippingAddress: {
         street: string;
         city: string;
         state: string;
-        zipCode: string;
+        postalCode: string;
         country: string;
     };
 };
@@ -40,7 +45,7 @@ export class OrderService {
         return this.http.get<Order[]>(`${this.baseUrl}/api/orders/history?userId=${userId}`);
     }
 
-    processPayment(command: { orderId: string; amount: number; paymentMethod: string }): Observable<{ paymentId: string }> {
+    processPayment(command: { orderId: string; amount: number; currency: string; paymentMethodId: string }): Observable<{ paymentId: string }> {
         return this.http.post<{ paymentId: string }>(`${this.baseUrl}/api/payments`, command);
     }
 }
