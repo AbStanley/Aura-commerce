@@ -48,7 +48,7 @@ import { MenuItem } from 'primeng/api';
               </a>
               
               <!-- Wishlist (New) -->
-              <button type="button" class="p-button p-button-text p-button-rounded relative"
+              <button type="button" class="p-button p-button-text p-button-rounded relative overflow-visible"
                       pTooltip="Wishlist" tooltipPosition="bottom">
                 <i class="pi pi-heart text-xl"></i>
                 @if (wishlistStore.count() > 0) {
@@ -57,7 +57,7 @@ import { MenuItem } from 'primeng/api';
               </button>
               
               <!-- Cart -->
-              <a routerLink="/cart" class="p-button p-button-text p-button-rounded relative"
+              <a routerLink="/cart" class="p-button p-button-text p-button-rounded relative overflow-visible"
                  pTooltip="Cart" tooltipPosition="bottom">
                 <i class="pi pi-shopping-cart text-xl"></i>
                 @if (cartStore.itemCount() > 0) {
@@ -79,7 +79,7 @@ import { MenuItem } from 'primeng/api';
                           styleClass="cursor-pointer bg-primary text-white"
                           (click)="userMenu.toggle($event)"
                           pTooltip="Account" tooltipPosition="bottom"></p-avatar>
-                <p-menu #userMenu [model]="userMenuItems" [popup]="true"></p-menu>
+                <p-menu #userMenu [model]="userMenuItems" [popup]="true" appendTo="body"></p-menu>
               } @else {
                 <a routerLink="/login" class="p-button p-button-sm">
                   <span class="p-button-label">Sign In</span>
