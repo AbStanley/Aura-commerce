@@ -59,6 +59,8 @@ try
         var db = scope.ServiceProvider.GetRequiredService<ProductCatalogService.Infrastructure.Persistence.ProductCatalogDbContext>();
         db.Database.EnsureCreated();
         
+        await ProductCatalogService.API.Data.ProductDataSeeder.SeedAsync(db);
+        
         app.MapOpenApi();
         app.MapScalarApiReference();
     }

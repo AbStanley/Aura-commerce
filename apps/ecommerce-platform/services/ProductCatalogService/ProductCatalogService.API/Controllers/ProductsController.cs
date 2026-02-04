@@ -51,9 +51,9 @@ public sealed class ProductsController(ISender sender) : ControllerBase
     }
 
     [HttpGet(ApiRoutes.Products.Base)]
-    public async Task<IActionResult> GetAll()
+    public async Task<IActionResult> GetAll([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
     {
-        var query = new GetAllProductsQuery();
+        var query = new GetProductsQuery(page, pageSize);
         var result = await _sender.Send(query);
         return Ok(result.Value);
     }
