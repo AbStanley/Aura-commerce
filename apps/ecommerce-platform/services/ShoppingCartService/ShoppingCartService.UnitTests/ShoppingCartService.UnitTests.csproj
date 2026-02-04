@@ -21,8 +21,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\OrderService.Domain\OrderService.Domain.csproj" />
-    <ProjectReference Include="..\OrderService.Application\OrderService.Application.csproj" />
+    <ProjectReference Include="..\ShoppingCartService.Domain\ShoppingCartService.Domain.csproj" />
+    <ProjectReference Include="..\ShoppingCartService.Application\ShoppingCartService.Application.csproj" />
   </ItemGroup>
 
 </Project>
