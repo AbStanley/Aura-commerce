@@ -20,6 +20,11 @@ public sealed class ProductRepository(ProductCatalogDbContext context) : IProduc
             .Where(p => p.CategoryId == categoryId && p.IsActive)
             .ToListAsync(cancellationToken);
 
+    public async Task<IEnumerable<Product>> GetAllAsync(CancellationToken cancellationToken = default)
+        => await context.Products
+            .Where(p => p.IsActive)
+            .ToListAsync(cancellationToken);
+
     public async Task<IEnumerable<Product>> SearchAsync(
         string searchTerm,
         CancellationToken cancellationToken = default)

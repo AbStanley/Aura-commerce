@@ -49,6 +49,14 @@ public sealed class ProductsController(ISender sender) : ControllerBase
         var result = await _sender.Send(query);
         return Ok(result.Value);
     }
+
+    [HttpGet(ApiRoutes.Products.Base)]
+    public async Task<IActionResult> GetAll()
+    {
+        var query = new GetAllProductsQuery();
+        var result = await _sender.Send(query);
+        return Ok(result.Value);
+    }
 }
 
 public sealed record UpdateProductRequest(string Name, string Description, decimal Price);
