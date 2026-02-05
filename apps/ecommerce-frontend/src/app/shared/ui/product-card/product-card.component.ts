@@ -1,7 +1,8 @@
-import { Component, input, output, computed } from '@angular/core';
+import { Component, input, output, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { Product } from '../../models/product.model';
+import { ProductImageService } from '../../services/product-image.service';
 
 // PrimeNG Components
 import { CardModule } from 'primeng/card';
@@ -19,7 +20,7 @@ import { TooltipModule } from 'primeng/tooltip';
       
       <!-- Image Section -->
       <div class="relative w-full bg-white p-3 flex align-items-center justify-content-center" style="height: 220px;">
-        <img [src]="product().imageUrl" 
+        <img [src]="imageUrl()" 
              [alt]="product().name" 
              class="max-w-full max-h-full object-contain" 
              (error)="onImageError($event)">
@@ -119,6 +120,7 @@ import { TooltipModule } from 'primeng/tooltip';
 })
 export class ProductCardComponent {
     protected readonly Math = Math;
+    private readonly imageService = inject(ProductImageService);
 
     readonly product = input.required<Product>();
     readonly isAdding = input<boolean>(false);
@@ -128,11 +130,15 @@ export class ProductCardComponent {
     readonly toggleWishlist = output<Product>();
     readonly cardClick = output<Product>();
 
+    readonly imageUrl = computed(() =>
+        this.imageService.getProductImage(this.product().id, this.product().name, this.product().imageUrl)
+    );
+
     onCardClick() {
         this.cardClick.emit(this.product());
     }
 
     onImageError(event: any) {
-        event.target.src = 'https://primefaces.org/cdn/primeng/images/usercard.png'; // Fallback
+        event.target.src = 'https://primefaces.org/cdn/primeng/images/usercard.png';
     }
 }

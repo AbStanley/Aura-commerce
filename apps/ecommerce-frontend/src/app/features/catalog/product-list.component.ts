@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { CatalogService } from './catalog.service';
 import { ProductCardComponent } from '../../shared/ui/product-card/product-card.component';
 import { Product } from '../../shared/models/product.model';
+import { ProductImageService } from '../../shared/services/product-image.service';
 
 // Stores
 import { CartStore } from '../cart/cart.store';
@@ -103,6 +104,7 @@ export class ProductListComponent {
     readonly authStore = inject(AuthStore);
     readonly router = inject(Router);
     private readonly msgService = inject(MessageService);
+    private readonly imageService = inject(ProductImageService);
 
     readonly addingProductId = signal<string | null>(null);
 
@@ -138,7 +140,7 @@ export class ProductListComponent {
             id: product.id,
             name: product.name,
             price: product.price,
-            imageUrl: product.imageUrl // Note: Logic for thumbnail might need check if strictly same
+            imageUrl: this.imageService.getProductImage(product.id, product.name, product.imageUrl)
         });
 
         this.msgService.add({
