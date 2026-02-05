@@ -1,197 +1,123 @@
 /* 
   Custom Design System Variables & Utilities
   (Simulating Tailwind-like utility classes for a premium feel without external build steps)
-*/
-
-/* 
-  Since we are not using Tailwind CLI (user requirement: Angular CLI standard),
-  we will implement a subset of Tailwind-like utilities and variables manually
-  or assume a CDN link in index.html for rapid prototyping if allowed.
-  
-  For now, defining the CSS variables for the design system.
+  Premium Design System - "Ethereal Tech"
+  Inspired by Apple's glassmorphism and modern UI trends.
 */
 
 :root {
-    --primary: 37 99 235;
-    /* Blue 600 */
-    --secondary: 79 70 229;
-    /* Indigo 600 */
-    --background: 249 250 251;
-    /* Gray 50 */
-    --text: 17 24 39;
-    /* Gray 900 */
+    /* Colors - Refined Palette */
+    --primary: 0 122 255; /* System Blue */
+    --primary-dark: 0 90 200;
+    --background: 250 250 250; /* Slightly off-white */
+    --surface: 255 255 255;
+    --text-main: 29 29 31; /* Almost black */
+    --text-secondary: 134 134 139; /* Gray */
+    
+    /* Premium Shadows */
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.025);
+    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
+    --shadow-glass: 0 8px 32px 0 rgba(0, 0, 0, 0.1);
 
-    --radius: 0.5rem;
+    /* Radius */
+    --radius-sm: 0.5rem;
+    --radius-md: 0.75rem;
+    --radius-lg: 1rem;
+    --radius-xl: 1.5rem;
+    --radius-2xl: 2rem;
 
-    /* View Transition Names */
-    --transition-product-image: product-image;
+    /* Glass Effect */
+    --glass-bg: rgba(255, 255, 255, 0.7);
+    --glass-border: rgba(255, 255, 255, 0.5);
+    --glass-blur: 20px;
 }
 
 body {
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
     background-color: rgb(var(--background));
-    color: rgb(var(--text));
+    color: rgb(var(--text-main));
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
-/* Utility classes (simulating Tailwind for the shell) */
-.min-h-screen {
-    min-height: 100vh;
+/* Typography Utilities */
+.font-display {
+    font-weight: 700;
+    letter-spacing: -0.025em; /* Tighter tracking for headings */
 }
 
-.flex {
-    display: flex;
+/* Glassmorphism Utilities */
+.glass-panel {
+    background: var(--glass-bg);
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+    border: 1px solid var(--glass-border);
 }
 
-.flex-col {
-    flex-direction: column;
-}
-
-.bg-gray-50 {
-    background-color: #f9fafb;
-}
-
-.bg-white\/80 {
-    background-color: rgba(255, 255, 255, 0.8);
-}
-
-.backdrop-blur-md {
+.glass-card {
+    background: rgba(255, 255, 255, 0.8);
     backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    box-shadow: var(--shadow-sm);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.border-b {
-    border-bottom-width: 1px;
+.glass-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-xl);
+    background: rgba(255, 255, 255, 0.95);
 }
 
-.border-gray-200 {
-    border-color: #e5e7eb;
+/* Animations */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
-.sticky {
-    position: sticky;
+.animate-fade-in-up {
+    animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-.top-0 {
-    top: 0;
+.delay-100 { animation-delay: 100ms; }
+.delay-200 { animation-delay: 200ms; }
+.delay-300 { animation-delay: 300ms; }
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.2);
 }
 
-.z-50 {
-    z-index: 50;
+/* Utility Overrides for Premium Feel */
+.p-button {
+    border-radius: var(--radius-md) !important;
+    font-weight: 600 !important;
+    letter-spacing: -0.01em !important;
+}
+
+.p-inputtext {
+    border-radius: var(--radius-md) !important;
 }
 
 .container {
-    width: 100%;
-    max-width: 1280px;
-    margin-left: auto;
-    margin-right: auto;
-}
-
-.mx-auto {
-    margin-left: auto;
-    margin-right: auto;
-}
-
-.px-4 {
-    padding-left: 1rem;
-    padding-right: 1rem;
-}
-
-.h-16 {
-    height: 4rem;
-}
-
-.py-8 {
-    padding-top: 2rem;
-    padding-bottom: 2rem;
-}
-
-.py-12 {
-    padding-top: 3rem;
-    padding-bottom: 3rem;
-}
-
-.items-center {
-    align-items: center;
-}
-
-.justify-between {
-    justify-content: space-between;
-}
-
-.font-bold {
-    font-weight: 700;
-}
-
-.text-xl {
-    font-size: 1.25rem;
-    line-height: 1.75rem;
-}
-
-.text-sm {
-    font-size: 0.875rem;
-    line-height: 1.25rem;
-}
-
-.font-medium {
-    font-weight: 500;
-}
-
-.text-gray-600 {
-    color: #4b5563;
-}
-
-.text-gray-900 {
-    color: #111827;
-}
-
-.text-gray-400 {
-    color: #9ca3af;
-}
-
-.bg-gray-900 {
-    background-color: #111827;
-}
-
-.hover\:text-blue-600:hover {
-    color: #2563eb;
-}
-
-.bg-clip-text {
-    -webkit-background-clip: text;
-    background-clip: text;
-}
-
-.text-transparent {
-    color: transparent;
-}
-
-.bg-gradient-to-r {
-    background-image: linear-gradient(to right, #2563eb, #4f46e5);
-}
-
-.gap-4 {
-    gap: 1rem;
-}
-
-.gap-6 {
-    gap: 1.5rem;
-}
-
-.hidden {
-    display: none;
-}
-
-.md\:flex {
-    display: flex;
-}
-
-/* Simplification for desktop-first dev */
-
-@media (min-width: 768px) {
-    .hidden {
-        display: none;
-    }
-
-    .md\:flex {
-        display: flex;
-    }
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
 }

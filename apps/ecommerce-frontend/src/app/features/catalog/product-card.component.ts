@@ -22,122 +22,98 @@ import { ToastModule } from 'primeng/toast';
   providers: [MessageService],
   template: `
     <p-toast></p-toast>
-    <div class="product-card surface-card border-round-xl overflow-hidden shadow-1 h-full cursor-pointer"
+    <div class="surface-card border-1 surface-border border-round-md overflow-hidden h-full cursor-pointer relative hover:shadow-3 transition-duration-200 flex flex-column"
          (click)="navigateToProduct()">
+      
       <!-- Image Section -->
-      <div class="product-image relative overflow-hidden" style="height: 220px;">
-        <img [src]="thumbnail()" [alt]="product().name" class="w-full h-full object-cover" 
+      <div class="relative w-full bg-white p-3 flex align-items-center justify-content-center" style="height: 220px;">
+        <img [src]="thumbnail()" 
+             [alt]="product().name" 
+             class="max-w-full max-h-full object-contain" 
              (error)="onImageError($event)">
         
         <!-- Out of Stock Overlay -->
         @if (product().stockQuantity === 0) {
-            <div class="absolute top-0 left-0 w-full h-full flex align-items-center justify-content-center bg-black-alpha-50 z-2">
-                <span class="bg-black-alpha-70 text-white px-3 py-1 border-round font-bold uppercase tracking-wider text-sm shadow-2">Out of Stock</span>
+            <div class="absolute top-0 left-0 w-full h-full flex align-items-center justify-content-center bg-white-alpha-50 z-2">
+                <span class="text-red-600 font-bold uppercase text-sm border-1 border-red-600 bg-white px-2 py-1">Out of Stock</span>
             </div>
         }
-
-        <!-- Stock Badge (Low Stock) -->
-        @if (product().stockQuantity > 0 && product().stockQuantity < 10) {
-          <p-tag severity="warn" value="Low Stock" 
-                 styleClass="absolute shadow-2 text-xs z-3" style="top: 12px; left: 12px;"></p-tag>
-        }
-        
-        <!-- Discount Badge -->
-        @if (product().price > 50) {
-          <span class="absolute bg-green-500 text-white text-xs font-bold px-2 py-1 border-round shadow-2 z-3"
-                style="top: 12px; right: 12px;">
-            -20%
-          </span>
-        }
-        
-        <!-- Wishlist Button -->
-        <button type="button" 
-                class="absolute p-button p-button-rounded p-button-sm wishlist-btn z-4"
-                [class.active]="isWishlisted()"
-                style="bottom: 12px; right: 12px; width: 36px; height: 36px;"
-                (click)="$event.stopPropagation(); toggleWishlist()"
-                pTooltip="Add to wishlist">
-          <i [class]="isWishlisted() ? 'pi pi-heart-fill text-red-500' : 'pi pi-heart text-700'" class="text-lg"></i>
-        </button>
-        
-        <!-- Quick View Overlay -->
-        <div class="quick-overlay absolute top-0 left-0 right-0 bottom-0 
-                    flex align-items-end justify-content-center pb-4 z-1">
-          <p-button icon="pi pi-eye" label="View Details" 
-                    [rounded]="true" size="small"
-                    styleClass="shadow-4 font-bold"
-                    (click)="$event.stopPropagation(); navigateToProduct()"></p-button>
-        </div>
       </div>
 
       <!-- Content -->
-      <div class="p-3">
-        <!-- Rating Placeholder -->
-        <div class="flex gap-1 mb-2">
-          @for (star of [1,2,3,4,5]; track star) {
-            <i class="pi text-xs" [class]="star <= 4 ? 'pi-star-fill text-yellow-500' : 'pi-star text-300'"></i>
-          }
-          <span class="text-500 text-xs ml-1">(42)</span>
-        </div>
-        
-        <span class="text-500 text-xs block mb-1 font-mono uppercase tracking-wider">{{ product().sku }}</span>
-        <h3 class="text-base font-bold text-900 m-0 mb-1 white-space-nowrap overflow-hidden text-overflow-ellipsis">
+      <div class="p-3 flex flex-column flex-grow-1 gap-1">
+        <!-- Title -->
+        <h3 class="text-base font-normal text-900 m-0 line-height-3 max-h-3rem overflow-hidden text-overflow-ellipsis hover:text-primary transition-colors cursor-pointer"
+            style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">
           {{ product().name }}
         </h3>
-        <p class="text-600 text-xs m-0 mb-3 line-height-3 overflow-hidden text-overflow-ellipsis" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; height: 2.2rem;">
-          {{ product().description }}
-        </p>
         
-        <div class="flex align-items-center justify-content-between pt-2 border-top-1 surface-border">
-          <div class="flex flex-column">
-            <span class="text-lg font-bold text-primary">{{ product().price | currency }}</span>
-            @if (product().price > 50) {
-              <span class="text-xs line-through text-500">{{ product().price * 1.25 | currency }}</span>
-            }
-          </div>
-          <p-button 
-            icon="pi pi-shopping-cart" 
-            [loading]="isAdding()"
-            [disabled]="isAdding() || !product().stockQuantity || product().stockQuantity <= 0"
-            (onClick)="$event.stopPropagation(); addToCart()"
-            pTooltip="Add to cart"
-            tooltipPosition="top"
-            [rounded]="true"
-            severity="primary">
-          </p-button>
+        <!-- Rating -->
+        <div class="flex align-items-center gap-1 mb-1">
+           <div class="flex text-yellow-500 text-xs">
+              <i class="pi pi-star-fill"></i>
+              <i class="pi pi-star-fill"></i>
+              <i class="pi pi-star-fill"></i>
+              <i class="pi pi-star-fill"></i>
+              <i class="pi pi-star-half-fill"></i>
+           </div>
+           <span class="text-blue-600 text-xs hover:underline cursor-pointer">4,289</span>
         </div>
+
+        <!-- Price -->
+        <div class="mt-1">
+            <div class="flex align-items-baseline gap-1">
+                <span class="text-xs text-900 relative" style="top: -0.5em">$</span>
+                <span class="text-2xl font-medium text-900">{{ Math.floor(product().price) }}</span>
+                <span class="text-xs text-900 relative" style="top: -0.5em">{{ (product().price % 1).toFixed(2).substring(2) }}</span>
+            </div>
+             @if (product().price > 50) {
+              <span class="text-xs text-500">List: <span class="line-through">{{ product().price * 1.2 | currency }}</span></span>
+            }
+        </div>
+
+        <!-- Delivery Info -->
+        <div class="text-xs text-500 mt-1">
+            <span class="text-900 font-bold">Prime</span> <span class="text-500">Two-Day</span>
+        </div>
+        <div class="text-xs text-500">
+            FREE delivery <span class="font-bold text-900">Mon, Feb 9</span>
+        </div>
+
+        <!-- Spacer -->
+        <div class="flex-grow-1"></div>
+
+        <!-- Action Button -->
+        <div class="mt-3">
+             <button pButton 
+                     label="Add to Cart" 
+                     class="p-button-warning w-full text-sm font-bold border-round-3xl"
+                     style="background-color: #ffd814; border-color: #fcd200; color: #0f1111;"
+                     [disabled]="isAdding() || !product().stockQuantity || product().stockQuantity <= 0"
+                     (click)="$event.stopPropagation(); addToCart()"></button>
+        </div>
+        
+        <!-- Wishlist (Small Link) -->
+        <div class="mt-2 text-center">
+             <a class="text-xs text-blue-600 hover:underline cursor-pointer"
+               (click)="$event.stopPropagation(); toggleWishlist()">
+               {{ isWishlisted() ? 'Remove from List' : 'Add to List' }}
+             </a>
+        </div>
+
       </div>
     </div>
   `,
   styles: [`
-    .product-card {
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    .product-card:hover {
-      transform: translateY(-8px);
-      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12) !important;
-    }
-    .quick-overlay {
-      background: linear-gradient(to top, rgba(0, 0, 0, 0.4), transparent);
-      opacity: 0;
-      transition: opacity 0.3s ease;
-    }
-    .product-card:hover .quick-overlay {
-      opacity: 1;
-    }
-    .wishlist-btn {
-      background: rgba(255,255,255,0.9);
-      border: none !important;
-      transition: all 0.2s ease;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    }
-    .wishlist-btn:hover {
-      transform: scale(1.1);
-      background: #ffffff;
+    :host { display: block; height: 100%; }
+    .p-button-warning:hover {
+        background-color: #f7ca00 !important;
+        border-color: #f2c200 !important;
     }
   `]
 })
 export class ProductCardComponent {
+  protected readonly Math = Math;
   readonly product = input.required<Product>();
   private readonly cartStore = inject(CartStore);
   private readonly wishlistStore = inject(WishlistStore);
@@ -198,7 +174,7 @@ export class ProductCardComponent {
     this.msgService.add({
       severity: 'success',
       summary: 'Added to Cart',
-      detail: `Added ${this.product().name}`,
+      detail: `Added ${this.product().name} `,
       life: 2000
     });
   }
