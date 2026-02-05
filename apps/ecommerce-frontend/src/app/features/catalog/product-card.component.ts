@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { Product } from './catalog.service';
 import { CartStore } from '../cart/cart.store';
 import { WishlistStore } from './wishlist.store';
+import { AuthStore } from '../auth/auth.store';
 import { GalleryAdapterService } from './gallery-adapter.service';
 
 // PrimeNG Components
@@ -144,6 +145,8 @@ export class ProductCardComponent {
   private readonly router = inject(Router);
   private readonly msgService = inject(MessageService);
 
+  private readonly authStore = inject(AuthStore);
+
   readonly isAdding = signal(false);
 
   thumbnail = computed(() => {
@@ -159,6 +162,16 @@ export class ProductCardComponent {
   }
 
   async toggleWishlist() {
+    if (!this.authStore.isAuthenticated()) {
+      this.msgService.add({
+        severity: 'info',
+        summary: 'Authentication Required',
+        detail: 'Please login to add items to your wishlist',
+        life: 3000
+      });
+      return;
+    }
+
     const p = this.product();
     const added = await this.wishlistStore.toggleItem({
       id: p.id,
