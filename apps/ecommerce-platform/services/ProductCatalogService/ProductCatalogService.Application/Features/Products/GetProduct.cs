@@ -15,7 +15,7 @@ public sealed record ProductDto(
     Guid CategoryId,
     string? ImageUrl,
     bool IsActive,
-    int StockAvailable,
+    int StockQuantity,
     DateTime CreatedAt);
 
 public sealed class GetProductHandler(
