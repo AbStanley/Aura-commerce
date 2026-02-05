@@ -1,9 +1,8 @@
 # 🛒 Ecommerce Frontend (Angular 21 + Signals)
 
-![Angular](https://img.shields.io/badge/Angular-21.0-dd0031.svg)
-![State](https://img.shields.io/badge/State-NgRx%20Signals-333333.svg)
-![Styling](https://img.shields.io/badge/Styling-Tailwind%20+%20PrimeNG-06b6d4.svg)
-![License](https://img.shields.io/badge/license-MIT-blue.svg)
+![Angular](https://img.shields.io/badge/Angular-21.0-dd0031.svg?style=for-the-badge)
+![State](https://img.shields.io/badge/State-NgRx%20Signals-333333.svg?style=for-the-badge)
+![Styling](https://img.shields.io/badge/Styling-Tailwind%20+%20PrimeNG-06b6d4.svg?style=for-the-badge)
 
 A high-performance, enterprise-grade e-commerce frontend built with **Angular 21**. This project demonstrates modern "Senior-Level" architecture using **Signals**, **Clean Architecture**, and **SOLID principles**.
 
@@ -13,6 +12,12 @@ A high-performance, enterprise-grade e-commerce frontend built with **Angular 21
 - **Performance First**: Zero-config lazy loading, standalone components, and optimized build.
 - **Dumb/Smart Component Pattern**: Reusable UI components (`shared/ui`) decoupled from domain logic.
 - **Robust Typing**: Strict TypeScript configuration.
+
+
+<img src="public/assets/login.png" height="350" />
+<img src="public/assets/order-history.png" height="350" />
+<img src="public/assets/shopping-cart.png" height="350" />
+<img src="public/assets/wishlist.png" height="350" />
 
 ## 🏗️ Architecture
 

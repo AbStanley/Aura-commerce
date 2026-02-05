@@ -7,6 +7,8 @@
 
 Welcome to the **E-Commerce Microservices Platform**, a state-of-the-art reference implementation built on **.NET 10**. This project demonstrates how to build a scalable, resilient, and enterprise-grade distributed system using modern best practices.
 
+<img src="./assets/main-api-view.png" height="350" />
+<img src="./assets/api.png" height="350" />
 
 ---
 
