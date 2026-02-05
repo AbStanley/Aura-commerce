@@ -24,8 +24,7 @@ const initialState: UserState = {
     userId: null
 };
 
-// Helper to safely decode
-function decodeToken(token: string): { email?: string; sub?: string } | null {
+function decodeToken(token: string): { email?: string; sub?: string; exp?: number } | null {
     try {
         return jwtDecode(token);
     } catch {
@@ -99,6 +98,11 @@ export const AuthStore = signalStore(
 
         handleExternalLogin(accessToken: string, refreshToken: string) {
             const decoded = decodeToken(accessToken);
+
+            if (!decoded || (decoded.exp && decoded.exp * 1000 < Date.now())) {
+                return;
+            }
+
             if (isPlatformBrowser(platformId)) {
                 localStorage.setItem('access_token', accessToken);
                 localStorage.setItem('refresh_token', refreshToken);
@@ -113,27 +117,44 @@ export const AuthStore = signalStore(
             });
         },
 
-        // Helper to init from storage
-        initFromStorage() {
+        verifyFromStorage() {
             if (isPlatformBrowser(platformId)) {
                 const token = localStorage.getItem('access_token');
                 const refreshToken = localStorage.getItem('refresh_token');
                 if (token) {
                     const decoded = decodeToken(token);
-                    patchState(store, {
-                        token,
-                        refreshToken: refreshToken ?? null,
-                        isAuthenticated: true,
-                        userEmail: decoded?.email ?? null,
-                        userId: decoded?.sub ?? null
-                    });
+                    const isExpired = decoded?.exp ? (decoded.exp * 1000 < Date.now()) : true;
+
+                    console.log('Auth Debug:', { token: token.substring(0, 10) + '...', decoded, isExpired, exp: decoded?.exp, now: Date.now() });
+
+                    if (decoded && !isExpired) {
+                        console.log('Auth Debug: Valid token');
+                        patchState(store, {
+                            token,
+                            refreshToken: refreshToken ?? null,
+                            isAuthenticated: true,
+                            userEmail: decoded?.email ?? null,
+                            userId: decoded?.sub ?? null
+                        });
+                    } else {
+                        console.log('Auth Debug: Invalid token - Logging out');
+                        localStorage.removeItem('access_token');
+                        localStorage.removeItem('refresh_token');
+                        patchState(store, {
+                            token: null,
+                            refreshToken: null,
+                            isAuthenticated: false,
+                            userEmail: null,
+                            userId: null
+                        });
+                    }
                 }
             }
         }
     })),
     withHooks({
         onInit: (store) => {
-            store.initFromStorage();
+            store.verifyFromStorage();
         }
     })
 );
