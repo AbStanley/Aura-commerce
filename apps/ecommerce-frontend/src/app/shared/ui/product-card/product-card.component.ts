@@ -1,33 +1,25 @@
-import { Component, input, signal, inject, computed } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, input, output, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Product } from './catalog.service';
-import { CartStore } from '../cart/cart.store';
-import { WishlistStore } from './wishlist.store';
-import { AuthStore } from '../auth/auth.store';
-import { GalleryAdapterService } from './gallery-adapter.service';
+import { Router } from '@angular/router';
+import { Product } from '../../models/product.model';
 
 // PrimeNG Components
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
-import { MessageService } from 'primeng/api';
-import { ToastModule } from 'primeng/toast';
 
 @Component({
-  selector: 'app-product-card',
-  standalone: true,
-  imports: [CommonModule, CardModule, ButtonModule, TagModule, TooltipModule, ToastModule],
-  providers: [MessageService],
-  template: `
-    <p-toast></p-toast>
+    selector: 'app-product-card',
+    standalone: true,
+    imports: [CommonModule, CardModule, ButtonModule, TagModule, TooltipModule],
+    template: `
     <div class="surface-card border-1 surface-border border-round-md overflow-hidden h-full cursor-pointer relative hover:shadow-3 transition-duration-200 flex flex-column"
-         (click)="navigateToProduct()">
+         (click)="onCardClick()">
       
       <!-- Image Section -->
       <div class="relative w-full bg-white p-3 flex align-items-center justify-content-center" style="height: 220px;">
-        <img [src]="thumbnail()" 
+        <img [src]="product().imageUrl" 
              [alt]="product().name" 
              class="max-w-full max-h-full object-contain" 
              (error)="onImageError($event)">
@@ -92,13 +84,13 @@ import { ToastModule } from 'primeng/toast';
                      class="p-button-warning w-full text-sm font-bold border-round-3xl"
                      style="background-color: #ffd814; border-color: #fcd200; color: #0f1111;"
                      [disabled]="isAdding() || !product().stockQuantity || product().stockQuantity <= 0"
-                     (click)="$event.stopPropagation(); addToCart()"></button>
+                     (click)="$event.stopPropagation(); addToCart.emit(product())"></button>
         </div>
         
         <!-- Wishlist (Small Link) -->
         <div class="mt-2 text-center">
              <a class="text-xs text-blue-600 hover:underline cursor-pointer"
-               (click)="$event.stopPropagation(); toggleWishlist()">
+               (click)="$event.stopPropagation(); toggleWishlist.emit(product())">
                {{ isWishlisted() ? 'Remove from List' : 'Add to List' }}
              </a>
         </div>
@@ -106,7 +98,7 @@ import { ToastModule } from 'primeng/toast';
       </div>
     </div>
   `,
-  styles: [`
+    styles: [`
     :host { display: block; height: 100%; }
     :host:focus-visible .surface-card {
         outline: 2px solid var(--primary-color, #007bff);
@@ -126,73 +118,21 @@ import { ToastModule } from 'primeng/toast';
   `]
 })
 export class ProductCardComponent {
-  protected readonly Math = Math;
-  readonly product = input.required<Product>();
-  private readonly cartStore = inject(CartStore);
-  private readonly wishlistStore = inject(WishlistStore);
-  private readonly adapter = inject(GalleryAdapterService);
-  private readonly router = inject(Router);
-  private readonly msgService = inject(MessageService);
+    protected readonly Math = Math;
 
-  private readonly authStore = inject(AuthStore);
+    readonly product = input.required<Product>();
+    readonly isAdding = input<boolean>(false);
+    readonly isWishlisted = input<boolean>(false);
 
-  readonly isAdding = signal(false);
+    readonly addToCart = output<Product>();
+    readonly toggleWishlist = output<Product>();
+    readonly cardClick = output<Product>();
 
-  thumbnail = computed(() => {
-    return this.adapter.getImages(this.product().id, this.product().name)[0].thumbnailImageSrc;
-  });
-
-  isWishlisted = computed(() => {
-    return this.wishlistStore.hasItem(this.product().id)();
-  });
-
-  navigateToProduct() {
-    this.router.navigate(['/products', this.product().id]);
-  }
-
-  async toggleWishlist() {
-    if (!this.authStore.isAuthenticated()) {
-      this.msgService.add({
-        severity: 'info',
-        summary: 'Authentication Required',
-        detail: 'Please login to add items to your wishlist',
-        life: 3000
-      });
-      return;
+    onCardClick() {
+        this.cardClick.emit(this.product());
     }
 
-    const p = this.product();
-    const added = await this.wishlistStore.toggleItem({
-      id: p.id,
-      name: p.name,
-      price: p.price,
-      imageUrl: this.thumbnail()
-    });
-
-    this.msgService.add({
-      severity: added ? 'success' : 'info',
-      summary: added ? 'Added to Wishlist' : 'Removed from Wishlist',
-      detail: added ? `${p.name} is now in your favorites` : `${p.name} removed from favorites`,
-      life: 2000
-    });
-  }
-
-  async addToCart() {
-    if (!this.product().stockQuantity || this.product().stockQuantity <= 0) return;
-
-    this.isAdding.set(true);
-    await this.cartStore.addItem(this.product(), 1);
-    this.isAdding.set(false);
-
-    this.msgService.add({
-      severity: 'success',
-      summary: 'Added to Cart',
-      detail: `Added ${this.product().name} `,
-      life: 2000
-    });
-  }
-
-  onImageError(event: any) {
-    event.target.src = 'https://primefaces.org/cdn/primeng/images/usercard.png'; // Fallback
-  }
+    onImageError(event: any) {
+        event.target.src = 'https://primefaces.org/cdn/primeng/images/usercard.png'; // Fallback
+    }
 }

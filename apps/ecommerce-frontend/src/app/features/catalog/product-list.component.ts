@@ -1,8 +1,15 @@
 import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { CatalogService } from './catalog.service';
-import { ProductCardComponent } from './product-card.component';
+import { ProductCardComponent } from '../../shared/ui/product-card/product-card.component';
+import { Product } from '../../shared/models/product.model';
+
+// Stores
+import { CartStore } from '../cart/cart.store';
+import { WishlistStore } from './wishlist.store';
+import { AuthStore } from '../auth/auth.store';
 
 // PrimeNG Components
 import { SkeletonModule } from 'primeng/skeleton';
@@ -69,7 +76,15 @@ import { MessageService } from 'primeng/api';
                 <div class="grid grid-nogutter">
                     @for (product of catalog.products(); track product.id; let i = $index) {
                         <div class="col-12 sm:col-6 md:col-4 lg:col-3 p-2">
-                            <app-product-card [product]="product" class="h-full block"></app-product-card>
+                            <app-product-card 
+                                [product]="product" 
+                                [isAdding]="addingProductId() === product.id"
+                                [isWishlisted]="wishlistStore.hasItem(product.id)()"
+                                (addToCart)="onAddToCart($event)"
+                                (toggleWishlist)="onToggleWishlist($event)"
+                                (cardClick)="onCardClick($event)"
+                                class="h-full block">
+                            </app-product-card>
                         </div>
                     }
                 </div>
@@ -83,5 +98,54 @@ import { MessageService } from 'primeng/api';
 })
 export class ProductListComponent {
     readonly catalog = inject(CatalogService);
-    // Removed local search state as it is now in HeaderComponent/CatalogService
+    readonly cartStore = inject(CartStore);
+    readonly wishlistStore = inject(WishlistStore);
+    readonly authStore = inject(AuthStore);
+    readonly router = inject(Router);
+    private readonly msgService = inject(MessageService);
+
+    readonly addingProductId = signal<string | null>(null);
+
+    onCardClick(product: Product) {
+        this.router.navigate(['/products', product.id]);
+    }
+
+    async onAddToCart(product: Product) {
+        this.addingProductId.set(product.id);
+        await this.cartStore.addItem(product, 1);
+        this.addingProductId.set(null);
+
+        this.msgService.add({
+            severity: 'success',
+            summary: 'Added to Cart',
+            detail: `Added ${product.name}`,
+            life: 2000
+        });
+    }
+
+    async onToggleWishlist(product: Product) {
+        if (!this.authStore.isAuthenticated()) {
+            this.msgService.add({
+                severity: 'info',
+                summary: 'Authentication Required',
+                detail: 'Please login to add items to your wishlist',
+                life: 3000
+            });
+            return;
+        }
+
+        const added = await this.wishlistStore.toggleItem({
+            id: product.id,
+            name: product.name,
+            price: product.price,
+            imageUrl: product.imageUrl // Note: Logic for thumbnail might need check if strictly same
+        });
+
+        this.msgService.add({
+            severity: added ? 'success' : 'info',
+            summary: added ? 'Added to Wishlist' : 'Removed from Wishlist',
+            detail: added ? `${product.name} is now in your favorites` : `${product.name} removed from favorites`,
+            life: 2000
+        });
+    }
 }

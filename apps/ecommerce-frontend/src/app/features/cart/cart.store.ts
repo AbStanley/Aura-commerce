@@ -1,11 +1,9 @@
-import { inject, PLATFORM_ID } from '@angular/core';
+import { inject } from '@angular/core';
 import { patchState, signalStore, withMethods, withState, withHooks, withComputed } from '@ngrx/signals';
-import { rxResource } from '@angular/core/rxjs-interop';
-import { API_BASE_URL } from '../../core/api/api.configuration';
-import { HttpClient } from '@angular/common/http';
-import { tap, switchMap, catchError, of, Observable, firstValueFrom } from 'rxjs';
+import { firstValueFrom } from 'rxjs';
 import { computed } from '@angular/core';
 import { AuthStore } from '../auth/auth.store';
+import { CartService } from './cart.service';
 
 export type CartItem = {
     productId: string;
@@ -42,7 +40,7 @@ export const CartStore = signalStore(
         itemCount: computed(() => store.cart()?.totalItems ?? 0),
         totalPrice: computed(() => store.cart()?.totalAmount ?? 0)
     })),
-    withMethods((store, http = inject(HttpClient), baseUrl = inject(API_BASE_URL), authStore = inject(AuthStore)) => ({
+    withMethods((store, cartService = inject(CartService), authStore = inject(AuthStore)) => ({
 
         async loadCart(): Promise<void> {
             const userId = authStore.userId();
@@ -53,9 +51,7 @@ export const CartStore = signalStore(
 
             patchState(store, { isLoading: true });
             try {
-                const cart = await firstValueFrom(
-                    http.get<Cart>(`${baseUrl}/api/cart?userId=${userId}`)
-                );
+                const cart = await firstValueFrom(cartService.getCart(userId));
                 patchState(store, { cart, isLoading: false, error: null });
             } catch (error) {
                 patchState(store, { isLoading: false, error: 'Failed to load cart' });
@@ -67,15 +63,7 @@ export const CartStore = signalStore(
             if (!userId) return;
 
             try {
-                await firstValueFrom(
-                    http.post(`${baseUrl}/api/cart/items`, {
-                        productId: product.id,
-                        productName: product.name,
-                        unitPrice: product.price,
-                        quantity,
-                        userId
-                    })
-                );
+                await firstValueFrom(cartService.addItem(userId, product, quantity));
                 await this.loadCart();
             } catch (error) {
                 // error handled
@@ -92,9 +80,7 @@ export const CartStore = signalStore(
             }
 
             try {
-                await firstValueFrom(
-                    http.put(`${baseUrl}/api/cart/items/${productId}`, { productId, quantity, userId })
-                );
+                await firstValueFrom(cartService.updateQuantity(userId, productId, quantity));
                 await this.loadCart();
             } catch (error) {
                 // error handled
@@ -106,9 +92,7 @@ export const CartStore = signalStore(
             if (!userId) return;
 
             try {
-                await firstValueFrom(
-                    http.delete(`${baseUrl}/api/cart/items/${productId}?userId=${userId}`)
-                );
+                await firstValueFrom(cartService.removeItem(userId, productId));
                 await this.loadCart();
             } catch (error) {
                 // error handled
@@ -120,18 +104,14 @@ export const CartStore = signalStore(
             if (!userId) return;
 
             try {
-                await firstValueFrom(
-                    http.delete(`${baseUrl}/api/cart?userId=${userId}`)
-                );
+                await firstValueFrom(cartService.clearCart(userId));
                 patchState(store, { cart: null });
             } catch (error) {
-                // error handled
             }
         }
     })),
     withHooks({
         onInit: (store, authStore = inject(AuthStore)) => {
-            // Load if user is already there
         }
     })
 );

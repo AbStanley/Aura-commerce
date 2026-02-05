@@ -1,59 +1,113 @@
-# EcommerceFrontend
+# 🛒 Ecommerce Frontend (Angular 21 + Signals)
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.1.2.
+![Angular](https://img.shields.io/badge/Angular-21.0-dd0031.svg)
+![State](https://img.shields.io/badge/State-NgRx%20Signals-333333.svg)
+![Styling](https://img.shields.io/badge/Styling-Tailwind%20+%20PrimeNG-06b6d4.svg)
+![License](https://img.shields.io/badge/license-MIT-blue.svg)
 
-## Development server
+A high-performance, enterprise-grade e-commerce frontend built with **Angular 21**. This project demonstrates modern "Senior-Level" architecture using **Signals**, **Clean Architecture**, and **SOLID principles**.
 
-To start a local development server, run:
+## 🚀 Key Features
+- **Modern State Management**: Powered entirely by `@ngrx/signals`.
+- **Clean Architecture**: Strict separation between **UI** (Components), **State** (Stores), and **Infrastructure** (Services).
+- **Performance First**: Zero-config lazy loading, standalone components, and optimized build.
+- **Dumb/Smart Component Pattern**: Reusable UI components (`shared/ui`) decoupled from domain logic.
+- **Robust Typing**: Strict TypeScript configuration.
 
+## 🏗️ Architecture
+
+The application follows a unidirectional data flow with a clear separation of concerns.
+
+```mermaid
+graph TD
+    subgraph UI [User Interface]
+        SmartComp[Smart Component (Container)]
+        DumbComp[Dumb Component (Presentation)]
+    end
+
+    subgraph State [Application State]
+        Store[Signal Store]
+    end
+
+    subgraph Infra [Infrastructure]
+        Service[Data Service]
+        API[External API]
+    end
+
+    SmartComp -->|Events| Store
+    SmartComp -->|Inputs| DumbComp
+    DumbComp -->|Events| SmartComp
+    Store -->|Calls| Service
+    Service -->|HTTP| API
+    Store -->|Signals| SmartComp
+```
+
+- **Smart Components**: (`ProductListComponent`, `ProductDetailsComponent`) Manage state injections and handle events.
+- **Dumb Components**: (`ProductCardComponent`) Purely presentation; data in, events out.
+- **Signal Stores**: (`CartStore`, `CatalogStore`) Manage application state and business logic.
+- **Services**: (`CartService`) Handle raw HTTP communication and DTO mapping.
+
+## 🛠️ Tech Stack
+- **Framework**: Angular 21 (Zero-Zone compatible)
+- **State**: NgRx Signals (Lightweight, Boilerplate-free)
+- **Styling**: TailwindCSS v4 + PrimeNG v21 (Aura Theme)
+- **Testing**: Vitest + Angular Testing Library
+- **Tooling**: Vite (Dev Server), ESLint, Prettier
+
+## 🚦 Getting Started
+
+### Prerequisites
+- Node.js v20+
+- npm v10+
+
+### Installation
+```bash
+git clone https://github.com/AbStanley/ecommerce-frontend.git
+cd ecommerce-frontend
+npm install
+```
+
+### Development
+Start the dev server with hot reload:
 ```bash
 ng serve
+# Access at http://localhost:4200
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
-
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
-```bash
-ng generate component component-name
-```
-
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
-
-```bash
-ng generate --help
-```
-
-## Building
-
-To build the project run:
-
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
-
+### Testing
+Run unit tests with Vitest:
 ```bash
 ng test
 ```
 
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
+### Production Build
+Generate the optimized bundle:
 ```bash
-ng e2e
+ng build
+# Output: dist/ecommerce-frontend
 ```
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+## 📂 Project Structure
+```plaintext
+src/app/
+├── core/           # Singleton services, Interceptors, Guards
+├── features/       # Domain features (Catalog, Cart, Auth)
+│   ├── catalog/
+│   │   ├── catalog.store.ts    # State
+│   │   ├── catalog.service.ts  # Data Access
+│   │   └── product-list.ts     # Smart Component
+├── shared/         # Reusable artifacts
+│   ├── models/     # Domain entities
+│   └── ui/         # Dumb components (ProductCard, etc.)
+└── app.config.ts   # Global providers
+```
 
-## Additional Resources
+## 🤝 Contributing
+1.  Fork the repo
+2.  Create your feature branch (`git checkout -b feature/amazing-feature`)
+3.  Commit your changes (`git commit -m 'feat: add amazing feature'`)
+4.  Push to the branch (`git push origin feature/amazing-feature`)
+5.  Open a Pull Request
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+---
+**Senior Project Showcase** - Crafted with ❤️ by [Your Name]

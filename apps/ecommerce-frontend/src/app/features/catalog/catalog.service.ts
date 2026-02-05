@@ -6,15 +6,8 @@ import { CatalogStateStore } from './catalog.store';
 import { switchMap, map, startWith, tap } from 'rxjs/operators';
 import { combineLatest } from 'rxjs';
 
-export type Product = {
-    id: string;
-    name: string;
-    description: string;
-    price: number;
-    sku: string;
-    stockQuantity: number;
-    imageUrl?: string;
-};
+import { Product } from '../../shared/models/product.model';
+export type { Product };
 
 export type Category = {
     id: string;
