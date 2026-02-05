@@ -34,7 +34,7 @@ import { BadgeModule } from 'primeng/badge';
     <div class="surface-900 text-white sticky top-0 z-50 shadow-2">
         <div class="container py-2 flex flex-column md:flex-row align-items-center gap-3">
              <!-- Brand -->
-             <div class="flex align-items-center gap-1 cursor-pointer" routerLink="/">
+             <div class="flex align-items-center gap-1 cursor-pointer" routerLink="/" (click)="searchQuery.set('')">
                  <span class="font-bold text-2xl tracking-tight">eshuppin</span>
                  <span class="text-xs text-primary-400 align-self-end mb-1">.com</span>
              </div>
@@ -93,41 +93,39 @@ import { BadgeModule } from 'primeng/badge';
                      <span>& Orders</span>
                  </a>
 
-                 <!-- Wishlist (Added) -->
-                 <a routerLink="/wishlist" class="flex flex-column align-items-center cursor-pointer text-white no-underline hover:text-orange-400 relative border-1 border-transparent hover:border-gray-500 p-1 border-round transition-colors">
-                     <span class="font-normal text-xs text-gray-300 align-self-start">Wishlist</span>
-                     <span class="text-xl relative">
-                        <span class="font-bold">List</span>
-                        @if (wishlistStore.count() > 0) {
-                            <span class="absolute top-0 right-0 bg-primary text-white border-circle text-xs flex align-items-center justify-content-center" 
-                                  style="transform: translate(110%, -50%); width: 1.2rem; height: 1.2rem;">{{ wishlistStore.count() }}</span>
-                        }
-                     </span>
+                 <!-- Wishlist -->
+                 <a routerLink="/wishlist" class="flex align-items-center cursor-pointer text-white no-underline hover:text-orange-400 relative p-2 border-round transition-colors">
+                    <i class="pi pi-heart text-xl"></i>
+                    @if (wishlistStore.count() > 0) {
+                        <span class="absolute bg-orange-500 text-white border-circle text-xs font-bold flex align-items-center justify-content-center" 
+                              style="top: 2px; right: 2px; min-width: 16px; height: 16px; font-size: 10px;">{{ wishlistStore.count() }}</span>
+                    }
                  </a>
 
                  <!-- Cart -->
-                 <a routerLink="/cart" class="flex align-items-end font-bold cursor-pointer text-white no-underline hover:text-orange-400 border-1 border-transparent hover:border-gray-500 p-1 border-round transition-colors">
-                     <div class="relative mr-1">
-                        <i class="pi pi-shopping-cart text-4xl"></i>
+                 <a routerLink="/cart" class="flex align-items-center gap-2 cursor-pointer text-white no-underline hover:text-orange-400 p-2 border-round transition-colors">
+                    <span class="relative">
+                        <i class="pi pi-shopping-cart text-xl"></i>
                         @if (cartStore.itemCount() > 0) {
-                            <span class="absolute text-orange-400 font-bold text-lg" style="top: -8px; left: 50%; transform: translateX(-50%);">{{ cartStore.itemCount() }}</span>
+                            <span class="absolute bg-orange-500 text-white border-circle text-xs font-bold flex align-items-center justify-content-center" 
+                                  style="top: -6px; right: -8px; min-width: 16px; height: 16px; font-size: 10px;">{{ cartStore.itemCount() }}</span>
                         }
-                     </div>
-                     <span class="mb-1 text-sm">Cart</span>
+                    </span>
+                    <span class="text-sm font-bold">Cart</span>
                  </a>
              </div>
         </div>
         
         <!-- Sub-nav -->
         <div class="surface-800 text-white text-sm py-2 px-3 flex gap-4 overflow-x-auto">
-            <div class="flex align-items-center gap-1 font-bold cursor-pointer hover:text-white text-gray-100">
+            <button type="button" class="flex align-items-center gap-1 font-bold hover:text-white text-gray-100 bg-transparent border-none cursor-pointer text-sm">
                 <i class="pi pi-bars"></i> All
-            </div>
+            </button>
             <a routerLink="/products" class="text-white no-underline hover:underline hover:text-orange-200">Today's Deals</a>
-            <a href="#" class="text-white no-underline hover:underline hover:text-orange-200">Customer Service</a>
-            <a href="#" class="text-white no-underline hover:underline hover:text-orange-200">Registry</a>
-            <a href="#" class="text-white no-underline hover:underline hover:text-orange-200">Gift Cards</a>
-            <a href="#" class="text-white no-underline hover:underline hover:text-orange-200">Sell</a>
+            <button type="button" class="text-white bg-transparent border-none cursor-pointer text-sm hover:underline hover:text-orange-200">Customer Service</button>
+            <button type="button" class="text-white bg-transparent border-none cursor-pointer text-sm hover:underline hover:text-orange-200">Registry</button>
+            <button type="button" class="text-white bg-transparent border-none cursor-pointer text-sm hover:underline hover:text-orange-200">Gift Cards</button>
+            <button type="button" class="text-white bg-transparent border-none cursor-pointer text-sm hover:underline hover:text-orange-200">Sell</button>
         </div>
     </div>
   `,

@@ -4,6 +4,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthStore } from '../auth/auth.store';
 import { UserService } from './user.service';
 import { OrderService, Order } from '../orders/order.service';
+import { RouterLink } from '@angular/router';
 
 // PrimeNG Components
 import { CardModule } from 'primeng/card';
@@ -14,8 +15,6 @@ import { TagModule } from 'primeng/tag';
 import { SkeletonModule } from 'primeng/skeleton';
 import { DividerModule } from 'primeng/divider';
 import { MessageModule } from 'primeng/message';
-import { TableModule } from 'primeng/table';
-import { PanelModule } from 'primeng/panel';
 
 @Component({
   selector: 'app-profile',
@@ -31,8 +30,7 @@ import { PanelModule } from 'primeng/panel';
     SkeletonModule,
     DividerModule,
     MessageModule,
-    TableModule,
-    PanelModule
+    RouterLink
   ],
   template: `
     <div class="grid">
@@ -97,7 +95,7 @@ import { PanelModule } from 'primeng/panel';
           @if (ordersLoading()) {
             <div class="flex flex-column gap-3">
               @for (i of [1, 2, 3]; track i) {
-                <div class="flex align-items-center gap-4 p-3 surface-50 border-round-lg">
+                <div class="flex align-items-center gap-4 p-4 surface-50 border-round-lg">
                   <p-skeleton width="100px" height="1rem"></p-skeleton>
                   <p-skeleton width="100px" height="1rem"></p-skeleton>
                   <p-skeleton width="80px" height="1.5rem" styleClass="border-round-xl"></p-skeleton>
@@ -106,52 +104,50 @@ import { PanelModule } from 'primeng/panel';
               }
             </div>
           } @else if (orders().length === 0) {
-            <div class="text-center py-6">
-              <i class="pi pi-inbox text-6xl text-300 mb-3 block"></i>
-              <h4 class="text-lg font-semibold text-900 mb-2">No orders yet</h4>
-              <p class="text-500 line-height-3">Start shopping to see your orders here!</p>
+            <div class="text-center py-8 surface-50 border-round-xl">
+              <i class="pi pi-inbox text-6xl text-300 mb-4 block"></i>
+              <h4 class="text-xl font-semibold text-900 mb-2">No orders yet</h4>
+              <p class="text-500 line-height-3 mb-4">Start shopping to see your orders here!</p>
+              <p-button label="Browse Products" icon="pi pi-shopping-bag" routerLink="/products"></p-button>
             </div>
           } @else {
-            <div class="flex flex-column gap-3">
+            <div class="flex flex-column gap-4">
               @for (order of orders(); track order.id) {
-                <p-panel [toggleable]="true" [collapsed]="true" styleClass="surface-card">
-                   <ng-template pTemplate="header">
-                      <div class="flex align-items-center justify-content-between w-full pr-3">
-                          <div class="flex flex-column gap-1">
-                             <span class="font-bold text-900">#{{ order.id.slice(0, 8) }}</span>
-                             <span class="text-500 text-sm">{{ order.orderDate | date:'mediumDate' }}</span>
-                          </div>
+                <div class="border-1 surface-border border-round-xl overflow-hidden">
+                  <!-- Order Header -->
+                  <div class="surface-100 p-3 flex flex-wrap align-items-center justify-content-between gap-3">
+                    <div class="flex align-items-center gap-4">
+                      <div>
+                        <span class="text-500 text-xs block mb-1">ORDER PLACED</span>
+                        <span class="font-medium text-900">{{ order.orderDate | date:'mediumDate' }}</span>
                       </div>
-                   </ng-template>
-                   <ng-template pTemplate="icons">
-                        <div class="flex align-items-center gap-3 mr-3">
-                             <p-tag [value]="getStatusLabel(order.status)" [severity]="getStatusSeverity(order.status)"></p-tag>
-                             <span class="font-bold text-primary text-xl">{{ order.totalAmount | currency }}</span>
+                      <div>
+                        <span class="text-500 text-xs block mb-1">TOTAL</span>
+                        <span class="font-bold text-xl text-primary">{{ order.totalAmount | currency }}</span>
+                      </div>
+                    </div>
+                    <div class="flex align-items-center gap-3">
+                      <p-tag [value]="getStatusLabel(order.status)" [severity]="getStatusSeverity(order.status)"></p-tag>
+                      <span class="text-500 text-sm">Order #{{ order.id.slice(0, 8).toUpperCase() }}</span>
+                    </div>
+                  </div>
+                  
+                  <!-- Order Items -->
+                  <div class="p-3">
+                    @for (item of order.items; track item.productId) {
+                      <div class="flex align-items-center gap-3 py-2" [class.border-bottom-1]="!$last" [class.surface-border]="!$last">
+                        <div class="surface-100 border-round flex align-items-center justify-content-center flex-shrink-0" style="width: 60px; height: 60px;">
+                          <i class="pi pi-box text-2xl text-400"></i>
                         </div>
-                   </ng-template>
-                   
-                   <!-- Items Table -->
-                   <div class="pt-0">
-                      <p-table [value]="order.items" styleClass="p-datatable-sm" [tableStyle]="{'min-width': '20rem'}">
-                          <ng-template pTemplate="header">
-                              <tr>
-                                  <th>Product</th>
-                                  <th class="text-right">Price</th>
-                                  <th class="text-center">Qty</th>
-                                  <th class="text-right">Total</th>
-                              </tr>
-                          </ng-template>
-                          <ng-template pTemplate="body" let-item>
-                              <tr>
-                                  <td><span class="font-medium text-900">{{ item.productName }}</span></td>
-                                  <td class="text-right">{{ item.unitPrice | currency }}</td>
-                                  <td class="text-center">{{ item.quantity }}</td>
-                                  <td class="text-right font-bold">{{ item.unitPrice * item.quantity | currency }}</td>
-                              </tr>
-                          </ng-template>
-                      </p-table>
-                   </div>
-                </p-panel>
+                        <div class="flex-1">
+                          <span class="font-medium text-900 block mb-1">{{ item.productName }}</span>
+                          <span class="text-500 text-sm">Qty: {{ item.quantity }} × {{ item.unitPrice | currency }}</span>
+                        </div>
+                        <span class="font-bold text-900">{{ item.unitPrice * item.quantity | currency }}</span>
+                      </div>
+                    }
+                  </div>
+                </div>
               }
             </div>
           }

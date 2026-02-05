@@ -16,7 +16,7 @@ import { FooterComponent } from './footer.component';
       <app-header></app-header>
 
       <!-- Main Content -->
-      <main class="layout-main pb-5">
+      <main class="layout-main pt-4 pb-5">
         <div class="container">
           <router-outlet />
         </div>

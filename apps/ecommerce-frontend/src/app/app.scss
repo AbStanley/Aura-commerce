@@ -7,13 +7,17 @@
 
 :root {
     /* Colors - Refined Palette */
-    --primary: 0 122 255; /* System Blue */
+    --primary: 0 122 255;
+    /* System Blue */
     --primary-dark: 0 90 200;
-    --background: 250 250 250; /* Slightly off-white */
+    --background: 250 250 250;
+    /* Slightly off-white */
     --surface: 255 255 255;
-    --text-main: 29 29 31; /* Almost black */
-    --text-secondary: 134 134 139; /* Gray */
-    
+    --text-main: 29 29 31;
+    /* Almost black */
+    --text-secondary: 134 134 139;
+    /* Gray */
+
     /* Premium Shadows */
     --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
     --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
@@ -45,7 +49,8 @@ body {
 /* Typography Utilities */
 .font-display {
     font-weight: 700;
-    letter-spacing: -0.025em; /* Tighter tracking for headings */
+    letter-spacing: -0.025em;
+    /* Tighter tracking for headings */
 }
 
 /* Glassmorphism Utilities */
@@ -76,6 +81,7 @@ body {
         opacity: 0;
         transform: translateY(20px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -86,21 +92,32 @@ body {
     animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-.delay-100 { animation-delay: 100ms; }
-.delay-200 { animation-delay: 200ms; }
-.delay-300 { animation-delay: 300ms; }
+.delay-100 {
+    animation-delay: 100ms;
+}
+
+.delay-200 {
+    animation-delay: 200ms;
+}
+
+.delay-300 {
+    animation-delay: 300ms;
+}
 
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
     width: 8px;
 }
+
 ::-webkit-scrollbar-track {
     background: transparent;
 }
+
 ::-webkit-scrollbar-thumb {
     background: rgba(0, 0, 0, 0.1);
     border-radius: 4px;
 }
+
 ::-webkit-scrollbar-thumb:hover {
     background: rgba(0, 0, 0, 0.2);
 }
@@ -120,4 +137,212 @@ body {
     max-width: 1400px;
     margin: 0 auto;
     padding: 0 1.5rem;
+}
+
+/* Dark Mode */
+.dark {
+    --background: 18 18 18;
+    --surface: 30 30 30;
+    --text-main: 245 245 245;
+    --text-secondary: 160 160 160;
+    --glass-bg: rgba(30, 30, 30, 0.8);
+    --glass-border: rgba(60, 60, 60, 0.5);
+}
+
+.dark body,
+body.dark {
+    background-color: rgb(18, 18, 18);
+    color: rgb(245, 245, 245);
+}
+
+.dark .surface-ground {
+    background-color: rgb(18, 18, 18) !important;
+}
+
+.dark .surface-card {
+    background-color: rgb(30, 30, 30) !important;
+    color: rgb(245, 245, 245) !important;
+}
+
+.dark .surface-50,
+.dark .surface-100 {
+    background-color: rgb(40, 40, 40) !important;
+}
+
+.dark .text-900 {
+    color: rgb(245, 245, 245) !important;
+}
+
+.dark .text-700,
+.dark .text-600,
+.dark .text-500 {
+    color: rgb(180, 180, 180) !important;
+}
+
+.dark .bg-white {
+    background-color: rgb(30, 30, 30) !important;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.25);
+}
+
+.dark .glass-card {
+    background: rgba(40, 40, 40, 0.8);
+    border-color: rgba(80, 80, 80, 0.5);
+}
+
+.dark .glass-card:hover {
+    background: rgba(50, 50, 50, 0.95);
+}
+
+/* Dark Mode - Extended Coverage */
+.dark .surface-border {
+    border-color: rgb(60, 60, 60) !important;
+}
+
+.dark .border-1 {
+    border-color: rgb(60, 60, 60) !important;
+}
+
+.dark .surface-200,
+.dark .surface-300 {
+    background-color: rgb(45, 45, 45) !important;
+}
+
+.dark .p-card {
+    background: rgb(30, 30, 30) !important;
+    color: rgb(245, 245, 245) !important;
+    border-color: rgb(60, 60, 60) !important;
+}
+
+.dark .p-divider {
+    border-color: rgb(60, 60, 60) !important;
+}
+
+.dark .p-inputtext {
+    background: rgb(40, 40, 40) !important;
+    color: rgb(245, 245, 245) !important;
+    border-color: rgb(60, 60, 60) !important;
+}
+
+.dark .p-button-outlined {
+    color: rgb(200, 200, 200) !important;
+    border-color: rgb(100, 100, 100) !important;
+}
+
+.dark .p-steps .p-steps-item .p-menuitem-link {
+    background: transparent !important;
+}
+
+.dark .p-tag {
+    background: rgb(60, 60, 60) !important;
+}
+
+.dark .p-skeleton {
+    background: rgb(50, 50, 50) !important;
+}
+
+.dark .text-400 {
+    color: rgb(140, 140, 140) !important;
+}
+
+.dark .text-300 {
+    color: rgb(120, 120, 120) !important;
+}
+
+.dark .p-message {
+    background: rgb(40, 40, 40) !important;
+    border-color: rgb(60, 60, 60) !important;
+}
+
+.dark .p-radiobutton .p-radiobutton-box {
+    background: rgb(40, 40, 40) !important;
+    border-color: rgb(80, 80, 80) !important;
+}
+
+.dark input,
+.dark select,
+.dark textarea {
+    background-color: rgb(40, 40, 40) !important;
+    color: rgb(245, 245, 245) !important;
+    border-color: rgb(60, 60, 60) !important;
+}
+
+/* Dark Mode - Tables & Panels */
+.dark .p-datatable .p-datatable-thead>tr>th {
+    background: rgb(35, 35, 35) !important;
+    color: rgb(200, 200, 200) !important;
+    border-color: rgb(60, 60, 60) !important;
+}
+
+.dark .p-datatable .p-datatable-tbody>tr {
+    background: rgb(30, 30, 30) !important;
+    color: rgb(245, 245, 245) !important;
+}
+
+.dark .p-datatable .p-datatable-tbody>tr>td {
+    border-color: rgb(50, 50, 50) !important;
+}
+
+.dark .p-panel {
+    border-color: rgb(60, 60, 60) !important;
+}
+
+.dark .p-panel .p-panel-header {
+    background: rgb(35, 35, 35) !important;
+    color: rgb(245, 245, 245) !important;
+    border-color: rgb(60, 60, 60) !important;
+}
+
+.dark .p-panel .p-panel-content {
+    background: rgb(30, 30, 30) !important;
+    color: rgb(245, 245, 245) !important;
+}
+
+.dark .p-menu {
+    background: rgb(30, 30, 30) !important;
+    border-color: rgb(60, 60, 60) !important;
+}
+
+.dark .p-menu .p-menuitem-link {
+    color: rgb(245, 245, 245) !important;
+}
+
+.dark .p-menu .p-menuitem-link:hover {
+    background: rgb(50, 50, 50) !important;
+}
+
+/* Dark Mode - Header Search Bar */
+.dark .bg-gray-100 {
+    background-color: rgb(50, 50, 50) !important;
+    color: rgb(200, 200, 200) !important;
+}
+
+.dark .bg-gray-200 {
+    background-color: rgb(60, 60, 60) !important;
+}
+
+.dark .border-gray-300 {
+    border-color: rgb(70, 70, 70) !important;
+}
+
+/* Dark Mode - Force all inputs white->dark */
+html.dark input[type="text"],
+html.dark input:not([type]) {
+    background-color: rgb(40, 40, 40) !important;
+    color: rgb(245, 245, 245) !important;
+}
+
+/* Dark Mode - Header backgrounds */
+.dark .surface-900 {
+    background-color: rgb(18, 18, 18) !important;
+}
+
+.dark .surface-800 {
+    background-color: rgb(25, 25, 25) !important;
 }

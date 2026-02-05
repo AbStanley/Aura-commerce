@@ -34,8 +34,10 @@ import { ToastModule } from 'primeng/toast';
         
         <!-- Out of Stock Overlay -->
         @if (product().stockQuantity === 0) {
-            <div class="absolute top-0 left-0 w-full h-full flex align-items-center justify-content-center bg-white-alpha-50 z-2">
-                <span class="text-red-600 font-bold uppercase text-sm border-1 border-red-600 bg-white px-2 py-1">Out of Stock</span>
+            <div class="absolute top-0 left-0 w-full h-full z-2" style="background: rgba(255,255,255,0.7);">
+                <div class="absolute" style="top: 12px; left: -30px; transform: rotate(-45deg); background: linear-gradient(135deg, #dc2626, #b91c1c); color: white; padding: 4px 40px; font-size: 11px; font-weight: 700; text-transform: uppercase; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
+                    Out of Stock
+                </div>
             </div>
         }
       </div>
