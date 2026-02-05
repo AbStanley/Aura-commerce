@@ -13,7 +13,7 @@ A high-performance, enterprise-grade e-commerce frontend built with **Angular 21
 - **Dumb/Smart Component Pattern**: Reusable UI components (`shared/ui`) decoupled from domain logic.
 - **Robust Typing**: Strict TypeScript configuration.
 
-<img src="public/assets/main-page.png" height="300" /> <img src="public/assets/login.png" height="300" /> <img src="public/assets/order-history.png" height="300" /> <img src="public/assets/shopping-cart.png" height="300" /> <img src="public/assets/wishlist.png" height="300" />
+<img src="public/assets/main-page.png" height="350" /> <img src="public/assets/login.png" height="350" /> <img src="public/assets/order-history.png" height="350" /> <img src="public/assets/shopping-cart.png" height="350" /> <img src="public/assets/wishlist.png" height="350" />
 
 ## 🏗️ Architecture
 
