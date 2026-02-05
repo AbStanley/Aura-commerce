@@ -42,10 +42,10 @@ import { RouterLink } from '@angular/router';
                 <!-- Social / Legal -->
                 <div class="col-12 md:col-4 mt-4 md:mt-0 text-center md:text-right">
                     <div class="flex gap-3 justify-content-center md:justify-content-end mb-3">
-                        <a href="#" class="text-gray-400 hover:text-white text-xl" aria-label="Facebook"><i class="pi pi-facebook"></i></a>
-                        <a href="#" class="text-gray-400 hover:text-white text-xl" aria-label="Twitter"><i class="pi pi-twitter"></i></a>
-                        <a href="#" class="text-gray-400 hover:text-white text-xl" aria-label="Instagram"><i class="pi pi-instagram"></i></a>
-                        <a href="#" class="text-gray-400 hover:text-white text-xl" aria-label="GitHub"><i class="pi pi-github"></i></a>
+                        <button type="button" class="text-gray-400 hover:text-white text-xl bg-transparent border-none cursor-pointer" aria-label="Facebook"><i class="pi pi-facebook"></i></button>
+                        <button type="button" class="text-gray-400 hover:text-white text-xl bg-transparent border-none cursor-pointer" aria-label="Twitter"><i class="pi pi-twitter"></i></button>
+                        <button type="button" class="text-gray-400 hover:text-white text-xl bg-transparent border-none cursor-pointer" aria-label="Instagram"><i class="pi pi-instagram"></i></button>
+                        <button type="button" class="text-gray-400 hover:text-white text-xl bg-transparent border-none cursor-pointer" aria-label="GitHub"><i class="pi pi-github"></i></button>
                     </div>
                     <p class="text-gray-500 text-xs m-0">
                         © {{ currentYear }} eshuppin.com. All rights reserved.

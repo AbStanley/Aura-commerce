@@ -6,7 +6,6 @@ import { ProductCardComponent } from './product-card.component';
 import { RouterLink } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { SkeletonModule } from 'primeng/skeleton';
-import { forkJoin, map, of } from 'rxjs';
 
 @Component({
     selector: 'app-wishlist',
@@ -72,11 +71,8 @@ export class WishlistComponent implements OnInit {
     readonly products = signal<Product[]>([]);
 
     constructor() {
-        // React to wishlist ID changes to reload products
         effect(() => {
-            const count = this.wishlist.count(); // trigger
-            // Note: In a real app we might optimize this to not reload everything
-            // But for now, ensuring freshness is safer
+            this.wishlist.count();
             this.loadProducts();
         }, { allowSignalWrites: true });
     }
@@ -94,31 +90,8 @@ export class WishlistComponent implements OnInit {
         }
 
         this.loading.set(true);
-        // Fetch full product details for each ID
-        // Inefficient N+1, but suitable for client-side wishlist (usually small)
-        // Ideally backend has 'GetProductsByIds' endpoint
-        const requests = ids.map(id =>
-            this.catalog.getProduct(id).pipe(
-                // Handle deletion/error gracefully
-                map(p => p),
-                map(p => ({ ...p, error: false })),
-                // Catch error -> return null/filter
-                // For simplicity, letting it fail individually?
-                // catchError(() => of(null)) 
-            )
-        );
-
-        // Simple Promise.all with RxJS
-        // Note: Using a forkJoin would fail if one fails without catchError
-        // Let's use simple iteration to avoid failing all
-
         let loaded: Product[] = [];
         let completed = 0;
-
-        if (ids.length === 0) {
-            this.loading.set(false);
-            return;
-        }
 
         ids.forEach(id => {
             this.catalog.getProduct(id).subscribe({

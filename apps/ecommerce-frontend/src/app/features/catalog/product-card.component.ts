@@ -110,6 +110,13 @@ import { ToastModule } from 'primeng/toast';
         outline: 2px solid var(--primary-color, #007bff);
         outline-offset: 2px;
     }
+    .surface-card {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .surface-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    }
     .p-button-warning:hover {
         background-color: #f7ca00 !important;
         border-color: #f2c200 !important;

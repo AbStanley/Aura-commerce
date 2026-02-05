@@ -81,8 +81,7 @@ import { MessageService } from 'primeng/api';
       <div class="grid animate-fade-in">
         <!-- Product Gallery -->
         <div class="col-12 md:col-6 lg:col-6">
-          <div class="card shadow-1 border-round-xl overflow-hidden surface-card">
-          <div class="card shadow-1 border-round-xl overflow-hidden surface-card p-3">
+          <div class="surface-card shadow-1 border-round-xl overflow-hidden p-3">
              <!-- Main Image -->
              <div class="mb-3 relative w-full h-30rem border-round-xl overflow-hidden cursor-pointer" 
                   style="background-color: #f8f9fa;">
@@ -93,7 +92,6 @@ import { MessageService } from 'primeng/api';
                          style="transition: transform 0.3s ease;" 
                          (click)="showDialog = true"/>
                     
-                    <!-- Navigation Arrows (Optional, for polish) -->
                     <button pButton icon="pi pi-chevron-left" 
                             class="p-button-rounded p-button-text p-button-secondary absolute left-0 top-50 -mt-3 ml-2 surface-0 shadow-2 opacity-70 hover:opacity-100"
                             (click)="prevImage(); $event.stopPropagation()"
@@ -120,7 +118,6 @@ import { MessageService } from 'primeng/api';
                     </div>
                 }
              </div>
-          </div>
           </div>
         </div>
 
