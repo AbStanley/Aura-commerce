@@ -10,6 +10,7 @@ import { jwtDecode } from 'jwt-decode';
 
 type UserState = {
     token: string | null;
+    refreshToken: string | null;
     isAuthenticated: boolean;
     userEmail: string | null;
     userId: string | null;
@@ -17,6 +18,7 @@ type UserState = {
 
 const initialState: UserState = {
     token: null,
+    refreshToken: null,
     isAuthenticated: false,
     userEmail: null,
     userId: null
@@ -42,15 +44,17 @@ export const AuthStore = signalStore(
             patchState(store, { isLoading: true, error: null });
             try {
                 const response = await firstValueFrom(
-                    http.post<{ accessToken: string }>(`${baseUrl}/api/auth/login`, { email, password })
+                    http.post<{ accessToken: string; refreshToken: string }>(`${baseUrl}/api/auth/login`, { email, password })
                 );
 
                 const decoded = decodeToken(response.accessToken);
                 if (isPlatformBrowser(platformId)) {
                     localStorage.setItem('access_token', response.accessToken);
+                    localStorage.setItem('refresh_token', response.refreshToken);
                 }
                 patchState(store, {
                     token: response.accessToken,
+                    refreshToken: response.refreshToken,
                     isAuthenticated: true,
                     userEmail: decoded?.email ?? email,
                     userId: decoded?.sub ?? null,
@@ -80,9 +84,11 @@ export const AuthStore = signalStore(
         logout() {
             if (isPlatformBrowser(platformId)) {
                 localStorage.removeItem('access_token');
+                localStorage.removeItem('refresh_token');
             }
             patchState(store, {
                 token: null,
+                refreshToken: null,
                 isAuthenticated: false,
                 userEmail: null,
                 userId: null,
@@ -91,14 +97,32 @@ export const AuthStore = signalStore(
             router.navigate(['/login']);
         },
 
+        handleExternalLogin(accessToken: string, refreshToken: string) {
+            const decoded = decodeToken(accessToken);
+            if (isPlatformBrowser(platformId)) {
+                localStorage.setItem('access_token', accessToken);
+                localStorage.setItem('refresh_token', refreshToken);
+            }
+            patchState(store, {
+                token: accessToken,
+                refreshToken: refreshToken,
+                isAuthenticated: true,
+                userEmail: decoded?.email ?? null,
+                userId: decoded?.sub ?? null,
+                isLoading: false
+            });
+        },
+
         // Helper to init from storage
         initFromStorage() {
             if (isPlatformBrowser(platformId)) {
                 const token = localStorage.getItem('access_token');
+                const refreshToken = localStorage.getItem('refresh_token');
                 if (token) {
                     const decoded = decodeToken(token);
                     patchState(store, {
                         token,
+                        refreshToken: refreshToken ?? null,
                         isAuthenticated: true,
                         userEmail: decoded?.email ?? null,
                         userId: decoded?.sub ?? null

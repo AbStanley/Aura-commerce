@@ -77,6 +77,10 @@ services:
       - Jwt__Audience=${JWT_AUDIENCE:-ECommercePlatform}
       - Seq__ServerUrl=http://seq:5341
       - OpenTelemetry__Endpoint=http://jaeger:4317
+      - Authentication__Google__ClientId=${GOOGLE_CLIENT_ID}
+      - Authentication__Google__ClientSecret=${GOOGLE_CLIENT_SECRET}
+      - Authentication__GitHub__ClientId=${GITHUB_CLIENT_ID}
+      - Authentication__GitHub__ClientSecret=${GITHUB_CLIENT_SECRET}
     ports:
       - "5001:8080"
     depends_on:

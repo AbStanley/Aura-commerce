@@ -6,6 +6,7 @@ using UserService.API.Middleware;
 using UserService.Application.Extensions;
 using UserService.Infrastructure.Extensions;
 using Shared.Infrastructure.Extensions;
+using Microsoft.AspNetCore.HttpOverrides;
 
 using Shared.Infrastructure.Logging;
 using Scalar.AspNetCore;
@@ -29,6 +30,14 @@ try
     builder.Services.AddInfrastructureLayer(builder.Configuration);
     builder.Services.AddOpenTelemetryTracing(builder.Configuration, "UserService");
 
+
+    builder.Services.Configure<ForwardedHeadersOptions>(options =>
+    {
+        options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto | ForwardedHeaders.XForwardedHost;
+        options.KnownNetworks.Clear(); 
+        options.KnownProxies.Clear();
+    });
+
     builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         .AddJwtBearer(options =>
         {
@@ -43,6 +52,22 @@ try
                 IssuerSigningKey = new SymmetricSecurityKey(
                     Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Secret"]!))
             };
+        })
+        .AddCookie("ExternalCookie")
+        .AddGoogle(options =>
+        {
+            options.ClientId = builder.Configuration["Authentication:Google:ClientId"]!;
+            options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"]!;
+            options.SignInScheme = "ExternalCookie";
+            options.CallbackPath = "/api/auth/signin-google";
+        })
+        .AddGitHub(options =>
+        {
+            options.ClientId = builder.Configuration["Authentication:GitHub:ClientId"]!;
+            options.ClientSecret = builder.Configuration["Authentication:GitHub:ClientSecret"]!;
+            options.SignInScheme = "ExternalCookie";
+            options.CallbackPath = "/api/auth/signin-github";
+            options.Scope.Add("user:email");
         });
 
     builder.Services.AddAuthorization();
@@ -53,6 +78,8 @@ try
     builder.Services.AddScoped<UserService.API.Data.DataSeeder>();
 
     var app = builder.Build();
+
+    app.UseForwardedHeaders();
 
     // Auto-create database schema and seed data
     if (app.Environment.IsDevelopment())

@@ -118,7 +118,7 @@ docker-compose -f apps/ecommerce-platform/docker-compose.yml up -d --build
 
 ---
 
-## �️ Frontend Developer Guide
+## Frontend Developer Guide
 
 > **TL;DR**: Your `API_BASE_URL` is always `http://localhost:5000`. You never need to know the other ports exist.
 

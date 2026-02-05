@@ -148,11 +148,11 @@ export class LoginComponent {
 
   onGoogleLogin() {
     // Redirect to backend OAuth endpoint which will handle the redirect to callback
-    window.location.href = 'http://localhost:5000/api/auth/google';
+    window.location.href = 'http://localhost:5000/api/auth/external-login/Google';
   }
 
   onGithubLogin() {
     // Redirect to backend OAuth endpoint which will handle the redirect to callback
-    window.location.href = 'http://localhost:5000/api/auth/github';
+    window.location.href = 'http://localhost:5000/api/auth/external-login/GitHub';
   }
 }

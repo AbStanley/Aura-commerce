@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using Shared.Common.Constants;
 using UserService.Application.Features.Registration;
 using UserService.Application.Features.Authentication;
+using UserService.Application.Features.Authentication.LoginWithExternalProvider;
+using Microsoft.AspNetCore.Authentication;
 
 namespace UserService.API.Controllers;
 
@@ -47,20 +49,44 @@ public sealed class AuthController(ISender sender) : ControllerBase
         return result.IsSuccess ? Ok() : BadRequest(new { error = result.Error });
     }
 
-    // Mock Social Login Endpoints (Simulating OIDC Redirects)
-    [HttpGet("google")]
-    public IActionResult KeyGoogleLogin()
+    [HttpGet("/api/auth/external-login/{provider}")]
+    public IActionResult ExternalLogin(string provider)
     {
-        //TODO: Implement actual Google OAuth 2.0 flow
-        const string mockToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJnb29nbGUtdXNlciIsImVtYWlsIjoiZGVtb0Bnb29nbGUuY29tIiwibmFtZSI6Ikdvb2dsZSBVc2VyIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c";
-        return Redirect($"http://localhost:4200/auth/callback?token={mockToken}&provider=Google");
+        var properties = new Microsoft.AspNetCore.Authentication.AuthenticationProperties
+        {
+            RedirectUri = Url.Action(nameof(ExternalLoginCallback))
+        };
+        return Challenge(properties, provider);
     }
 
-    [HttpGet("github")]
-    public IActionResult GithubLogin()
+    [HttpGet("/api/auth/external-callback")]
+    public async Task<IActionResult> ExternalLoginCallback()
     {
-        //TODO: Implement actual GitHub OAuth 2.0 flow
-        const string mockToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJnaXRodWItdXNlciIsImVtYWlsIjoiZGVtb0BnaXRodWIuY29tIiwibmFtZSI6IkdpdEh1YiBVc2VyIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c";
-        return Redirect($"http://localhost:4200/auth/callback?token={mockToken}&provider=GitHub");
+        var result = await HttpContext.AuthenticateAsync("ExternalCookie");
+        if (!result.Succeeded)
+            return BadRequest(new { error = "External authentication failed" });
+
+        var claims = result.Principal.Claims;
+        var email = claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.Email)?.Value;
+        var name = claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.Name)?.Value;
+        var firstName = claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.GivenName)?.Value ?? name?.Split(' ').FirstOrDefault() ?? "User";
+        var lastName = claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.Surname)?.Value ?? name?.Split(' ').LastOrDefault() ?? "External";
+        var provider = result.Properties?.Items.ContainsKey(".AuthScheme") == true ? result.Properties.Items[".AuthScheme"] : "Unknown";
+        var providerKey = claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+
+        if (string.IsNullOrEmpty(email))
+            return BadRequest(new { error = "Email claim not found" });
+
+        var command = new LoginWithExternalProviderCommand(email, provider!, providerKey!, firstName, lastName);
+        var authResult = await _sender.Send(command);
+
+        if (authResult.IsSuccess)
+        {
+            // Redirect to Frontend with Token
+            // WARN: passing token in URL is not secure for production but matches the mock implementation.
+            return Redirect($"http://localhost:4200/auth/callback?token={authResult.Value.AccessToken}&refresh={authResult.Value.RefreshToken}&provider={provider}");
+        }
+
+        return BadRequest(new { error = authResult.Error });
     }
 }

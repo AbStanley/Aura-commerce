@@ -22,19 +22,21 @@ export class AuthCallbackComponent implements OnInit {
 
     ngOnInit() {
         // Capture token from query params (standard OAuth pattern)
-        // Adjust parameter name based on backend implementation (usually 'token' or 'access_token')
         const token = this.route.snapshot.queryParamMap.get('token') ||
             this.route.snapshot.queryParamMap.get('access_token');
+        const refresh = this.route.snapshot.queryParamMap.get('refresh') ||
+            this.route.snapshot.queryParamMap.get('refresh_token');
 
-        if (token) {
-            if (typeof window !== 'undefined') {
-                localStorage.setItem('access_token', token);
-            }
-            // Force store re-init to pick up new token
-            this.authStore.initFromStorage();
+        if (token && refresh) {
+            this.authStore.handleExternalLogin(token, refresh);
+            this.router.navigate(['/']);
+        } else if (token) {
+            // Fallback for cases where refresh token might be optional or missing (though backend sends it)
+            this.authStore.handleExternalLogin(token, '');
             this.router.navigate(['/']);
         } else {
-            this.router.navigate(['/login'], { queryParams: { error: 'No token received' } });
+            const error = this.route.snapshot.queryParamMap.get('error');
+            this.router.navigate(['/login'], { queryParams: { error: error || 'No token received' } });
         }
     }
 }

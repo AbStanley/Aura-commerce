@@ -23,8 +23,17 @@ public sealed class UserConfiguration : IEntityTypeConfiguration<User>
             .IsUnique();
 
         builder.Property(u => u.PasswordHash)
-            .IsRequired()
             .HasMaxLength(512);
+
+        builder.Property(u => u.Provider)
+            .HasMaxLength(50);
+            
+        builder.Property(u => u.ProviderKey)
+            .HasMaxLength(256);
+
+        builder.HasIndex(u => new { u.Provider, u.ProviderKey })
+            .IsUnique()
+            .HasFilter("\"Provider\" IS NOT NULL AND \"ProviderKey\" IS NOT NULL");
 
         builder.Property(u => u.FirstName)
             .IsRequired()
