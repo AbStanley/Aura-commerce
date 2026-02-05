@@ -1,9 +1,9 @@
-import { Component, inject, signal, effect, PLATFORM_ID } from '@angular/core';
+import { Component, inject, signal, effect, PLATFORM_ID, computed } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink, Router } from '@angular/router';
-import { CatalogService } from '../features/catalog/catalog.service';
+import { CatalogService, Category } from '../features/catalog/catalog.service';
 import { CartStore } from '../features/cart/cart.store';
 import { AuthStore } from '../features/auth/auth.store';
 import { WishlistStore } from '../features/catalog/wishlist.store';
@@ -15,6 +15,7 @@ import { AvatarModule } from 'primeng/avatar';
 import { ButtonModule } from 'primeng/button';
 import { TooltipModule } from 'primeng/tooltip';
 import { BadgeModule } from 'primeng/badge';
+import { Drawer } from 'primeng/drawer';
 
 @Component({
     selector: 'app-header',
@@ -27,14 +28,15 @@ import { BadgeModule } from 'primeng/badge';
         AvatarModule,
         ButtonModule,
         TooltipModule,
-        BadgeModule
+        BadgeModule,
+        Drawer
     ],
     template: `
     <!-- Main Header -->
     <div class="surface-900 text-white sticky top-0 z-50 shadow-2">
         <div class="container py-2 flex flex-column md:flex-row align-items-center gap-3">
              <!-- Brand -->
-             <div class="flex align-items-center gap-1 cursor-pointer" routerLink="/" (click)="searchQuery.set('')">
+             <div class="flex align-items-center gap-1 cursor-pointer" routerLink="/" (click)="clearFilters()">
                  <span class="font-bold text-2xl tracking-tight">eshuppin</span>
                  <span class="text-xs text-primary-400 align-self-end mb-1">.com</span>
              </div>
@@ -42,11 +44,13 @@ import { BadgeModule } from 'primeng/badge';
              <!-- Search Bar (Grouped) -->
              <div class="flex-grow-1 w-full md:w-auto relative">
                  <div class="flex border-round-sm overflow-hidden h-3rem shadow-1 focus-within:shadow-orange">
-                     <!-- Category Dropdown (Mock-Functional) -->
-                     <button class="bg-gray-100 border-none text-700 px-3 text-sm cursor-pointer hover:bg-gray-200 border-right-1 border-gray-300 md:block hidden">
-                         All
+                     <!-- Category Dropdown -->
+                     <button class="bg-gray-100 border-none text-700 px-3 text-sm cursor-pointer hover:bg-gray-200 border-right-1 border-gray-300 md:block hidden"
+                             (click)="categoryMenu.toggle($event)">
+                         {{ selectedCategoryName() }}
                          <i class="pi pi-caret-down text-xs ml-1"></i>
                      </button>
+                     <p-menu #categoryMenu [model]="categoryMenuItems()" [popup]="true" appendTo="body"></p-menu>
                      
                      <!-- Input -->
                      <input type="text" 
@@ -69,7 +73,7 @@ import { BadgeModule } from 'primeng/badge';
              <!-- Nav Links -->
              <div class="flex align-items-center gap-4 text-sm font-bold white-space-nowrap md:flex hidden">
                  
-                 <!-- Theme Toggle (A11y: Semantic Button) -->
+                 <!-- Theme Toggle -->
                  <button type="button" 
                          class="flex align-items-center cursor-pointer hover:text-orange-400 p-2 border-round hover:surface-700 transition-colors bg-transparent border-none text-white"
                          [attr.aria-label]="isDark() ? 'Switch to light mode' : 'Switch to dark mode'"
@@ -118,7 +122,8 @@ import { BadgeModule } from 'primeng/badge';
         
         <!-- Sub-nav -->
         <div class="surface-800 text-white text-sm py-2 px-3 flex gap-4 overflow-x-auto">
-            <button type="button" class="flex align-items-center gap-1 font-bold hover:text-white text-gray-100 bg-transparent border-none cursor-pointer text-sm">
+            <button type="button" class="flex align-items-center gap-1 font-bold hover:text-white text-gray-100 bg-transparent border-none cursor-pointer text-sm"
+                    (click)="sidebarVisible.set(true)">
                 <i class="pi pi-bars"></i> All
             </button>
             <a routerLink="/products" class="text-white no-underline hover:underline hover:text-orange-200">Today's Deals</a>
@@ -128,6 +133,27 @@ import { BadgeModule } from 'primeng/badge';
             <button type="button" class="text-white bg-transparent border-none cursor-pointer text-sm hover:underline hover:text-orange-200">Sell</button>
         </div>
     </div>
+
+    <!-- Category Sidebar -->
+    <p-drawer [(visible)]="sidebarVisible" [modal]="true" styleClass="w-20rem">
+        <ng-template pTemplate="header">
+            <span class="font-bold text-xl">Shop by Category</span>
+        </ng-template>
+        <div class="flex flex-column gap-2 mt-3">
+            <button class="text-left p-3 border-round hover:surface-200 cursor-pointer border-none bg-transparent text-900 font-semibold"
+                    [class.surface-200]="!catalog.state.selectedCategory()"
+                    (click)="selectCategory(null)">
+                <i class="pi pi-th-large mr-2"></i> All Categories
+            </button>
+            @for (cat of catalog.categories(); track cat.id) {
+                <button class="text-left p-3 border-round hover:surface-200 cursor-pointer border-none bg-transparent text-900"
+                        [class.surface-200]="catalog.state.selectedCategory() === cat.id"
+                        (click)="selectCategory(cat.id)">
+                    <i class="pi pi-tag mr-2"></i> {{ cat.name }}
+                </button>
+            }
+        </div>
+    </p-drawer>
   `,
     styles: [`
     :host { display: block; }
@@ -145,6 +171,7 @@ export class HeaderComponent {
 
     readonly isDark = signal(false);
     readonly searchQuery = signal('');
+    readonly sidebarVisible = signal(false);
     private readonly platformId = inject(PLATFORM_ID);
 
     readonly userMenuItems: MenuItem[] = [
@@ -154,8 +181,26 @@ export class HeaderComponent {
         { label: 'Logout', icon: 'pi pi-sign-out', command: () => this.authStore.logout() }
     ];
 
+    // Computed category name for dropdown button
+    readonly selectedCategoryName = computed(() => {
+        const catId = this.catalog.state.selectedCategory();
+        if (!catId) return 'All';
+        const cat = this.catalog.categories().find(c => c.id === catId);
+        return cat?.name ?? 'All';
+    });
+
+    // Dynamic category menu items
+    readonly categoryMenuItems = computed((): MenuItem[] => {
+        const items: MenuItem[] = [
+            { label: 'All', command: () => this.selectCategory(null) }
+        ];
+        for (const cat of this.catalog.categories()) {
+            items.push({ label: cat.name, command: () => this.selectCategory(cat.id) });
+        }
+        return items;
+    });
+
     constructor() {
-        // Initialize theme from localStorage
         if (isPlatformBrowser(this.platformId)) {
             const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
             const savedTheme = localStorage.getItem('theme');
@@ -163,7 +208,6 @@ export class HeaderComponent {
             this.applyTheme();
         }
 
-        // Reactive debounced search using effect
         let debounceTimer: ReturnType<typeof setTimeout> | null = null;
         effect(() => {
             const query = this.searchQuery();
@@ -174,8 +218,18 @@ export class HeaderComponent {
         });
     }
 
+    selectCategory(categoryId: string | null) {
+        this.catalog.state.setCategory(categoryId);
+        this.sidebarVisible.set(false);
+        this.router.navigate(['/products']);
+    }
+
+    clearFilters() {
+        this.searchQuery.set('');
+        this.catalog.state.setCategory(null);
+    }
+
     onSearchEnter() {
-        // Immediate search on Enter key
         this.catalog.state.setSearch(this.searchQuery());
         this.router.navigate(['/products']);
     }
