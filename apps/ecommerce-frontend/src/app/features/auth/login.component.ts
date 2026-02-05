@@ -3,6 +3,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthStore } from './auth.store';
 import { CommonModule } from '@angular/common';
+import { API_BASE_URL } from '../../core/api/api.configuration';
 
 // PrimeNG Components
 import { CardModule } from 'primeng/card';
@@ -119,6 +120,7 @@ export class LoginComponent {
   private readonly authStore = inject(AuthStore);
   private readonly router = inject(Router);
   private readonly fb = inject(FormBuilder);
+  private readonly apiUrl = inject(API_BASE_URL);
 
   readonly isLoading = signal(false);
   readonly error = signal<string | null>(null);
@@ -147,12 +149,10 @@ export class LoginComponent {
   }
 
   onGoogleLogin() {
-    // Redirect to backend OAuth endpoint which will handle the redirect to callback
-    window.location.href = 'http://localhost:5000/api/auth/external-login/Google';
+    window.location.href = `${this.apiUrl}/api/auth/external-login/Google`;
   }
 
   onGithubLogin() {
-    // Redirect to backend OAuth endpoint which will handle the redirect to callback
-    window.location.href = 'http://localhost:5000/api/auth/external-login/GitHub';
+    window.location.href = `${this.apiUrl}/api/auth/external-login/GitHub`;
   }
 }

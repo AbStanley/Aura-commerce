@@ -1,4 +1,5 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, effect, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink, Router } from '@angular/router';
@@ -49,11 +50,12 @@ import { BadgeModule } from 'primeng/badge';
                      
                      <!-- Input -->
                      <input type="text" 
-                           [(ngModel)]="searchQuery"
-                           (input)="onSearch()"
+                           [ngModel]="searchQuery()"
+                           (ngModelChange)="searchQuery.set($event)"
                            (keyup.enter)="onSearchEnter()"
                            placeholder="Search Esborrat"
                            class="flex-grow-1 border-none px-3 text-900 outline-none"
+                           aria-label="Search"
                            style="font-size: 1rem;" />
 
                      <!-- Search Button -->
@@ -67,10 +69,13 @@ import { BadgeModule } from 'primeng/badge';
              <!-- Nav Links -->
              <div class="flex align-items-center gap-4 text-sm font-bold white-space-nowrap md:flex hidden">
                  
-                 <!-- Language / Theme (Simplified) -->
-                 <div class="flex align-items-center cursor-pointer hover:text-orange-400 p-2 border-round hover:surface-700 transition-colors" (click)="toggleTheme()">
+                 <!-- Theme Toggle (A11y: Semantic Button) -->
+                 <button type="button" 
+                         class="flex align-items-center cursor-pointer hover:text-orange-400 p-2 border-round hover:surface-700 transition-colors bg-transparent border-none text-white"
+                         [attr.aria-label]="isDark() ? 'Switch to light mode' : 'Switch to dark mode'"
+                         (click)="toggleTheme()">
                      <i [class]="isDark() ? 'pi pi-sun' : 'pi pi-moon'" class="text-xl"></i>
-                 </div>
+                 </button>
 
                  <!-- Account -->
                  <div class="flex flex-column cursor-pointer hover:text-orange-400 border-1 border-transparent hover:border-gray-500 p-1 border-round transition-colors"
@@ -141,8 +146,8 @@ export class HeaderComponent {
     private readonly router = inject(Router);
 
     readonly isDark = signal(false);
-    searchQuery = '';
-    private searchTimeout: any;
+    readonly searchQuery = signal('');
+    private readonly platformId = inject(PLATFORM_ID);
 
     readonly userMenuItems: MenuItem[] = [
         { label: 'Profile', icon: 'pi pi-user', routerLink: '/profile' },
@@ -152,25 +157,28 @@ export class HeaderComponent {
     ];
 
     constructor() {
-        if (typeof window !== 'undefined') {
+        // Initialize theme from localStorage
+        if (isPlatformBrowser(this.platformId)) {
             const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
             const savedTheme = localStorage.getItem('theme');
             this.isDark.set(savedTheme === 'dark' || (!savedTheme && prefersDark));
             this.applyTheme();
         }
-    }
 
-    onSearch() {
-        if (this.searchTimeout) clearTimeout(this.searchTimeout);
-        this.searchTimeout = setTimeout(() => {
-            this.catalog.state.setSearch(this.searchQuery);
-        }, 300);
+        // Reactive debounced search using effect
+        let debounceTimer: ReturnType<typeof setTimeout> | null = null;
+        effect(() => {
+            const query = this.searchQuery();
+            if (debounceTimer) clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => {
+                this.catalog.state.setSearch(query);
+            }, 350);
+        });
     }
 
     onSearchEnter() {
-        if (this.searchTimeout) clearTimeout(this.searchTimeout);
-        this.catalog.state.setSearch(this.searchQuery);
-        // Be explicit about navigation
+        // Immediate search on Enter key
+        this.catalog.state.setSearch(this.searchQuery());
         this.router.navigate(['/products']);
     }
 

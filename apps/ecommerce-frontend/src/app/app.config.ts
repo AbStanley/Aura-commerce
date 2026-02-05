@@ -1,4 +1,4 @@
-import { ApplicationConfig, provideBrowserGlobalErrorListeners, provideZonelessChangeDetection } from '@angular/core';
+import { ApplicationConfig, provideBrowserGlobalErrorListeners, provideZonelessChangeDetection, ErrorHandler } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
@@ -9,6 +9,8 @@ import Aura from '@primeuix/themes/aura';
 import { routes } from './app.routes';
 import { provideApiConfiguration } from './core/api/api.configuration';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
+import { GlobalErrorHandler } from './core/handlers/global-error.handler';
+import { MessageService } from 'primeng/api';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -27,6 +29,9 @@ export const appConfig: ApplicationConfig = {
         }
       },
       ripple: true
-    })
+    }),
+    // Global error handling
+    { provide: ErrorHandler, useClass: GlobalErrorHandler },
+    MessageService
   ]
 };

@@ -106,6 +106,10 @@ import { ToastModule } from 'primeng/toast';
   `,
   styles: [`
     :host { display: block; height: 100%; }
+    :host:focus-visible .surface-card {
+        outline: 2px solid var(--primary-color, #007bff);
+        outline-offset: 2px;
+    }
     .p-button-warning:hover {
         background-color: #f7ca00 !important;
         border-color: #f2c200 !important;

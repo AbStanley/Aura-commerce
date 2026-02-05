@@ -10,6 +10,7 @@ import { ButtonModule } from 'primeng/button';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { DividerModule } from 'primeng/divider';
 import { SkeletonModule } from 'primeng/skeleton';
+import { TooltipModule } from 'primeng/tooltip';
 
 @Component({
   selector: 'app-cart',
@@ -22,7 +23,8 @@ import { SkeletonModule } from 'primeng/skeleton';
     ButtonModule,
     InputNumberModule,
     DividerModule,
-    SkeletonModule
+    SkeletonModule,
+    TooltipModule
   ],
   template: `
     <div class="grid">

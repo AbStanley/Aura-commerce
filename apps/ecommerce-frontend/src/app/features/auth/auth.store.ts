@@ -125,10 +125,7 @@ export const AuthStore = signalStore(
                     const decoded = decodeToken(token);
                     const isExpired = decoded?.exp ? (decoded.exp * 1000 < Date.now()) : true;
 
-                    console.log('Auth Debug:', { token: token.substring(0, 10) + '...', decoded, isExpired, exp: decoded?.exp, now: Date.now() });
-
                     if (decoded && !isExpired) {
-                        console.log('Auth Debug: Valid token');
                         patchState(store, {
                             token,
                             refreshToken: refreshToken ?? null,
@@ -137,7 +134,6 @@ export const AuthStore = signalStore(
                             userId: decoded?.sub ?? null
                         });
                     } else {
-                        console.log('Auth Debug: Invalid token - Logging out');
                         localStorage.removeItem('access_token');
                         localStorage.removeItem('refresh_token');
                         patchState(store, {

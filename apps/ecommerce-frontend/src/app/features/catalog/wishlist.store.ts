@@ -3,7 +3,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { API_BASE_URL } from '../../core/api/api.configuration';
 import { AuthStore } from '../auth/auth.store';
-import { tap, firstValueFrom } from 'rxjs';
+import { firstValueFrom } from 'rxjs';
 
 export type WishlistItem = {
     productId: string;
@@ -53,8 +53,8 @@ export class WishlistStore {
         try {
             const ids = await firstValueFrom(this.http.get<string[]>(`${this.baseUrl}/api/wishlist`));
             this.wishlistIdsSignal.set(new Set(ids));
-        } catch (err) {
-            console.error('Failed to load wishlist', err);
+        } catch {
+            // Silently fail - wishlist is non-critical
         }
     }
 
@@ -77,9 +77,8 @@ export class WishlistStore {
             }
             this.wishlistIdsSignal.set(newIds);
             return !exists;
-        } catch (err) {
-            console.error('Failed to toggle wishlist item', err);
-            return exists; // Revert visually
+        } catch {
+            return exists; // Revert visually on error
         }
     }
 
