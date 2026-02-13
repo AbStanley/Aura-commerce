@@ -1,6 +1,6 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AuthStore } from './auth.store';
+import { AuthStore } from '../auth.store';
 import { CommonModule } from '@angular/common';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 
@@ -8,12 +8,8 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
     selector: 'app-auth-callback',
     standalone: true,
     imports: [CommonModule, ProgressSpinnerModule],
-    template: `
-    <div class="flex flex-column align-items-center justify-content-center min-h-screen">
-      <p-progressSpinner></p-progressSpinner>
-      <p class="mt-4 text-600">Completing login...</p>
-    </div>
-  `
+    templateUrl: './auth-callback.component.html',
+    styleUrl: './auth-callback.component.scss'
 })
 export class AuthCallbackComponent implements OnInit {
     private readonly route = inject(ActivatedRoute);

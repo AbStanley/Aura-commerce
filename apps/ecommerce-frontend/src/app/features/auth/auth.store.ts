@@ -35,8 +35,7 @@ function decodeToken(token: string): { email?: string; sub?: string; exp?: numbe
 export const AuthStore = signalStore(
     { providedIn: 'root' },
     withState({ ...initialState, isLoading: false, error: null as string | null }),
-    withComputed((store) => ({
-    })),
+
     withMethods((store, http = inject(HttpClient), baseUrl = inject(API_BASE_URL), platformId = inject(PLATFORM_ID), router = inject(Router)) => ({
 
         async login(email: string, password: string): Promise<boolean> {

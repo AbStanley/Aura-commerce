@@ -1,0 +1,32 @@
+:host {
+  display: block;
+}
+
+.no-underline {
+  text-decoration: none;
+}
+
+.hover\:underline:hover {
+  text-decoration: underline;
+}
+
+/* Fix for p-input-icon-left positioning */
+.p-input-icon-left {
+  position: relative;
+  display: block;
+  /* Ensure it takes full width if needed */
+
+  >i {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    left: 0.75rem;
+    z-index: 1;
+    color: var(--text-color-secondary);
+  }
+
+  >input {
+    padding-left: 2.5rem;
+    /* Ensure text doesn't overlap icon */
+  }
+}

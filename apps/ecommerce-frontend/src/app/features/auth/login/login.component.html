@@ -1,0 +1,74 @@
+<div class="flex align-items-center justify-content-center py-8">
+    <div class="surface-card border-round-xl shadow-4 p-5 w-full animate-slide-up" style="max-width: 420px;">
+        <!-- Header -->
+        <div class="text-center mb-5">
+            <div class="flex justify-content-center mb-3">
+                <div class="flex align-items-center justify-content-center border-round-xl"
+                    style="width: 64px; height: 64px; background: linear-gradient(135deg, var(--p-primary-color), var(--p-primary-400));">
+                    <i class="pi pi-user text-white text-4xl"></i>
+                </div>
+            </div>
+            <h2 class="text-2xl font-bold text-900 m-0 mb-2">Welcome Back</h2>
+            <p class="text-500 m-0">Sign in to continue shopping</p>
+        </div>
+
+        <!-- Social Login Buttons -->
+        <div class="flex gap-2 mb-4">
+            <button type="button"
+                class="p-button p-button-outlined p-button-secondary flex-1 justify-content-center social-btn google"
+                (click)="onGoogleLogin()">
+                <i class="pi pi-google mr-2"></i>
+                <span>Google</span>
+            </button>
+            <button type="button"
+                class="p-button p-button-outlined p-button-secondary flex-1 justify-content-center social-btn github"
+                (click)="onGithubLogin()">
+                <i class="pi pi-github mr-2"></i>
+                <span>GitHub</span>
+            </button>
+        </div>
+
+        <p-divider align="center">
+            <span class="text-500 text-sm font-medium px-2">or continue with email</span>
+        </p-divider>
+
+        <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="flex flex-column gap-4 mt-4">
+            <!-- Email -->
+            <div class="flex flex-column gap-2">
+                <label for="email" class="font-medium text-900">Email</label>
+                <span class="p-input-icon-left w-full">
+                    <i class="pi pi-envelope"></i>
+                    <input id="email" type="email" pInputText formControlName="email" placeholder="you@example.com"
+                        class="w-full" />
+                </span>
+            </div>
+
+            <!-- Password -->
+            <div class="flex flex-column gap-2">
+                <div class="flex justify-content-between align-items-center">
+                    <label for="password" class="font-medium text-900">Password</label>
+                    <a href="#" class="text-primary text-sm no-underline hover:underline">Forgot password?</a>
+                </div>
+                <p-password id="password" formControlName="password" placeholder="Enter password" [feedback]="false"
+                    [toggleMask]="true" styleClass="w-full" inputStyleClass="w-full"></p-password>
+            </div>
+
+            <!-- Error -->
+            @if (error()) {
+            <p-message severity="error" [text]="error()!" styleClass="w-full"></p-message>
+            }
+
+            <!-- Submit -->
+            <p-button type="submit" label="Sign In" icon="pi pi-sign-in" [loading]="isLoading()"
+                [disabled]="loginForm.invalid || isLoading()" styleClass="w-full"></p-button>
+        </form>
+
+        <!-- Footer -->
+        <div class="text-center mt-5">
+            <span class="text-500">Don't have an account? </span>
+            <a routerLink="/register" class="text-primary font-medium no-underline hover:underline">
+                Sign up
+            </a>
+        </div>
+    </div>
+</div>
